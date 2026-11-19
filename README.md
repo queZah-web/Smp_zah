@@ -95,11 +95,3 @@ game version: `python3 tools/build_chatguard.py 1.26.60`). The SMP pack itself s
 admins (operators or tag `chat_admin`), log. Admins / tag `chat_bypass` are not filtered.
 Commands (admins): `/cs:log`, `/cs:unmute <name>`, `/cs:mute <name> <minutes>`. Needs Beta APIs.
 Build: `PACK=chatshield python3 tools/build_chatguard.py <game version>`.
-
-## Menus (v23)
-- `smp/bar.js` polishes every page of /menu, /shop and /opr just before it is shown: the same button bar everywhere
-  `[Back][◀][Page][▶][Refresh][Search][Balance][..][..]` with the pack's own arrow / refresh / magnifier icons, icons that
-  fit the button (clock for time, gift for claim, quill for edit price ...), and mostly empty 9-row pages become 5 / 6 / 7 rows.
-- /menu: 4 groups with coloured title tiles (YOU, TRAVEL, ECONOMY, PLAYER) + Arenas. /shop: Search at the top, Hearts and
-  Land Protection side by side, 6 rows. /opr: 5 rows, Owner + Building in the category row.
-- Back to the old menus: `git checkout before-menu-redesign -- BP/scripts/smp/bar.js BP/scripts/smp/menu.js BP/scripts/main.js BP/scripts/systems/opmenu.js`

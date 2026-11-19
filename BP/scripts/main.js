@@ -56,7 +56,7 @@ const NAV = {
   bal: "textures/items/gold_ingot", hist: "textures/items/book_writable", book: "textures/items/book_enchanted", xp: "textures/items/experience_bottle",
   shard: "textures/ui/shop/hud_shards", spawner: "textures/ui/shop/ic_spawner",
 };
-const MENU_COLS = [1, 2, 3, 4, 5, 6, 7], MENU_ROWS = [2, 3, 4], MENU_SHORT = 6;     // main menu = 7-row chest: row 0 quick buttons, row 1 glass, rows 2-4 categories (7 x 3, framed by glass), row 5 Land Protection, row 6 = button bar
+const MENU_COLS = [1, 2, 3, 4, 5, 6, 7], MENU_ROWS = [2, 3, 4], MENU_SHORT = 7;     // main menu = 7-row chest: row 0 quick buttons, row 1 glass, rows 2-4 categories (7 x 3, framed by glass), row 5 Land Protection, row 6 = button bar
 const GLASS_ICON = "textures/blocks/glass_black", GLASS_ENTRY = { glass: true };      // Black Stained Glass Pane (same icon as /shop > Colored Blocks)
 function fillGlass(f) {                                                                  // a page with f.glass = true: every still-empty slot becomes a glass pane (no tooltip, click does nothing)
   if (!f.glass) return;
@@ -168,21 +168,21 @@ function mainMenu(player) {
   }
   // Hearts: the featured entry, centered in the glass row between the quick buttons and the categories (red slot)
   { const hp = nextPrice(player), hb = buyBlock(player);
-    set(f, 1 * COLS + 3, hdr(1, "r") + "§c§lHearts\n§r§7Buy permanent extra hearts\n§r§7" + (hb ? "§c" + hb : "Next heart: §a" + money(hp)) + "\n§r§eClick to open", "textures/ui/shop/ic_heart", { run: () => heartsPage(player, () => mainMenu(player)) }); }
-  // Land Protection: next to the Hearts (featured row)
-  set(f, 1 * COLS + 5, hdr(1, "g") + "§a§lLand Protection\n§r§7Protect your base from griefers\n§r§7Paid by the hour, max 24h\n§r§eClick to open", "textures/ui/shop/ic_shield", { run: () => landPage(player, () => mainMenu(player)) });
+    set(f, 1 * COLS + 4, hdr(1, "r") + "§c§lHearts\n§r§7Buy permanent extra hearts\n§r§7" + (hb ? "§c" + hb : "Next heart: §a" + money(hp)) + "\n§r§eClick to open", "textures/ui/shop/ic_heart", { run: () => heartsPage(player, () => mainMenu(player)) }); }
+  // Land Protection: alone in the middle of row 5, right under the categories
+  set(f, 5 * COLS + 4, hdr(1) + "§a§lLand Protection\n§r§7Protect your base from griefers\n§r§7Paid by the hour, max 24h\n§r§eClick to open", "textures/ui/shop/ic_shield", { run: () => landPage(player, () => mainMenu(player)) });
   // first row: Favorites + Recent (yours), Most purchased + Best sellers (everybody)
   const back = () => mainMenu(player);
-  set(f, 0 * COLS + 4, hdr(1) + "§b§lSearch\n§r§7Find any item by its name\n§r§7(tap the first letters)\n§r§eClick to search", "textures/ui/shop/key_search", { run: () => searchPage(player, "", 0, () => mainMenu(player)) });
   set(f, 0 * COLS + 1, hdr(1) + "§e§lFavorites\n§r§7Your starred items\n§r§7" + favList(player).length + " saved\n§r§eClick to open", "textures/ui/shop/ic_fav", { run: () => itemsPage(player, "fav", 0, back) });
-  set(f, 0 * COLS + 2, hdr(1) + "§b§lRecent\n§r§7Items you looked at lately\n§r§eClick to open", "textures/ui/shop/ic_recent", { run: () => itemsPage(player, "recent", 0, back) });
-  set(f, 0 * COLS + 6, hdr(1, "r") + "§c§lMost purchased\n§r§7What everyone buys the most\n§r§eClick to open", "textures/ui/shop/ic_fire", { run: () => itemsPage(player, "bought", 0, back) });
+  set(f, 0 * COLS + 3, hdr(1) + "§b§lRecent\n§r§7Items you looked at lately\n§r§eClick to open", "textures/ui/shop/ic_recent", { run: () => itemsPage(player, "recent", 0, back) });
+  set(f, 0 * COLS + 5, hdr(1, "r") + "§c§lMost purchased\n§r§7What everyone buys the most\n§r§eClick to open", "textures/ui/shop/ic_fire", { run: () => itemsPage(player, "bought", 0, back) });
   set(f, 0 * COLS + 7, hdr(1, "g") + "§6§lBest sellers\n§r§7What everyone sells the most\n§r§eClick to open", "textures/ui/shop/ic_bag", { run: () => itemsPage(player, "sold", 0, back) });
   status(player, f);
   set(f, BAR + 3, smpButtonText(player), smpButtonIcon, { run: () => dashboard(player) });
   f.arDone = new Set([BAR + 3]);                                        // this text is already Arabic (shaped by smp/i18n.js): the shop must not translate it a 2nd time
   set(f, BAR + 5, hdr(1) + "§bTrade Levels\n§r§7Buyer & Seller progress", NAV.xp, { run: () => levelsPage(player) });
   set(f, BAR + 7, hdr(1) + "§eTransactions\n§r§7What you bought and sold", NAV.hist, { run: () => historyPage(player) });
+  set(f, BAR + 0, hdr(1) + "§b§lSearch\n§r§7Tap letters - the list narrows\n§r§7to names that start with them", "textures/ui/shop/key_search", { run: () => searchPage(player, "", 0, () => mainMenu(player)) });
   sellButton(player, f);
   open(player, f);
 }

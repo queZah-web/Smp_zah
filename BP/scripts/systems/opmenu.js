@@ -437,7 +437,7 @@ export function opPage(player, back) {
   if (!guard(player)) return;
   const self = () => opPage(player, back);
   const m = opButtons(player, back, self);
-  const role = roleOf(player), f = make(SYM + " Operator §8| " + ROLE_COLOR[role] + ROLE_NAME[role], 5); f.self = self;
+  const role = roleOf(player), f = make(SYM + " Operator §8| " + ROLE_COLOR[role] + ROLE_NAME[role], 6); f.self = self;
   f.glass = true;                                                      // every empty slot = Black Stained Glass Pane (same as /shop and /menu)
   const nRep = listReports().length, nNew = unseenCount(player), nMod = nRep + nNew;
   // layout (6 rows): row 0 = info card | row 1 = 5 categories (Players, Moderation, Teleport, Inventory, Logs) | row 2 = 3 categories (Events, World, Server & staff) | row 3 = empty | row 4 = quick tools (Spectator, Owner, Ore vision + Vanish) | row 5 = button bar | everything else = glass
@@ -446,16 +446,16 @@ export function opPage(player, back) {
   if (m.buttons[SLOT.players]) { f.buttons[1 * COLS + 2] = m.buttons[SLOT.players]; f.entries[1 * COLS + 2] = m.entries[SLOT.players]; }
   set(f, 1 * COLS + 3, hdr(Math.min(99, Math.max(1, nMod)), nMod ? "r" : "c") + "§c§lModeration\n§r§7Reports, punishments, bans, alerts,\n§r§7logs and the staff actions\n§r§7" + (nMod ? "§e" + nRep + " report" + (nRep === 1 ? "" : "s") + " §7| §e" + nNew + " new alert" + (nNew === 1 ? "" : "s") : "Nothing waiting"), "textures/ui/shop/ic_gavel", { run: () => moderationPage(player, self) });
   set(f, 1 * COLS + 4, hdr(1) + "§d§lTeleport\n§r§7Go to a player, bring a player,\n§r§7bring all players", "textures/items/ender_pearl", { run: () => teleportPage(player, self) });
-  set(f, 2 * COLS + 3, hdr(1) + "§b§lWorld\n§r§7Area locks, clear lag,\n§r§7performance and all lands", ICON.map, { run: () => worldPage(player, self) });
-  { const n = eventsRunning(); perm(f, 2 * COLS + 2, player, "events", "§6§lEvents\n§r§7Events and temporary zones:\n§r§7rules, area, time, players\n§r§7Running now: §f" + n + "\n§r§eClick to open", "textures/ui/shop/x_firework_star", () => eventsHubPage(player, self), n ? "g" : "c", n); }
+  set(f, 2 * COLS + 4, hdr(1) + "§b§lWorld\n§r§7Area locks, clear lag,\n§r§7performance and all lands", ICON.map, { run: () => worldPage(player, self) });
+  { const n = eventsRunning(); perm(f, 2 * COLS + 3, player, "events", "§6§lEvents\n§r§7Events and temporary zones:\n§r§7rules, area, time, players\n§r§7Running now: §f" + n + "\n§r§eClick to open", "textures/ui/shop/x_firework_star", () => eventsHubPage(player, self), n ? "g" : "c", n); }
   perm(f, 1 * COLS + 5, player, "inventory", "§d§lInventory\n§r§7See what the players carry\n§r§7and take items from them\n§r§eClick to open", "textures/ui/shop/i3d_barrel", () => inventoryHubPage(player, self));
   set(f, 2 * COLS + 5, hdr(1) + "§6§lServer & staff\n§r§7Protection bypass, X-ray, spawn,\n§r§7shop control, leaderboards, staff roles", "textures/ui/shop/ic_gear", { run: () => serverPage(player, self) });
   set(f, 1 * COLS + 6, hdr(1) + "§d§lLogs\n§r§7All the logs of the server:\n§r§7shop & money, staff actions, duels,\n§r§7Heart Logs, alerts\n§r§eClick to open", ICON.book, { run: () => logsHubPage(player, self) });
   if (isOwner(player)) set(f, 2 * COLS + 6, hdr(1, "g") + "§a§lBuilding\n§r§7Ready places built for you:\n§r§7a green Spawn (only the Owner\n§r§7can change it)\n§r§eClick to open", "textures/blocks/grass_side_carried", { run: () => buildingPage(player, self) });
-  if (isOwner(player)) set(f, 2 * COLS + 4, hdr(1, "g") + "§5§lOwner\n§r§7Only you: decide what Helper, Mod\n§r§7and Admin may do, hand over the Owner", "textures/items/nether_star", { run: () => ownerPage(player, self) });
-  perm(f, 3 * COLS + 3, player, "spectate", "§b§lSpectator\n§r§7Now: §f" + modeLabel(player) + "\n§r§7Here or on a player\n§r§eClick to open", "textures/items/spyglass", () => spectatorPage(player, self), isSpectator(player) ? "g" : "c");
+  if (isOwner(player)) set(f, 4 * COLS + 4, hdr(1, "g") + "§5§lOwner\n§r§7Only you: decide what Helper, Mod\n§r§7and Admin may do, hand over the Owner", ICON.crown, { run: () => ownerPage(player, self) });
+  perm(f, 4 * COLS + 3, player, "spectate", "§b§lSpectator\n§r§7Now: §f" + modeLabel(player) + "\n§r§7Here or on a player\n§r§eClick to open", "textures/items/spyglass", () => spectatorPage(player, self), isSpectator(player) ? "g" : "c");
   { const v = isVanished(player), vm = visionMode(player), need = can(player, "vanish") ? "vanish" : "orevision";
-    perm(f, 3 * COLS + 5, player, need, "§3§lOre vision + Vanish\n§r§7Vanish: " + (v ? "§aON" : "§cOFF") + "\n§r§7Ore vision: " + (vm ? "§a" + (vm === "rare" ? "RARE ORES" : "ALL ORES") : "§cOFF") + "\n§r§eClick to open", "textures/ui/shop/i3d_diamond_ore", () => sightPage(player, self), v || vm ? "g" : "c"); }
+    perm(f, 4 * COLS + 5, player, need, "§3§lOre vision + Vanish\n§r§7Vanish: " + (v ? "§aON" : "§cOFF") + "\n§r§7Ore vision: " + (vm ? "§a" + (vm === "rare" ? "RARE ORES" : "ALL ORES") : "§cOFF") + "\n§r§eClick to open", "textures/ui/shop/i3d_diamond_ore", () => sightPage(player, self), v || vm ? "g" : "c"); }
   backBtn(f, back); status(player, f);
   open(player, f);
 }

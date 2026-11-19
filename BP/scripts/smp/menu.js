@@ -32,7 +32,6 @@ import { crownPage } from "../systems/crownmenu.js";
 import { afkCommand } from "../systems/afk.js";
 import { warpPage, warpCount, WARP_ICON } from "../systems/warp.js";
 import { sellSlotOn, toggleSellSlot } from "../systems/sellslot.js";
-import { arenaMenu } from "../systems/arena.js";
 
 let openShop = null;
 export const setShopOpener = (fn) => { openShop = fn; };
@@ -58,72 +57,76 @@ const TIP = (name, lines, click, cmd, zone = "c") => hdr(1, zone) + "§a" + name
 
 export function dashboard(player) {
   const s = stats(player), di = dailyInfo(player), n = unread(player);
-  const f = make(t(player, "menu.title"), 5); f.self = () => dashboard(player);
+  const f = make(t(player, "menu.title"), 6); f.self = () => dashboard(player);
   f.glass = true;                                                  // every empty slot = Black Stained Glass Pane (same icon as /shop > Colored Blocks), no tooltip, click does nothing
   f.noRefresh = true;                                              // the menu rebuilds every time it is opened
   const S = (r, c) => r * COLS + c;
   const toMenu = () => dashboard(player);
 
-  // LAYOUT (5 rows).  Every row = one group with a coloured title tile on the left; the buttons are centred next to it.
-  //   row 0  YOU       Profile . Daily . Notifications . Achievements . Statistics . Skills
-  //   row 1  TRAVEL    Spawn . Homes . Warps . Random TP . TP Requests . AFK Area . Arenas
-  //   row 2  ECONOMY   SHOP . Pay . Auction House . Orders . Red Sell Slot . Leaderboards
-  //   row 3  PLAYER    Clans . Land Protection . Mining Tools . Night Vision . Cosmetics . Crowns
-  //   row 4  footer    Tip . Language . Settings . Balance
-  const ar = getLang(player) === "ar";
-  const POS8 = { 1: [4], 2: [3, 5], 3: [3, 4, 5], 4: [2, 3, 5, 6], 5: [2, 3, 4, 5, 6], 6: [2, 3, 4, 5, 6, 7], 7: [1, 2, 3, 4, 5, 6, 7], 8: [1, 2, 3, 4, 5, 6, 7, 8] };
-  const label = (row, icon, en, arT, info, infoAr) => set(f, S(row, 0), hdr(1) + en + "\n§r§7" + (ar ? infoAr : info), icon, null);
-  const place = (row, list) => { const l = list.filter(Boolean).slice(0, 8); const pos = POS8[l.length] || []; l.forEach((fn, i) => fn(S(row, pos[i]))); };
+  // LAYOUT (6 rows x 9 columns).  Every row is filled by place(): the buttons that exist are centred in the row,
+  // so when a button is missing (no shop, no warps ...) the rest moves together and the menu keeps a clean, symmetric shape.
+  //   row 0  GO / MONEY  Spawn . Homes . Random TP . TP Requests . SHOP . Pay . Auction . Orders . Ranks
+  //   row 1  WARPS       Warps
+  //   row 2  YOU         Profile . Skills . Statistics . Achievements . Daily . Notifications     (Skills + Abilities are ONE button now)
+  //   row 3  TOOLS       Clans . Mining . Land . Night Vision . AFK . Cosmetics . Crowns
+  //   row 4  Language . Red Sell Slot (ON / OFF)
+  //   row 5  FOOTER      Tip . Settings . Balance
+  const POS = { 1: [4], 2: [3, 5], 3: [2, 4, 6], 4: [1, 3, 5, 7], 5: [0, 2, 4, 6, 8], 6: [1, 2, 3, 5, 6, 7], 7: [1, 2, 3, 4, 5, 6, 7], 8: [0, 1, 2, 3, 5, 6, 7, 8], 9: [0, 1, 2, 3, 4, 5, 6, 7, 8] };
+  const place = (row, list) => { const l = list.filter(Boolean).slice(0, 9); const pos = POS[l.length] || []; l.forEach((fn, i) => fn(S(row, pos[i]))); };
   const T = (key, cmd, zone = "c", extra = [], click = "click.open") => TIP(t(player, key + ".name"), [].concat(t(player, key + ".lines"), extra), t(player, click), cmd, zone);
 
-  label(0, "textures/blocks/concrete_yellow", ar ? "§e§lأنت" : "§e§lYOU", "", "Your profile, rewards and progress", "ملفك ومكافآتك وتقدمك");
   place(0, [
-    (sl) => set(f, sl, hdr(1) + t(player, "profile.text", player.name, money(s.money), num(s.shards), playtime(playSeconds(player)), progress(s.bxp).level, progress(s.sxp).level, achievementCount(player), ACHIEVEMENTS.length, apOf(player), di.streak, tr(player, di.streak === 1 ? "day" : "days")), NAV.player, null),
-    (sl) => set(f, sl, TIP(t(player, "daily.name"), [di.available ? t(player, "daily.available") : t(player, "daily.next", countdown(msToReset())), t(player, "daily.streak", di.streak)], di.available ? t(player, "click.claim") : t(player, "click.open"), null, di.available ? "g" : "c"), "textures/ui/shop/ic_gift", { run: () => dailyPage(player) }),
-    (sl) => set(f, sl, TIP(t(player, "notif.name"), [n > 0 ? t(player, "notif.new", n) : t(player, "notif.none")], t(player, "click.open"), null, n > 0 ? "g" : "c").replace(/^[cg]\d\d/, hdr(n, n > 0 ? "g" : "c")), "textures/ui/shop/ic_mail", { run: () => notificationsPage(player) }),
-    (sl) => set(f, sl, TIP(t(player, "ach.name"), [t(player, "ach.unlocked", achievementCount(player), ACHIEVEMENTS.length)].concat(readyCount(player) ? [t(player, "ach.ready")] : []), t(player, "click.open")), ICON.star, { run: () => achievementsPage(player) }),
-    (sl) => set(f, sl, T("stats", null), "textures/ui/shop/ic_stats", { run: () => statsPage(player) }),
-    (sl) => set(f, sl, T("skills", "/skills"), "textures/items/iron_axe", { run: () => skillsPage(player, toMenu) }),
-  ]);
-
-  label(1, "textures/blocks/concrete_light_blue", ar ? "§b§lالتنقل" : "§b§lTRAVEL", "", "Go anywhere on the server", "روح لأي مكان في السيرفر");
-  place(1, [
     (sl) => set(f, sl, T("spawn", "/spawn", "c", [], "click.teleport"), "textures/items/compass_item", { run: () => goSpawn(player) }),
     (sl) => set(f, sl, T("homes", "/home  /sethome"), "textures/items/bed_red", { run: () => homePage(player, toMenu) }),
-    (sl) => { const wc = warpCount();
-      set(f, sl, TIP(t(player, "warps.name"), [wc > 0 ? t(player, wc === 1 ? "warps.one" : "warps.many", wc) : t(player, "warps.none"), t(player, "warps.tp")], t(player, "click.open"), "/warp"), WARP_ICON, { run: () => warpPage(player, toMenu) }); },
     (sl) => set(f, sl, T("rtp", "/rtp"), "textures/items/ender_pearl", { run: () => rtpPage(player, toMenu) }),
     (sl) => set(f, sl, T("tpa", "/tpa  /tphere  /tpaccept", "c", tpPending(player) ? [t(player, "tpa.waiting")] : []), "textures/items/ender_eye", { run: () => tpaPage(player, toMenu) }),
-    (sl) => set(f, sl, T("afk", "/afk", "c", [], "click.teleport"), "textures/items/clock_item", { run: () => afkCommand(player) }),
-    (sl) => set(f, sl, hdr(1) + (ar ? "§a§lالحلبات\n§r§7قاتل اللاعبين في الحلبات\n§r§7(حفظ الأغراض / بدون حفظ)\n§r§fاضغط للفتح\n§r§8/arena" : "§a§lArenas\n§r§7Fight other players\n§r§7(Keep Inventory / No Keep)\n§r§fClick to open\n§r§8/arena"), "textures/items/diamond_sword", { run: () => arenaMenu(player, toMenu) }),
-  ]);
-
-  label(2, "textures/blocks/concrete_lime", ar ? "§a§lالاقتصاد" : "§a§lECONOMY", "", "Buy, sell, trade and pay", "اشتري، بيع، تاجر وادفع");
-  place(2, [
-    openShop ? ((sl) => set(f, sl, T("shop", "/shop", "g"), NAV.chest, { run: () => openShop(player) })) : null,
+    openShop ? ((sl) => set(f, sl, T("shop", null, "g"), NAV.chest, { run: () => openShop(player) })) : null,
     (sl) => set(f, sl, T("pay", "/pay"), ICON.money, { run: () => payPage(player, toMenu) }),
     (sl) => set(f, sl, T("ah", "/ah"), "textures/ui/shop/ic_gavel", { run: () => ahPage(player, toMenu) }),
     (sl) => set(f, sl, T("orders", "/order"), "textures/items/book_writable", { run: () => orderPage(player, toMenu) }),
-    (sl) => { const on = sellSlotOn(player);   // red sell slot: one click switches it ON / OFF (state shown by the colour)
-      set(f, sl, TIP(t(player, "sellslot.name"), [t(player, "sellslot.now", tr(player, on ? "sellslot.on" : "sellslot.off")), t(player, "sellslot.where"), t(player, "sellslot.desc")], t(player, on ? "sellslot.turnoff" : "sellslot.turnon"), "/sellslot", on ? "g" : "r"), "textures/items/redstone_dust", { run: () => { toggleSellSlot(player); dashboard(player); } }); },
     (sl) => set(f, sl, T("ranks", "/top"), "textures/ui/shop/ic_trophy", { run: () => ranksPage(player, toMenu) }),
   ]);
 
-  label(3, "textures/blocks/concrete_purple", ar ? "§d§lاللاعب" : "§d§lPLAYER", "", "Your clan, land, tools and style", "كلانك وأرضك وأدواتك وشكلك");
+  // row 1: Warps (visible to every player; admins get Add / Edit / Remove inside the page)
+  place(1, [
+    (sl) => { const wc = warpCount();
+      set(f, sl, TIP(t(player, "warps.name"), [wc > 0 ? t(player, wc === 1 ? "warps.one" : "warps.many", wc) : t(player, "warps.none"), t(player, "warps.tp")], t(player, "click.open"), "/warp"), WARP_ICON, { run: () => warpPage(player, toMenu) }); },
+  ]);
+
+  // row 2: you  (Skills = levels + rewards + abilities, all on one page)
+  place(2, [
+    (sl) => set(f, sl, hdr(1) + t(player, "profile.text", player.name, money(s.money), num(s.shards), playtime(playSeconds(player)), progress(s.bxp).level, progress(s.sxp).level, achievementCount(player), ACHIEVEMENTS.length, apOf(player), di.streak, tr(player, di.streak === 1 ? "day" : "days")), NAV.player, null),
+    (sl) => set(f, sl, T("skills", "/skills"), "textures/items/iron_axe", { run: () => skillsPage(player, toMenu) }),
+    (sl) => set(f, sl, T("stats", null), "textures/ui/shop/ic_stats", { run: () => statsPage(player) }),
+    (sl) => set(f, sl, TIP(t(player, "ach.name"), [t(player, "ach.unlocked", achievementCount(player), ACHIEVEMENTS.length)].concat(readyCount(player) ? [t(player, "ach.ready")] : []), t(player, "click.open")), ICON.star, { run: () => achievementsPage(player) }),
+    (sl) => set(f, sl, TIP(t(player, "daily.name"), [di.available ? t(player, "daily.available") : t(player, "daily.next", countdown(msToReset())), t(player, "daily.streak", di.streak)], di.available ? t(player, "click.claim") : t(player, "click.open"), null, di.available ? "g" : "c"), "textures/ui/shop/ic_gift", { run: () => dailyPage(player) }),
+    (sl) => set(f, sl, TIP(t(player, "notif.name"), [n > 0 ? t(player, "notif.new", n) : t(player, "notif.none")], t(player, "click.open"), null, "c").replace(/^c\d\d/, hdr(n)), "textures/ui/shop/ic_mail", { run: () => notificationsPage(player) }),
+  ]);
+
+  // row 3: tools
   place(3, [
     (sl) => set(f, sl, T("clans", "/clan  /clanhome"), ICON.tag, { run: () => clanPage(player, toMenu) }),
-    (sl) => set(f, sl, T("land", "/protect"), NAV.shield, { run: () => landPage(player, toMenu) }),
     (sl) => set(f, sl, T("mining", "/mining"), "textures/items/diamond_pickaxe", { run: () => miningPage(player, toMenu) }),
+    (sl) => set(f, sl, T("land", "/protect"), NAV.shield, { run: () => landPage(player, toMenu) }),
     (sl) => set(f, sl, T("nv", "/nv"), "textures/ui/shop/nv_potion", { run: () => nvPage(player, toMenu) }),
+    (sl) => set(f, sl, T("afk", "/afk", "c", [], "click.teleport"), "textures/items/clock_item", { run: () => afkCommand(player) }),
     (sl) => set(f, sl, T("cos", "/cosmetics"), "textures/ui/shop/x_firework_star", { run: () => cosmeticsPage(player, toMenu) }),
     (sl) => set(f, sl, T("crowns", null), "textures/ui/shop/ic_crown", { run: () => crownPage(player, toMenu) }),
   ]);
 
-  // footer
-  set(f, S(4, 0), hdr(1) + t(player, "tip.text"), "textures/ui/shop/ic_help", null);
-  set(f, S(4, 3), TIP(t(player, "lang.name"), [t(player, "lang.now", tr(player, getLang(player) === "ar" ? "lang.ar" : "lang.en")), t(player, "lang.choose")], t(player, "click.open"), null), "textures/items/book_enchanted", { run: () => languagePage(player) });
-  set(f, S(4, 4), T("settings", null), "textures/ui/shop/ic_gear", { run: () => settingsPage(player) });
-  status(player, f, S(4, 8));
+  // row 4: Language (Arabic / English)
+  place(4, [
+    (sl) => set(f, sl, TIP(t(player, "lang.name"), [t(player, "lang.now", tr(player, getLang(player) === "ar" ? "lang.ar" : "lang.en")), t(player, "lang.choose")], t(player, "click.open"), null), "textures/items/book_enchanted", { run: () => languagePage(player) }),
+    (sl) => { const on = sellSlotOn(player);   // red sell slot: one click switches it ON / OFF (state shown by the colour)
+      set(f, sl, TIP(t(player, "sellslot.name"), [t(player, "sellslot.now", tr(player, on ? "sellslot.on" : "sellslot.off")), t(player, "sellslot.where"), t(player, "sellslot.desc")], t(player, on ? "sellslot.turnoff" : "sellslot.turnon"), "/sellslot", on ? "g" : "r"), "textures/items/redstone_dust", { run: () => { toggleSellSlot(player); dashboard(player); } }); },
+  ]);
+
+  // row 5: footer
+  place(5, [
+    (sl) => set(f, sl, hdr(1) + t(player, "tip.text"), "textures/ui/shop/ic_help", null),
+    (sl) => set(f, sl, T("settings", null), "textures/ui/shop/ic_gear", { run: () => settingsPage(player) }),
+    (sl) => status(player, f, sl),
+  ]);
   open(player, f);
 }
 
