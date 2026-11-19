@@ -1,3 +1,4 @@
+import "./perf.js";                                  // performance layer: MUST stay the first import (see perf.js)
 import { econMsg } from "./systems/staffcore.js";   // staff tools: frozen money account
 import { wrapTip } from "./smp/wrap.js";
 import { tidyBar } from "./smp/bar.js";

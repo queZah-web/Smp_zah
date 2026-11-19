@@ -6,6 +6,7 @@
 //  * Tools without an upgrade behave exactly as before.  Creative mode is never touched.
 //  * The extra blocks of Timber / Vein Miner / Area Mining / Chest Sell stop at the same limit (mining.js, chestsell.js use atLimit()).
 import { world, system } from "@minecraft/server";
+import { invWatch } from "./invwatch.js";
 import { boostOf } from "./skills.js";
 import { menuMsg } from "./menulang.js";
 
@@ -58,9 +59,18 @@ const liftHeld = (p) => { try { const c = p.getComponent("inventory")?.container
 // every tick: the tool in the hand
 system.runInterval(() => { for (const p of world.getAllPlayers()) liftHeld(p); }, 1);
 // every 10 ticks: the WHOLE inventory (a tool that is not in the hand can never sit below the limit either)
+// Performance: only players whose inventory changed (game event) are checked, and every player at least every 5 s anyway
+// (a tool that is NOT in the hand can not lose durability; the one in the hand is checked every tick above).
+const watch = invWatch(10);
 system.runInterval(() => {
-  for (const p of world.getAllPlayers()) {
-    try { const c = p.getComponent("inventory")?.container; if (!c) continue; for (let i = 0; i < c.size; i++) lift(c, i); } catch (e) { /* ignore */ }
+  watch.next();
+  const list = world.getAllPlayers();
+  for (let k = 0; k < list.length; k++) {
+    const p = list[k];
+    try {
+      if (!watch.need(p, k)) continue;
+      const c = p.getComponent("inventory")?.container; if (!c) continue; for (let i = 0; i < c.size; i++) lift(c, i);
+    } catch (e) { /* ignore */ }
   }
 }, 10);
 // right after a hit / using the tool on a block (strip, till, flatten ...): fix it at once, not only on the next interval

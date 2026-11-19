@@ -14,6 +14,7 @@
 //   * Heart loss log (heartloss.js): a Heart with a buyer tag that is DESTROYED (explodes / burns / vanishes without a player taking it), and a full Heart of
 //     a buyer that becomes a Half Heart, are written to /shop > Hearts > Logs > Hearts Destroyed.  Nothing about the effects or the rules changes.
 import { world, system, ItemStack } from "@minecraft/server";
+import { invWatch } from "./systems/invwatch.js";
 import { fx } from "./lux.js";
 import { HEART_ITEM, HALF_ITEM, CURSED_ITEM, isHeart, makeHalfStack, copyBuyer, buyerOf } from "./heartids.js";
 import { logLoss, dimCodeOf, KIND_DESTROYED, KIND_HALVED } from "./heartloss.js";
@@ -345,9 +346,14 @@ function tick() {
 system.runInterval(() => { try { tick(); flushT0(); } catch (e) { console.warn("[heartfx] " + e); } }, 10);
 
 // a dark Heart in a player's inventory (picked up) has spoiled: it becomes a Half Heart
+const spoilWatch = invWatch(3);     // performance: only inventories that changed (and every inventory at least every 3 s)
 system.runInterval(() => {
-  for (const p of world.getAllPlayers()) {
+  spoilWatch.next();
+  const list = world.getAllPlayers();
+  for (let k = 0; k < list.length; k++) {
+    const p = list[k];
     try {
+      if (!spoilWatch.need(p, k)) continue;
       const c = p.getComponent("inventory").container;
       for (let i = 0; i < c.size; i++) {
         const s = c.getItem(i); if (!s || s.typeId !== CURSED_ITEM) continue;

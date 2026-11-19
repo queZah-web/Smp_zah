@@ -18,6 +18,7 @@
 //   * new players are protected: for the first N hours (default 24, admins can change it or switch it off) after they first joined they can't buy hearts
 //   * no Trading-level discount and no other discount applies to hearts
 import { world, system, ItemStack } from "@minecraft/server";
+import { invWatch } from "./systems/invwatch.js";
 import { ActionFormData } from "@minecraft/server-ui";
 import { stats, takeMoney, addTx, knownPlayers } from "./data.js";
 import { econMsg } from "./systems/staffcore.js";
@@ -172,9 +173,14 @@ try {
 
 // Hearts bought before the invisible lore code existed (see heartids.js) only have the item property, which is lost on the ground: while the owner
 // holds them they get the lore code too (once per Heart stack, every 2 seconds).
+const loreWatch = invWatch(3);      // performance: only inventories that changed (and every inventory at least every 6 s)
 system.runInterval(() => {
-  for (const p of world.getAllPlayers()) {
+  loreWatch.next();
+  const list = world.getAllPlayers();
+  for (let k = 0; k < list.length; k++) {
+    const p = list[k];
     try {
+      if (!loreWatch.need(p, k)) continue;
       const c = container(p);
       for (let i = 0; i < c.size; i++) {
         const s = c.getItem(i); if (!s || !isHeart(s.typeId) || !needsLoreTag(s)) continue;

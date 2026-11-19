@@ -16,6 +16,7 @@
 //   { v, nm: last known name, c: hearts picked up (all time), l: [[time, type, amount, buyer id, buyer name, source, place, x, y, z, dim], ...] newest first (last 100) }
 //   type: 0 Heart | 1 Half Heart | 2 Heart of Malevolence      source: "g" ground | "c" container | "o" other      dim: "o" overworld | "n" nether | "e" end
 import { world, system } from "@minecraft/server";
+import { invWatch } from "./systems/invwatch.js";
 import { isHeart, buyerOf, HEART_ITEM, HALF_ITEM, CURSED_ITEM, unitsOfItem } from "./heartids.js";
 
 const PFX = "smp_hp:", KEEP = 100;
@@ -162,9 +163,10 @@ function containerFor(p, now) {
 }
 
 // ---------------------------------------------------------------- the loop
-function poll(p, now) {
-  const inv = scanInv(p); if (!inv) return;
-  const scan = scanGround(p), st = state.get(p.id);
+function poll(p, now, k) {
+  const st = state.get(p.id);
+  const inv = st && st.inv && !watch.need(p, k) ? st.inv : scanInv(p); if (!inv) return;      // inventory unchanged (game event): the last scan is still right
+  const scan = scanGround(p);
   if (!st || now < (ready.get(p.id) ?? 0)) { state.set(p.id, { inv, scans: [scan] }); return; }          // first look at this player: just remember
   const events = gained(st.inv, inv);
   let usedGround = false;
@@ -182,9 +184,12 @@ function poll(p, now) {
   }
   state.set(p.id, { inv, scans: usedGround ? [scan] : [scan, ...st.scans].slice(0, 2) });
 }
+const watch = invWatch(5);         // performance: the inventory is read again only when it changed (and at least every 5 checks)
 system.runInterval(() => {
   const now = Date.now();
-  for (const p of world.getAllPlayers()) { try { poll(p, now); } catch (e) { /* ignore */ } }
+  watch.next();
+  const list = world.getAllPlayers();
+  for (let k = 0; k < list.length; k++) { try { poll(list[k], now, k); } catch (e) { /* ignore */ } }
 }, POLL);
 
 /** call right after the pack itself gives / changes a Heart in a player's inventory (purchase, repair): that is not a pickup */

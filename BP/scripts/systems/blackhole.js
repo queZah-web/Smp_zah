@@ -21,6 +21,20 @@ const smooth = (t, a, b) => { const x = Math.min(1, Math.max(0, (t - a) / (b - a
 const extension = (sec) => { const t = sec % CYCLE; return smooth(t, 3, 8) - smooth(t, 11, 16); };
 
 const lastHit = new Map();
+// Performance: the black holes of a dimension are looked up once a second (and at once when one is spawned / loaded),
+// not every tick. A hole that was removed is skipped by the isValid check.
+const HOLES_EVERY = 20, holeCache = new Map();          // dimension id -> { t, list }
+const holeOk = (e) => { try { return typeof e.isValid === "function" ? e.isValid() : !!e.isValid; } catch (x) { return false; } };
+function holesIn(dim, tick) {
+  const c = holeCache.get(dim.id);
+  if (c && tick - c.t < HOLES_EVERY && tick >= c.t) return c.list.filter(holeOk);
+  const list = dim.getEntities({ type: TYPE });
+  holeCache.set(dim.id, { t: tick, list });
+  return list;
+}
+const holeNew = (ev) => { try { if (ev.entity.typeId === TYPE) holeCache.clear(); } catch (x) { /* ignore */ } };
+try { world.afterEvents.entitySpawn.subscribe(holeNew); } catch (x) { /* ignore */ }
+try { world.afterEvents.entityLoad.subscribe(holeNew); } catch (x) { /* ignore */ }
 function distToSegment(p, o, d, len) {            // distance from point p to the segment o + d*[0..len]
   const vx = p.x - o.x, vy = p.y - o.y, vz = p.z - o.z;
   let t = vx * d.x + vy * d.y + vz * d.z; t = Math.min(len, Math.max(0, t));
@@ -42,7 +56,7 @@ system.runInterval(() => {
     const tick = system.currentTick, ext = extension(tick / 20);
     for (const dn of ["overworld", "nether", "the_end"]) {
       let dim; try { dim = world.getDimension(dn); } catch (e) { continue; }
-      let holes = []; try { holes = dim.getEntities({ type: TYPE }); } catch (e) { continue; }
+      let holes = []; try { holes = holesIn(dim, tick); } catch (e) { continue; }
       for (const h of holes) {
         try {
           h.setProperty("smp:ext", Math.round(ext * 1000) / 1000);

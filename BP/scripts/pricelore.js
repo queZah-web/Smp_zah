@@ -11,6 +11,7 @@ import { stackValue } from "./value.js";
 import { isPriceLine } from "./inv.js";
 import { money } from "./format.js";
 import { addAliases } from "./alias.js";
+import { invWatch } from "./systems/invwatch.js";
 
 const BY_TYPE = new Map();      // same lookup as the sell box (first catalogue entry of an id)
 for (const c of CATEGORIES) for (const it of c.items) if (!BY_TYPE.has(it[0])) BY_TYPE.set(it[0], it);
@@ -57,8 +58,19 @@ export function tidy(p) {
   }
 }
 
+// Performance: a player is only checked again when something in his inventory CHANGED (game event), and in any case
+// once a second (safety net: price changes made by an admin ...). Idle players cost nothing. No event in the game = every 2 ticks like before.
+const watch = invWatch(10);
 try {
   system.runInterval(() => {
-    for (const p of world.getAllPlayers()) { try { tidy(p); } catch (e) { /* ignore this player this round */ } }
+    watch.next();
+    const list = world.getAllPlayers();
+    for (let k = 0; k < list.length; k++) {
+      const p = list[k];
+      try {
+        if (!watch.need(p, k)) continue;
+        tidy(p);
+      } catch (e) { /* ignore this player this round */ }
+    }
   }, 2);
 } catch (e) { console.warn("[pricelore] cannot start: " + e); }

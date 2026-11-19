@@ -5,6 +5,7 @@
 // The bundle is DELETED together with everything inside it.  The player is told, and the staff log gets a line (at most one per player per minute).
 // Everything is wrapped in try/catch: a problem here can never stop the other systems.
 import { world, system, EquipmentSlot } from "@minecraft/server";
+import { invWatch } from "./invwatch.js";
 import { pick } from "./arextra.js";
 import { slog } from "./staffcore.js";
 
@@ -22,9 +23,9 @@ function warn(p, n) {
   } catch (e) { /* ignore */ }
 }
 
-function sweep(p) {
+function sweep(p, skipInv = false) {
   let n = 0;
-  try {
+  if (!skipInv) try {
     const inv = p.getComponent("inventory")?.container;
     if (inv) for (let i = 0; i < inv.size; i++) { const s = inv.getItem(i); if (s && isBundle(s.typeId)) { inv.setItem(i, undefined); n++; } }
   } catch (e) { /* ignore */ }
@@ -41,7 +42,8 @@ function sweep(p) {
 }
 
 try {
-  system.runInterval(() => { for (const p of world.getAllPlayers()) sweep(p); }, 10);
+  const watch = invWatch(4);      // performance: the 36 slots are read again only when the inventory changed (and at least every 2 s); off hand + cursor: every time
+  system.runInterval(() => { watch.next(); const list = world.getAllPlayers(); for (let k = 0; k < list.length; k++) sweep(list[k], !watch.need(list[k], k)); }, 10);
   world.afterEvents.entitySpawn.subscribe((ev) => {
     try {
       const e = ev.entity;
