@@ -60,3 +60,17 @@ a tall glass dome on red ribs, chandeliers. Built around the Owner (no lag, land
 When it is ready the **AFK area** (afk.js) becomes the inside of the hall: `/afk` goes there and the AFK rewards work.
 Only the Owner can change the hall. Undo puts the land and the old AFK area back.
 Code: `systems/afkdesign.js` (design), `systems/afkhall.js` (builder, page, protection).
+
+## Sign log (Owner only)
+Who placed a sign and who wrote on it (front / back) is saved. The Owner: look at a sign (action bar),
+sneak + right-click it (full details in chat, it does not open), `/signlog` (last 150 texts with name and place).
+Code: `systems/signlog.js`.
+
+## Spawner friends
+Spawner page > **Friends**: add an online player and choose what he may do: take items + XP, sell, break / pick up,
+add / remove friends. A friend can always open the spawner and stack more into it (also inside the owner's land).
+Staff with the Admin or Owner role open, sell, take, break and switch the hologram of any spawner like its owner.
+
+## Fast hoppers
+Every hopper moves up to 20 items every 0.4 s (pull from above, push where it points; furnace input / output too),
+locked hoppers do nothing, crates are never emptied. Code: `systems/fasthopper.js` (`FAST_HOPPER` settings).
