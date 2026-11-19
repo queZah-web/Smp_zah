@@ -235,8 +235,9 @@ function arenaPage(player, kind, back) {
 arenaHook.page = arenaAdminPage;
 
 // ---------------------------------------------------------------- the player menu: /arena
-export function arenaMenu(player) {
-  const f = makeOpr("Arenas", SHORT_ROWS); f.self = () => arenaMenu(player); f.glass = true;
+export function arenaMenu(player, back) {
+  const f = makeOpr("Arenas", SHORT_ROWS); f.self = () => arenaMenu(player, back); f.glass = true;
+  if (back) backBtn(f, back);
   const s = st(), top = Object.entries(s).sort((a, b) => b[1].k - a[1].k).slice(0, 5);
   set(f, 0 * COLS + 4, hdr(1, "g") + "§c§lArenas\n§r§7Fight other players in the pit.\n§r§7Outside the pit nobody takes damage.\n§r§6Best fighters:\n" + (top.length ? top.map(([id, v], i) => "§r§e" + (i + 1) + ". §f" + v.n + " §7- §c" + v.k + " kills").join("\n") : "§r§7(nobody yet)"), "textures/items/diamond_sword", null);
   [["keep", 3], ["nokeep", 5]].forEach(([kind, col]) => {
