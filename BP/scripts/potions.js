@@ -2,7 +2,7 @@
 // main.js only draws the pages.  Nothing else in the shop is touched by this file.
 //
 // Prices (fixed, no Trading discount / sell bonus - so the ranges below always hold):
-//   BUY   $4,999 .. $11,999      SELL   $99 .. $299      (sell is never above 6% of the cheapest buy price)
+//   BUY   $999 .. $3,999         SELL   $29 .. $59        (sell is never above 6% of the cheapest buy price)
 // Both grow with "power" = effect tier + level bonus (Extended / Level II) + type bonus (Drinkable < Splash < Lingering).
 //
 // Anti-exploit:
@@ -20,7 +20,7 @@ import { luxDing, luxShop } from "./lux.js";
 import { limitBlock, stamp } from "./limits.js";
 import { shopMsg } from "./systems/shoplang.js";
 
-export const BUY_MIN = 4999, BUY_MAX = 11999, SELL_MIN = 99, SELL_MAX = 299;
+export const BUY_MIN = 999, BUY_MAX = 3999, SELL_MIN = 29, SELL_MAX = 59;      // medium prices (were 4999..11999 / 99..299)
 export const SELL_CAP = 12, SELL_WINDOW = 3600000;            // 12 potions per hour
 
 export const FORMS = [

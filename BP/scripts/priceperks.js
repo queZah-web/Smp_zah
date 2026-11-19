@@ -3,7 +3,7 @@
 //
 // Anti-exploit (no loops, no easy money):
 //   * the discount only touches MONEY prices (never shards) and never goes below 110% of what the same item sells for
-//   * in the catalogue the best sell/buy ratio is 24%, so buy at -10% and sell at +10% can never profit
+//   * in the catalogue the best sell/buy ratio is 34% (tools/check_prices.py), so buy at -10% and sell at +10% can never profit
 //   * items that were BOUGHT from the shop (money or shards) or RECEIVED from villagers never get the sell bonus
 //     (the bonus is only paid on items you got some other way: mined, farmed, fished, dropped by mobs ...)
 //   * every price is rounded per transaction in the shop's favour (floor for what you get, round for what you pay)

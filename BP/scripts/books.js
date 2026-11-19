@@ -1,23 +1,24 @@
 // Enchanted books: [id, name, maxLevel, price of level I]  - price of level n = base * 2^(n-1)
+// Medium prices: every book costs half of what it cost before (Sharpness V 40,000 -> 20,000, Mending 30,000 -> 15,000).
 const RAW = [
   // armor
-  ["protection","Protection",4,2000],["fire_protection","Fire Protection",4,1500],["blast_protection","Blast Protection",4,2000],
-  ["projectile_protection","Projectile Protection",4,1500],["feather_falling","Feather Falling",4,1500],["respiration","Respiration",3,2000],
-  ["aqua_affinity","Aqua Affinity",1,4000],["thorns","Thorns",3,3000],["depth_strider","Depth Strider",3,3000],["frost_walker","Frost Walker",2,6000],
-  ["soul_speed","Soul Speed",3,8000],["swift_sneak","Swift Sneak",3,12000],["binding","Curse of Binding",1,1000],
+  ["protection","Protection",4,1000],["fire_protection","Fire Protection",4,750],["blast_protection","Blast Protection",4,1000],
+  ["projectile_protection","Projectile Protection",4,750],["feather_falling","Feather Falling",4,750],["respiration","Respiration",3,1000],
+  ["aqua_affinity","Aqua Affinity",1,2000],["thorns","Thorns",3,1500],["depth_strider","Depth Strider",3,1500],["frost_walker","Frost Walker",2,3000],
+  ["soul_speed","Soul Speed",3,4000],["swift_sneak","Swift Sneak",3,6000],["binding","Curse of Binding",1,500],
   // melee
-  ["sharpness","Sharpness",5,2500],["smite","Smite",5,1500],["bane_of_arthropods","Bane of Arthropods",5,1500],["knockback","Knockback",2,2500],
-  ["fire_aspect","Fire Aspect",2,4000],["looting","Looting",3,6000],["sweeping_edge","Sweeping Edge",3,3000],
-  ["wind_burst","Wind Burst",3,12000],["density","Density",5,4000],["breach","Breach",4,8000],
+  ["sharpness","Sharpness",5,1250],["smite","Smite",5,750],["bane_of_arthropods","Bane of Arthropods",5,750],["knockback","Knockback",2,1250],
+  ["fire_aspect","Fire Aspect",2,2000],["looting","Looting",3,3000],["sweeping_edge","Sweeping Edge",3,1500],
+  ["wind_burst","Wind Burst",3,6000],["density","Density",5,2000],["breach","Breach",4,4000],
   // tools
-  ["efficiency","Efficiency",5,2500],["silk_touch","Silk Touch",1,15000],["fortune","Fortune",3,8000],
+  ["efficiency","Efficiency",5,1250],["silk_touch","Silk Touch",1,7500],["fortune","Fortune",3,4000],
   // bows / crossbows / tridents / fishing
-  ["power","Power",5,2500],["punch","Punch",2,2000],["flame","Flame",1,5000],["infinity","Infinity",1,20000],
-  ["multishot","Multishot",1,6000],["piercing","Piercing",4,2500],["quick_charge","Quick Charge",3,4000],
-  ["impaling","Impaling",5,2000],["riptide","Riptide",3,6000],["loyalty","Loyalty",3,3000],["channeling","Channeling",1,6000],
-  ["luck_of_the_sea","Luck of the Sea",3,4000],["lure","Lure",3,3000],
+  ["power","Power",5,1250],["punch","Punch",2,1000],["flame","Flame",1,2500],["infinity","Infinity",1,10000],
+  ["multishot","Multishot",1,3000],["piercing","Piercing",4,1250],["quick_charge","Quick Charge",3,2000],
+  ["impaling","Impaling",5,1000],["riptide","Riptide",3,3000],["loyalty","Loyalty",3,1500],["channeling","Channeling",1,3000],
+  ["luck_of_the_sea","Luck of the Sea",3,2000],["lure","Lure",3,1500],
   // universal
-  ["unbreaking","Unbreaking",3,3500],["mending","Mending",1,30000],["vanishing","Curse of Vanishing",1,1000],
+  ["unbreaking","Unbreaking",3,1750],["mending","Mending",1,15000],["vanishing","Curse of Vanishing",1,500],
 ];
 export const ROMAN = ["", "I", "II", "III", "IV", "V"];
 export const ENCHANTS = RAW.map(([id, name, max, base]) => ({ id, name, max, base }));
