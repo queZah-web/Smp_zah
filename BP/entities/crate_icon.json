@@ -1,0 +1,110 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "smp:crate_icon",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false,
+      "properties": {
+        "smp:icon": {
+          "type": "int",
+          "range": [
+            0,
+            94
+          ],
+          "default": 0,
+          "client_sync": true
+        },
+        "smp:size": {
+          "type": "int",
+          "range": [
+            0,
+            300
+          ],
+          "default": 50,
+          "client_sync": true
+        }
+      }
+    },
+    "component_groups": {
+      "smp:gone": {
+        "minecraft:instant_despawn": {}
+      }
+    },
+    "components": {
+      "minecraft:type_family": {
+        "family": [
+          "smp_crate_icon"
+        ]
+      },
+      "minecraft:collision_box": {
+        "width": 0,
+        "height": 0
+      },
+      "minecraft:custom_hit_test": {
+        "hitboxes": [
+          {
+            "pivot": [
+              0,
+              -512,
+              0
+            ],
+            "width": 0.001,
+            "height": 0.001
+          }
+        ]
+      },
+      "minecraft:physics": {
+        "has_gravity": false,
+        "has_collision": false
+      },
+      "minecraft:pushable": {
+        "is_pushable": false,
+        "is_pushable_by_piston": false
+      },
+      "minecraft:nameable": {
+        "always_show": true,
+        "allow_name_tag_renaming": false
+      },
+      "minecraft:health": {
+        "value": 1000,
+        "max": 1000
+      },
+      "minecraft:damage_sensor": {
+        "triggers": {
+          "cause": "all",
+          "deals_damage": "no"
+        }
+      },
+      "minecraft:knockback_resistance": {
+        "value": 1.0
+      },
+      "minecraft:fire_immune": {},
+      "minecraft:breathable": {
+        "total_supply": 15,
+        "suffocate_time": 0,
+        "breathes_air": true,
+        "breathes_water": true,
+        "breathes_solids": true
+      },
+      "minecraft:timer": {
+        "time": 45,
+        "looping": false,
+        "time_down_event": {
+          "event": "smp:gone",
+          "target": "self"
+        }
+      }
+    },
+    "events": {
+      "smp:gone": {
+        "add": {
+          "component_groups": [
+            "smp:gone"
+          ]
+        }
+      }
+    }
+  }
+}

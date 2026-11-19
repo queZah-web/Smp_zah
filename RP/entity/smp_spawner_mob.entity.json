@@ -1,0 +1,83 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "smp:spawner_mob",
+      "materials": {
+        "default": "entity_alphatest"
+      },
+      "textures": {
+        "m0": "textures/entity/smp_spawner_mob/pig",
+        "m1": "textures/entity/smp_spawner_mob/cow",
+        "m2": "textures/entity/smp_spawner_mob/chicken",
+        "m3": "textures/entity/smp_spawner_mob/sheep",
+        "m4": "textures/entity/smp_spawner_mob/wolf",
+        "m5": "textures/entity/smp_spawner_mob/mooshroom",
+        "m6": "textures/entity/smp_spawner_mob/rabbit",
+        "m7": "textures/entity/smp_spawner_mob/zombie",
+        "m8": "textures/entity/smp_spawner_mob/creeper",
+        "m9": "textures/entity/smp_spawner_mob/skeleton",
+        "m10": "textures/entity/smp_spawner_mob/spider",
+        "m11": "textures/entity/smp_spawner_mob/zombie_pigman",
+        "m12": "textures/entity/smp_spawner_mob/slime",
+        "m13": "textures/entity/smp_spawner_mob/enderman",
+        "m14": "textures/entity/smp_spawner_mob/silverfish",
+        "m15": "textures/entity/smp_spawner_mob/cave_spider",
+        "m16": "textures/entity/smp_spawner_mob/ghast",
+        "m17": "textures/entity/smp_spawner_mob/magma_cube",
+        "m18": "textures/entity/smp_spawner_mob/blaze",
+        "m19": "textures/entity/smp_spawner_mob/witch",
+        "m20": "textures/entity/smp_spawner_mob/stray",
+        "m21": "textures/entity/smp_spawner_mob/husk",
+        "m22": "textures/entity/smp_spawner_mob/wither_skeleton",
+        "m23": "textures/entity/smp_spawner_mob/guardian",
+        "m24": "textures/entity/smp_spawner_mob/endermite",
+        "m25": "textures/entity/smp_spawner_mob/vindicator",
+        "m26": "textures/entity/smp_spawner_mob/phantom",
+        "m27": "textures/entity/smp_spawner_mob/ravager"
+      },
+      "geometry": {
+        "m0": "geometry.smp_sm_pig",
+        "m1": "geometry.smp_sm_cow",
+        "m2": "geometry.smp_sm_chicken",
+        "m3": "geometry.smp_sm_sheep",
+        "m4": "geometry.smp_sm_wolf",
+        "m5": "geometry.smp_sm_mooshroom",
+        "m6": "geometry.smp_sm_rabbit",
+        "m7": "geometry.smp_sm_zombie",
+        "m8": "geometry.smp_sm_creeper",
+        "m9": "geometry.smp_sm_skeleton",
+        "m10": "geometry.smp_sm_spider",
+        "m11": "geometry.smp_sm_zombie_pigman",
+        "m12": "geometry.smp_sm_slime",
+        "m13": "geometry.smp_sm_enderman",
+        "m14": "geometry.smp_sm_silverfish",
+        "m15": "geometry.smp_sm_cave_spider",
+        "m16": "geometry.smp_sm_ghast",
+        "m17": "geometry.smp_sm_magma_cube",
+        "m18": "geometry.smp_sm_blaze",
+        "m19": "geometry.smp_sm_witch",
+        "m20": "geometry.smp_sm_stray",
+        "m21": "geometry.smp_sm_husk",
+        "m22": "geometry.smp_sm_wither_skeleton",
+        "m23": "geometry.smp_sm_guardian",
+        "m24": "geometry.smp_sm_endermite",
+        "m25": "geometry.smp_sm_vindicator",
+        "m26": "geometry.smp_sm_phantom",
+        "m27": "geometry.smp_sm_ravager"
+      },
+      "animations": {
+        "spin": "animation.smp_spawner_mob.spin"
+      },
+      "scripts": {
+        "scale": "query.property('smp:size') / 100",
+        "animate": [
+          "spin"
+        ]
+      },
+      "render_controllers": [
+        "controller.render.smp_spawner_mob"
+      ]
+    }
+  }
+}

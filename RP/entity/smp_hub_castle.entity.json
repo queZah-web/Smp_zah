@@ -1,0 +1,30 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "smp:hub_castle",
+      "materials": {
+        "default": "entity_alphatest",
+        "glow": "entity_alphablend"
+      },
+      "textures": {
+        "default": "textures/entity/smp_hub_castle"
+      },
+      "geometry": {
+        "default": "geometry.smp_hub_castle"
+      },
+      "animations": {
+        "float": "animation.smp_hub_castle.float"
+      },
+      "scripts": {
+        "scale": "query.property('smp:scale')",
+        "animate": [
+          "float"
+        ]
+      },
+      "render_controllers": [
+        "controller.render.smp_hub_castle"
+      ]
+    }
+  }
+}

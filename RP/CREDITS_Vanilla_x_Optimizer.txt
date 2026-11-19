@@ -1,0 +1,4 @@
+Vanilla x Optimizer | FPS Boost v2.4.3 - made by XiaoCraft
+License: CC BY-NC-SA 4.0
+https://www.curseforge.com/minecraft-bedrock/texture-packs/vanilla-x-optimizer-fps-boost
+Merged into this pack (particles, shadows, grass, textures, shield model).

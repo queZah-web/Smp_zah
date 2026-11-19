@@ -1,0 +1,83 @@
+{
+  "format_version": "1.10.0",
+  "render_controllers": {
+    "controller.render.smp_spawner_mob": {
+      "arrays": {
+        "geometries": {
+          "Array.geos": [
+            "Geometry.m0",
+            "Geometry.m1",
+            "Geometry.m2",
+            "Geometry.m3",
+            "Geometry.m4",
+            "Geometry.m5",
+            "Geometry.m6",
+            "Geometry.m7",
+            "Geometry.m8",
+            "Geometry.m9",
+            "Geometry.m10",
+            "Geometry.m11",
+            "Geometry.m12",
+            "Geometry.m13",
+            "Geometry.m14",
+            "Geometry.m15",
+            "Geometry.m16",
+            "Geometry.m17",
+            "Geometry.m18",
+            "Geometry.m19",
+            "Geometry.m20",
+            "Geometry.m21",
+            "Geometry.m22",
+            "Geometry.m23",
+            "Geometry.m24",
+            "Geometry.m25",
+            "Geometry.m26",
+            "Geometry.m27"
+          ]
+        },
+        "textures": {
+          "Array.texs": [
+            "Texture.m0",
+            "Texture.m1",
+            "Texture.m2",
+            "Texture.m3",
+            "Texture.m4",
+            "Texture.m5",
+            "Texture.m6",
+            "Texture.m7",
+            "Texture.m8",
+            "Texture.m9",
+            "Texture.m10",
+            "Texture.m11",
+            "Texture.m12",
+            "Texture.m13",
+            "Texture.m14",
+            "Texture.m15",
+            "Texture.m16",
+            "Texture.m17",
+            "Texture.m18",
+            "Texture.m19",
+            "Texture.m20",
+            "Texture.m21",
+            "Texture.m22",
+            "Texture.m23",
+            "Texture.m24",
+            "Texture.m25",
+            "Texture.m26",
+            "Texture.m27"
+          ]
+        }
+      },
+      "geometry": "Array.geos[query.property('smp:mob')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Array.texs[query.property('smp:mob')]"
+      ],
+      "ignore_lighting": true
+    }
+  }
+}

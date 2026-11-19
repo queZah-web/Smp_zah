@@ -1,0 +1,12 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "shop:holo",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/ui/shop/ic_fire" },
+      "geometry": { "default": "geometry.shop_holo" },
+      "render_controllers": ["controller.render.default"]
+    }
+  }
+}

@@ -1,0 +1,345 @@
+{
+  "format_version": "1.14.0",
+  "sound_definitions": {
+    "lux.break": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/break_a",
+          "volume": 0.55,
+          "load_on_low_memory": true
+        },
+        {
+          "name": "sounds/lux/break_b",
+          "volume": 0.55,
+          "load_on_low_memory": true
+        },
+        {
+          "name": "sounds/lux/break_c",
+          "volume": 0.55,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.ore": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/ore",
+          "volume": 0.75,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.area3": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/area3",
+          "volume": 0.85,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.area5": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/area5",
+          "volume": 0.95,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.timber": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/timber",
+          "volume": 0.8,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.tp": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/tp",
+          "volume": 0.85,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.menu": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/menu",
+          "volume": 0.6,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.save": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/save",
+          "volume": 0.75,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.accept": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/accept",
+          "volume": 0.75,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.off": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/off",
+          "volume": 0.65,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.clwarn": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/clwarn",
+          "volume": 0.4,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.cltick": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/cltick",
+          "volume": 0.35,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.clclear": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/clclear",
+          "volume": 0.55,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.ore_coal": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/ore_coal",
+          "volume": 0.4,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.ore_iron": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/ore_iron",
+          "volume": 0.4,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.ore_copper": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/ore_copper",
+          "volume": 0.4,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.ore_gold": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/ore_gold",
+          "volume": 0.4,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.ore_redstone": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/ore_redstone",
+          "volume": 0.4,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.ore_lapis": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/ore_lapis",
+          "volume": 0.4,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.ore_diamond": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/ore_diamond",
+          "volume": 0.4,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.ore_emerald": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/ore_emerald",
+          "volume": 0.4,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.ore_quartz": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/ore_quartz",
+          "volume": 0.4,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.ore_nether_gold": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/ore_nether_gold",
+          "volume": 0.4,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.ore_debris": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/ore_debris",
+          "volume": 0.4,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.ore_amethyst": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/ore_amethyst",
+          "volume": 0.4,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.vein": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/vein",
+          "volume": 0.6,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.ui_open": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/ui_open",
+          "volume": 0.6,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.ui_item": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/ui_item",
+          "volume": 0.6,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.rtp_go": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/rtp_go",
+          "volume": 0.7,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.rtp_land": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/rtp_land",
+          "volume": 0.7,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.tp_off": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/tp_off",
+          "volume": 0.8,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.tp_on": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/tp_on",
+          "volume": 0.8,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "lux.leaderboard": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/lux/lb_open",
+          "volume": 0.9,
+          "load_on_low_memory": true
+        }
+      ]
+    }
+  }
+}

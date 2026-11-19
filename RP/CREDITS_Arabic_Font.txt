@@ -1,0 +1,3 @@
+Arabic font pages (RP/font/glyph_FE, glyph_00, glyph_06, glyph_FB, default8) and the letter-shaping
+code (BP/scripts/smp/arabic_shaper.js) come from "Arabic Language Fix - Mute Compatible" 1.6.14
+(Arabic font by Minecraft Bedrock Arabic). They are used here to show the Arabic translation of the menus.

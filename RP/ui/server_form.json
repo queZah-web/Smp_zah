@@ -1,0 +1,1206 @@
+{
+ "namespace": "server_form",
+ "long_form": {
+  "type": "panel",
+  "size": [
+   "100%",
+   "100%"
+  ],
+  "button_mappings": [
+   {
+    "from_button_id": "button.menu_cancel",
+    "to_button_id": "button.menu_exit",
+    "mapping_type": "global"
+   },
+   {
+    "from_button_id": "button.menu_inventory_close",
+    "to_button_id": "button.menu_exit",
+    "mapping_type": "global"
+   }
+  ],
+  "controls": [
+   {
+    "dim": {
+     "type": "image",
+     "texture": "textures/ui/shop/black",
+     "alpha": 0.55,
+     "size": [
+      "100%",
+      "100%"
+     ]
+    }
+   },
+   {
+    "window@server_form.chest_window": {
+     "bindings": [
+      {
+       "binding_name": "#title_text"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(((#title_text - '__r5__') = #title_text) and ((#title_text - '__r6__') = #title_text) and ((#title_text - '__r7__') = #title_text) and ((#title_text - '__r9__') = #title_text))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "window_r5@server_form.window_r5": {
+     "bindings": [
+      {
+       "binding_name": "#title_text"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#title_text - '__r5__') = #title_text))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "window_r6@server_form.window_r6": {
+     "bindings": [
+      {
+       "binding_name": "#title_text"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#title_text - '__r6__') = #title_text))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "window_r7@server_form.window_r7": {
+     "bindings": [
+      {
+       "binding_name": "#title_text"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#title_text - '__r7__') = #title_text))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "window_r9@server_form.window_r9": {
+     "bindings": [
+      {
+       "binding_name": "#title_text"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#title_text - '__r9__') = #title_text))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   }
+  ]
+ },
+ "chest_window": {
+  "type": "panel",
+  "size": [
+   176,
+   233
+  ],
+  "layer": 2,
+  "controls": [
+   {
+    "bg": {
+     "type": "image",
+     "texture": "textures/ui/shop/panel",
+     "nineslice_size": 3,
+     "size": [
+      "100%",
+      "100%"
+     ]
+    }
+   },
+   {
+    "title": {
+     "type": "label",
+     "text": "#text",
+     "color": [
+      0.251,
+      0.251,
+      0.251
+     ],
+     "shadow": false,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      8,
+      6
+     ],
+     "bindings": [
+      {
+       "binding_name": "#title_text"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(#title_text - '__chest__')",
+       "target_property_name": "#text"
+      }
+     ]
+    }
+   },
+   {
+    "close": {
+     "type": "button",
+     "size": [
+      14,
+      14
+     ],
+     "layer": 20,
+     "anchor_from": "top_right",
+     "anchor_to": "top_right",
+     "offset": [
+      -5,
+      5
+     ],
+     "$pressed_button_name": "button.menu_exit",
+     "default_control": "d",
+     "hover_control": "h",
+     "pressed_control": "h",
+     "controls": [
+      {
+       "d": {
+        "type": "label",
+        "text": "x",
+        "color": [
+         0.25,
+         0.25,
+         0.25
+        ],
+        "shadow": false
+       }
+      },
+      {
+       "h": {
+        "type": "label",
+        "text": "x",
+        "color": [
+         0.7,
+         0,
+         0
+        ],
+        "shadow": false
+       }
+      }
+     ],
+     "button_mappings": [
+      {
+       "from_button_id": "button.menu_select",
+       "to_button_id": "$pressed_button_name",
+       "mapping_type": "pressed"
+      },
+      {
+       "from_button_id": "button.menu_ok",
+       "to_button_id": "$pressed_button_name",
+       "mapping_type": "focused"
+      }
+     ]
+    }
+   },
+   {
+    "grid@server_form.chest_grid": {}
+   }
+  ]
+ },
+ "tooltip_box": {
+  "type": "image",
+  "texture": "textures/ui/shop/tooltip",
+  "nineslice_size": 3,
+  "layer": 40,
+  "size": [
+   "100%c + 8px",
+   "100%c + 8px"
+  ],
+  "anchor_from": "right_middle",
+  "anchor_to": "left_middle",
+  "offset": [
+   4,
+   0
+  ],
+  "bindings": [
+   {
+    "binding_name": "#form_button_text",
+    "binding_type": "collection",
+    "binding_collection_name": "form_buttons"
+   },
+   {
+    "binding_type": "view",
+    "source_property_name": "(not ((('%.3s' * #form_button_text) = 'c00') or (('%.3s' * #form_button_text) = 'r00') or (('%.3s' * #form_button_text) = 'g00')))",
+    "target_property_name": "#visible"
+   }
+  ],
+  "controls": [
+   {
+    "t": {
+     "type": "label",
+     "text": "#tip",
+     "color": [
+      1,
+      1,
+      1
+     ],
+     "shadow": true,
+     "layer": 1,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(#form_button_text - ('%.3s' * #form_button_text))",
+       "target_property_name": "#tip"
+      }
+     ]
+    }
+   }
+  ]
+ },
+ "glint_slow": {
+  "anim_type": "alpha",
+  "easing": "in_out_sine",
+  "duration": 2.3,
+  "from": 0.35,
+  "to": 0.6,
+  "next": "@server_form.glint_slow_back"
+ },
+ "glint_slow_back": {
+  "anim_type": "alpha",
+  "easing": "in_out_sine",
+  "duration": 2.3,
+  "from": 0.6,
+  "to": 0.35,
+  "next": "@server_form.glint_slow"
+ },
+ "glint_pulse": {
+   "anim_type": "alpha",
+   "easing": "in_out_sine",
+   "duration": 1.0,
+   "from": 0.12,
+   "to": 0.6,
+   "next": "@server_form.glint_pulse_back"
+  },
+ "glint_pulse_back": {
+   "anim_type": "alpha",
+   "easing": "in_out_sine",
+   "duration": 1.0,
+   "from": 0.6,
+   "to": 0.12,
+   "next": "@server_form.glint_pulse"
+  },
+ "slot_hover": {
+  "type": "panel",
+  "size": [
+   18,
+   18
+  ],
+  "controls": [
+   {
+    "hl": {
+     "type": "image",
+     "texture": "textures/ui/shop/highlight",
+     "alpha": 0.5,
+     "size": [
+      16,
+      16
+     ],
+     "layer": 4,
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((('%.3s' * #form_button_text) = 'c00') or (('%.3s' * #form_button_text) = 'r00') or (('%.3s' * #form_button_text) = 'g00')))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "tip@server_form.tooltip_box": {}
+   }
+  ]
+ },
+ "slot_base": {
+  "type": "panel",
+  "size": [
+   18,
+   18
+  ],
+  "bindings": [
+   {
+    "binding_type": "collection_details",
+    "binding_collection_name": "form_buttons"
+   }
+  ],
+  "controls": [
+   {
+    "cell": {
+     "type": "image",
+     "texture": "textures/ui/shop/slot",
+     "size": [
+      18,
+      18
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "((('%.1s' * #form_button_text) = 'c') or (('%.1s' * #form_button_text) = 'x'))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "cell_r": {
+     "type": "image",
+     "texture": "textures/ui/shop/slot_red",
+     "size": [
+      18,
+      18
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "((('%.1s' * #form_button_text) = 'r') or (('%.1s' * #form_button_text) = 'y'))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "cell_g": {
+     "type": "image",
+     "texture": "textures/ui/shop/slot_green",
+     "size": [
+      18,
+      18
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "((('%.1s' * #form_button_text) = 'g') or (('%.1s' * #form_button_text) = 'z'))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "icon": {
+     "type": "image",
+     "texture": "#texture",
+     "size": [
+      16,
+      16
+     ],
+     "layer": 3,
+     "bindings": [
+      {
+       "binding_name": "#form_button_texture",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons",
+       "binding_name_override": "#texture"
+      },
+      {
+       "binding_name": "#form_button_texture_file_system",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons",
+       "binding_name_override": "#texture_file_system"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "icon_glint": {
+     "type": "image",
+     "texture": "#texture",
+     "size": [
+      16,
+      16
+     ],
+     "layer": 3,
+     "color": [0.55, 0.28, 1.0],
+     "alpha": 0.45,
+     "anims": ["@server_form.glint_slow"],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_name": "#form_button_texture",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons",
+       "binding_name_override": "#texture"
+      },
+      {
+       "binding_name": "#form_button_texture_file_system",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons",
+       "binding_name_override": "#texture_file_system"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "((((('%.1s' * #form_button_text) = 'x') or (('%.1s' * #form_button_text) = 'y') or (('%.1s' * #form_button_text) = 'z')) and (not ((#texture = '') or (#texture = 'loading')))))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "icon_glint2": {
+     "type": "image",
+     "texture": "#texture",
+     "size": [
+      16,
+      16
+     ],
+     "layer": 3,
+     "color": [0.95, 0.8, 1.0],
+     "alpha": 0.2,
+     "anims": ["@server_form.glint_pulse"],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_name": "#form_button_texture",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons",
+       "binding_name_override": "#texture"
+      },
+      {
+       "binding_name": "#form_button_texture_file_system",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons",
+       "binding_name_override": "#texture_file_system"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "((((('%.1s' * #form_button_text) = 'x') or (('%.1s' * #form_button_text) = 'y') or (('%.1s' * #form_button_text) = 'z')) and (not ((#texture = '') or (#texture = 'loading')))))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "count": {
+     "type": "label",
+     "text": "#count",
+     "layer": 5,
+     "anchor_from": "bottom_right",
+     "anchor_to": "bottom_right",
+     "offset": [
+      -1,
+      1
+     ],
+     "shadow": true,
+     "color": [
+      1,
+      1,
+      1
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((('%.2s' * #form_button_text) - ('%.1s' * #form_button_text)) = '0'))",
+       "target_property_name": "#visible"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(('%.3s' * #form_button_text) - ('%.1s' * #form_button_text))",
+       "target_property_name": "#count"
+      }
+     ]
+    }
+   },
+   {
+    "count1": {
+     "type": "label",
+     "text": "#count",
+     "layer": 5,
+     "anchor_from": "bottom_right",
+     "anchor_to": "bottom_right",
+     "offset": [
+      -1,
+      1
+     ],
+     "shadow": true,
+     "color": [
+      1,
+      1,
+      1
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(((('%.2s' * #form_button_text) - ('%.1s' * #form_button_text)) = '0') and (not ((('%.3s' * #form_button_text) = 'c00') or (('%.3s' * #form_button_text) = 'c01') or (('%.3s' * #form_button_text) = 'r00') or (('%.3s' * #form_button_text) = 'r01') or (('%.3s' * #form_button_text) = 'g00') or (('%.3s' * #form_button_text) = 'g01') or (('%.3s' * #form_button_text) = 'x01') or (('%.3s' * #form_button_text) = 'y01') or (('%.3s' * #form_button_text) = 'z01'))))",
+       "target_property_name": "#visible"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(('%.3s' * #form_button_text) - ('%.2s' * #form_button_text))",
+       "target_property_name": "#count"
+      }
+     ]
+    }
+   },
+   {
+    "click": {
+     "type": "button",
+     "size": [
+      18,
+      18
+     ],
+     "layer": 6,
+     "$pressed_button_name": "button.form_button_click",
+     "default_control": "n",
+     "hover_control": "h",
+     "pressed_control": "h",
+     "controls": [
+      {
+       "n": {
+        "type": "panel"
+       }
+      },
+      {
+       "h@server_form.slot_hover": {}
+      }
+     ],
+     "button_mappings": [
+      {
+       "from_button_id": "button.menu_select",
+       "to_button_id": "$pressed_button_name",
+       "mapping_type": "pressed"
+      },
+      {
+       "from_button_id": "button.menu_ok",
+       "to_button_id": "$pressed_button_name",
+       "mapping_type": "focused"
+      }
+     ],
+     "bindings": [
+      {
+       "binding_type": "collection_details",
+       "binding_collection_name": "form_buttons"
+      }
+     ]
+    }
+   }
+  ]
+ },
+ "chest_grid": {
+  "type": "grid",
+  "size": [
+   162,
+   198
+  ],
+  "grid_dimensions": [
+   9,
+   11
+  ],
+  "grid_item_template": "server_form.slot_base",
+  "collection_name": "form_buttons",
+  "anchor_from": "top_left",
+  "anchor_to": "top_left",
+  "offset": [
+   7,
+   28
+  ],
+  "bindings": [
+   {
+    "binding_name": "#form_button_length",
+    "binding_name_override": "#maximum_grid_items"
+   }
+  ]
+ },
+ "window_r5": {
+  "type": "panel",
+  "size": [
+   176,
+   125
+  ],
+  "layer": 2,
+  "controls": [
+   {
+    "bg": {
+     "type": "image",
+     "texture": "textures/ui/shop/panel",
+     "nineslice_size": 3,
+     "size": [
+      "100%",
+      "100%"
+     ]
+    }
+   },
+   {
+    "title": {
+     "type": "label",
+     "text": "#text",
+     "color": [
+      0.251,
+      0.251,
+      0.251
+     ],
+     "shadow": false,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      8,
+      6
+     ],
+     "bindings": [
+      {
+       "binding_name": "#title_text"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "((((((#title_text - '__chest__') - '__r5__') - '__r6__') - '__r7__') - '__r9__')",
+       "target_property_name": "#text"
+      }
+     ]
+    }
+   },
+   {
+    "close": {
+     "type": "button",
+     "size": [
+      14,
+      14
+     ],
+     "layer": 20,
+     "anchor_from": "top_right",
+     "anchor_to": "top_right",
+     "offset": [
+      -5,
+      5
+     ],
+     "$pressed_button_name": "button.menu_exit",
+     "default_control": "d",
+     "hover_control": "h",
+     "pressed_control": "h",
+     "controls": [
+      {
+       "d": {
+        "type": "label",
+        "text": "x",
+        "color": [
+         0.25,
+         0.25,
+         0.25
+        ],
+        "shadow": false
+       }
+      },
+      {
+       "h": {
+        "type": "label",
+        "text": "x",
+        "color": [
+         0.7,
+         0,
+         0
+        ],
+        "shadow": false
+       }
+      }
+     ],
+     "button_mappings": [
+      {
+       "from_button_id": "button.menu_select",
+       "to_button_id": "$pressed_button_name",
+       "mapping_type": "pressed"
+      },
+      {
+       "from_button_id": "button.menu_ok",
+       "to_button_id": "$pressed_button_name",
+       "mapping_type": "focused"
+      }
+     ]
+    }
+   },
+   {
+    "grid@server_form.grid_r5": {}
+   }
+  ]
+ },
+ "grid_r5": {
+  "type": "grid",
+  "size": [
+   162,
+   90
+  ],
+  "grid_dimensions": [
+   9,
+   5
+  ],
+  "grid_item_template": "server_form.slot_base",
+  "collection_name": "form_buttons",
+  "anchor_from": "top_left",
+  "anchor_to": "top_left",
+  "offset": [
+   7,
+   28
+  ],
+  "bindings": [
+   {
+    "binding_name": "#form_button_length",
+    "binding_name_override": "#maximum_grid_items"
+   }
+  ]
+ },
+ "window_r6": {
+  "type": "panel",
+  "size": [
+   176,
+   143
+  ],
+  "layer": 2,
+  "controls": [
+   {
+    "bg": {
+     "type": "image",
+     "texture": "textures/ui/shop/panel",
+     "nineslice_size": 3,
+     "size": [
+      "100%",
+      "100%"
+     ]
+    }
+   },
+   {
+    "title": {
+     "type": "label",
+     "text": "#text",
+     "color": [
+      0.251,
+      0.251,
+      0.251
+     ],
+     "shadow": false,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      8,
+      6
+     ],
+     "bindings": [
+      {
+       "binding_name": "#title_text"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "((((((#title_text - '__chest__') - '__r5__') - '__r6__') - '__r7__') - '__r9__')",
+       "target_property_name": "#text"
+      }
+     ]
+    }
+   },
+   {
+    "close": {
+     "type": "button",
+     "size": [
+      14,
+      14
+     ],
+     "layer": 20,
+     "anchor_from": "top_right",
+     "anchor_to": "top_right",
+     "offset": [
+      -5,
+      5
+     ],
+     "$pressed_button_name": "button.menu_exit",
+     "default_control": "d",
+     "hover_control": "h",
+     "pressed_control": "h",
+     "controls": [
+      {
+       "d": {
+        "type": "label",
+        "text": "x",
+        "color": [
+         0.25,
+         0.25,
+         0.25
+        ],
+        "shadow": false
+       }
+      },
+      {
+       "h": {
+        "type": "label",
+        "text": "x",
+        "color": [
+         0.7,
+         0,
+         0
+        ],
+        "shadow": false
+       }
+      }
+     ],
+     "button_mappings": [
+      {
+       "from_button_id": "button.menu_select",
+       "to_button_id": "$pressed_button_name",
+       "mapping_type": "pressed"
+      },
+      {
+       "from_button_id": "button.menu_ok",
+       "to_button_id": "$pressed_button_name",
+       "mapping_type": "focused"
+      }
+     ]
+    }
+   },
+   {
+    "grid@server_form.grid_r6": {}
+   }
+  ]
+ },
+ "grid_r6": {
+  "type": "grid",
+  "size": [
+   162,
+   108
+  ],
+  "grid_dimensions": [
+   9,
+   6
+  ],
+  "grid_item_template": "server_form.slot_base",
+  "collection_name": "form_buttons",
+  "anchor_from": "top_left",
+  "anchor_to": "top_left",
+  "offset": [
+   7,
+   28
+  ],
+  "bindings": [
+   {
+    "binding_name": "#form_button_length",
+    "binding_name_override": "#maximum_grid_items"
+   }
+  ]
+ },
+ "window_r7": {
+  "type": "panel",
+  "size": [
+   176,
+   161
+  ],
+  "layer": 2,
+  "controls": [
+   {
+    "bg": {
+     "type": "image",
+     "texture": "textures/ui/shop/panel",
+     "nineslice_size": 3,
+     "size": [
+      "100%",
+      "100%"
+     ]
+    }
+   },
+   {
+    "title": {
+     "type": "label",
+     "text": "#text",
+     "color": [
+      0.251,
+      0.251,
+      0.251
+     ],
+     "shadow": false,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      8,
+      6
+     ],
+     "bindings": [
+      {
+       "binding_name": "#title_text"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "((((((#title_text - '__chest__') - '__r5__') - '__r6__') - '__r7__') - '__r9__')",
+       "target_property_name": "#text"
+      }
+     ]
+    }
+   },
+   {
+    "close": {
+     "type": "button",
+     "size": [
+      14,
+      14
+     ],
+     "layer": 20,
+     "anchor_from": "top_right",
+     "anchor_to": "top_right",
+     "offset": [
+      -5,
+      5
+     ],
+     "$pressed_button_name": "button.menu_exit",
+     "default_control": "d",
+     "hover_control": "h",
+     "pressed_control": "h",
+     "controls": [
+      {
+       "d": {
+        "type": "label",
+        "text": "x",
+        "color": [
+         0.25,
+         0.25,
+         0.25
+        ],
+        "shadow": false
+       }
+      },
+      {
+       "h": {
+        "type": "label",
+        "text": "x",
+        "color": [
+         0.7,
+         0,
+         0
+        ],
+        "shadow": false
+       }
+      }
+     ],
+     "button_mappings": [
+      {
+       "from_button_id": "button.menu_select",
+       "to_button_id": "$pressed_button_name",
+       "mapping_type": "pressed"
+      },
+      {
+       "from_button_id": "button.menu_ok",
+       "to_button_id": "$pressed_button_name",
+       "mapping_type": "focused"
+      }
+     ]
+    }
+   },
+   {
+    "grid@server_form.grid_r7": {}
+   }
+  ]
+ },
+ "grid_r7": {
+  "type": "grid",
+  "size": [
+   162,
+   126
+  ],
+  "grid_dimensions": [
+   9,
+   7
+  ],
+  "grid_item_template": "server_form.slot_base",
+  "collection_name": "form_buttons",
+  "anchor_from": "top_left",
+  "anchor_to": "top_left",
+  "offset": [
+   7,
+   28
+  ],
+  "bindings": [
+   {
+    "binding_name": "#form_button_length",
+    "binding_name_override": "#maximum_grid_items"
+   }
+  ]
+ },
+ "window_r9": {
+  "type": "panel",
+  "size": [
+   176,
+   197
+  ],
+  "layer": 2,
+  "controls": [
+   {
+    "bg": {
+     "type": "image",
+     "texture": "textures/ui/shop/panel",
+     "nineslice_size": 3,
+     "size": [
+      "100%",
+      "100%"
+     ]
+    }
+   },
+   {
+    "title": {
+     "type": "label",
+     "text": "#text",
+     "color": [
+      0.251,
+      0.251,
+      0.251
+     ],
+     "shadow": false,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      8,
+      6
+     ],
+     "bindings": [
+      {
+       "binding_name": "#title_text"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "((((((#title_text - '__chest__') - '__r5__') - '__r6__') - '__r7__') - '__r9__')",
+       "target_property_name": "#text"
+      }
+     ]
+    }
+   },
+   {
+    "close": {
+     "type": "button",
+     "size": [
+      14,
+      14
+     ],
+     "layer": 20,
+     "anchor_from": "top_right",
+     "anchor_to": "top_right",
+     "offset": [
+      -5,
+      5
+     ],
+     "$pressed_button_name": "button.menu_exit",
+     "default_control": "d",
+     "hover_control": "h",
+     "pressed_control": "h",
+     "controls": [
+      {
+       "d": {
+        "type": "label",
+        "text": "x",
+        "color": [
+         0.25,
+         0.25,
+         0.25
+        ],
+        "shadow": false
+       }
+      },
+      {
+       "h": {
+        "type": "label",
+        "text": "x",
+        "color": [
+         0.7,
+         0,
+         0
+        ],
+        "shadow": false
+       }
+      }
+     ],
+     "button_mappings": [
+      {
+       "from_button_id": "button.menu_select",
+       "to_button_id": "$pressed_button_name",
+       "mapping_type": "pressed"
+      },
+      {
+       "from_button_id": "button.menu_ok",
+       "to_button_id": "$pressed_button_name",
+       "mapping_type": "focused"
+      }
+     ]
+    }
+   },
+   {
+    "grid@server_form.grid_r9": {}
+   }
+  ]
+ },
+ "grid_r9": {
+  "type": "grid",
+  "size": [
+   162,
+   162
+  ],
+  "grid_dimensions": [
+   9,
+   9
+  ],
+  "grid_item_template": "server_form.slot_base",
+  "collection_name": "form_buttons",
+  "anchor_from": "top_left",
+  "anchor_to": "top_left",
+  "offset": [
+   7,
+   28
+  ],
+  "bindings": [
+   {
+    "binding_name": "#form_button_length",
+    "binding_name_override": "#maximum_grid_items"
+   }
+  ]
+ }
+}

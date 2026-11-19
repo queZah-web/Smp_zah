@@ -1,0 +1,122 @@
+{
+ "format_version": "1.8.0",
+ "animations": {
+  "animation.smp_crown_worn.idle": {
+   "loop": true,
+   "bones": {
+    "orbit": {
+     "rotation": [
+      0,
+      "q.life_time * 55",
+      0
+     ]
+    },
+    "gem_front": {
+     "scale": [
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 0)",
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 0)",
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 0)"
+     ]
+    },
+    "gem_back": {
+     "scale": [
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 90)",
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 90)",
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 90)"
+     ]
+    },
+    "gem_left": {
+     "scale": [
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 180)",
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 180)",
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 180)"
+     ]
+    },
+    "gem_right": {
+     "scale": [
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 270)",
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 270)",
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 270)"
+     ]
+    },
+    "gem_top": {
+     "scale": [
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 45)",
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 45)",
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 45)"
+     ]
+    },
+    "em_fl": {
+     "scale": [
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 135)",
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 135)",
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 135)"
+     ]
+    },
+    "em_fr": {
+     "scale": [
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 225)",
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 225)",
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 225)"
+     ]
+    },
+    "em_bl": {
+     "scale": [
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 315)",
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 315)",
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 315)"
+     ]
+    },
+    "em_br": {
+     "scale": [
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 0)",
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 0)",
+      "1 + 0.14 * Math.sin(q.life_time * 220 + 0)"
+     ]
+    },
+    "orb0": {
+     "position": [
+      0,
+      "0.6 * Math.sin(q.life_time * 130 + 0)",
+      0
+     ]
+    },
+    "orb1": {
+     "position": [
+      0,
+      "0.6 * Math.sin(q.life_time * 130 + 60)",
+      0
+     ]
+    },
+    "orb2": {
+     "position": [
+      0,
+      "0.6 * Math.sin(q.life_time * 130 + 120)",
+      0
+     ]
+    },
+    "orb3": {
+     "position": [
+      0,
+      "0.6 * Math.sin(q.life_time * 130 + 180)",
+      0
+     ]
+    },
+    "orb4": {
+     "position": [
+      0,
+      "0.6 * Math.sin(q.life_time * 130 + 240)",
+      0
+     ]
+    },
+    "orb5": {
+     "position": [
+      0,
+      "0.6 * Math.sin(q.life_time * 130 + 300)",
+      0
+     ]
+    }
+   }
+  }
+ }
+}

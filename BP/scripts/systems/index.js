@@ -1,0 +1,46 @@
+// Extra SMP systems entry point (imported once by smp/index.js)
+// land protection first: the guard must be active no matter what else fails
+import "./landcore.js";
+import "./landguard.js";
+import "./growth.js";
+import "./farmfx.js";
+import "./farminfo.js";
+import "./landholo.js";
+import "./tables.js";
+import "./combat.js";
+import "./back.js";        // /back: saves where a player died (must load BEFORE duel.js so it sees the duel state)
+import "./deathloot.js"; // loot of a dead player: not cleared by Clear lag, 30 minutes to get it back (before duel.js, like back.js)
+import "./duel.js";
+import "./crown.js";       // Duel Arena Crown: the #1 in kills (10+ kills) wears a crown
+import "./skills.js";
+import "./oplog.js";
+import "./staffcore.js";   // staff tools (mute, freeze, roles ...): before the chat systems
+import "./creativelog.js"; // Creative log: who used Creative mode and which items they took (Operator > Logs)
+import "./staffworld.js";
+import "./events.js";       // events + temporary zones (Operator > Events): Keep Inventory, no PvP, no damage, time, weather...
+import "./endgate.js";     // The End event: closed, countdown, timer, log (Owner / Admin)
+import "./endholo.js";     // holograms on the End portals
+import "./mobreward.js";   // money for killing mobs (Owner / Admin switch it on / off)
+import "./xrayrestore.js"; // safety net: turns old hidden ores back into real ores (before mining.js)
+import "./specialtool.js";
+import "./mining.js";
+import "./magnet.js";
+import "./chestsell.js";
+import "./nobundle.js";    // bundles are banned (dupe): removed from every player, from the ground and from the shop
+import "./sellslot.js";     // red sell slot: top-right slot of the backpack sells what is moved into it (player switch ON / OFF)
+import "./spawnercfg.js";  // saved spawner numbers (Owner can change them in game): before spawners.js
+import "./spawners.js";
+import "./spawnerholo.js";  // floating info text above every spawner (owner can close it)
+import "./spawnermodel.js";  // a small spinning mob inside the cage of every spawner
+import "./afk.js";         // /afk area: timer + money / shards per minute (Owner / Admin set it)
+import "./clearlag.js";
+import "./itemtimer.js";   // floating Clear lag countdown above every dropped item (Hearts have their own timer)
+import "./blackhole.js";   // holographic black hole: clock for the tendrils, light pull, minor damage
+import "./clans.js";
+import "./commands.js";
+import "./tpbutton.js";  // teleport buttons: an admin places a button (+ hologram name) that teleports the player to typed coordinates
+import "./warp.js";       // /warp: admin saves server warps, players teleport
+import "./crates.js";      // crates (shulker-box crate + keys every 30 real minutes)
+import "./nv.js";
+import "./newgift.js";   // 16 cooked steaks for NEW players only (once)
+import "./opcore.js";

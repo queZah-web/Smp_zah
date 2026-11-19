@@ -1,0 +1,26 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:item": {
+    "description": {
+      "identifier": "smp:duel_crown_feet",
+      "menu_category": {
+        "category": "none"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "textures": {
+          "default": "smp_duel_crown"
+        }
+      },
+      "minecraft:display_name": {
+        "value": "\u00a76\u00a7lDuel Arena Crown"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:wearable": {
+        "slot": "slot.armor.feet",
+        "protection": 0
+      }
+    }
+  }
+}

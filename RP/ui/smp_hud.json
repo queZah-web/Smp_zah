@@ -1,0 +1,5583 @@
+{
+ "namespace": "smp_hud",
+ "root": {
+  "type": "panel",
+  "size": [
+   96,
+   108
+  ],
+  "anchor_from": "right_middle",
+  "anchor_to": "right_middle",
+  "offset": [
+   -14,
+   -8
+  ],
+  "layer": 60,
+  "bindings": [
+   {
+    "binding_name": "#hud_title_text_string"
+   },
+   {
+    "binding_type": "view",
+    "source_property_name": "((not ((#hud_title_text_string - 'sb:') = #hud_title_text_string)) and ((#hud_title_text_string - 'QQL') = #hud_title_text_string))",
+    "target_property_name": "#visible"
+   }
+  ],
+  "controls": [
+   {
+    "bg": {
+     "type": "image",
+     "texture": "textures/ui/shop/black",
+     "keep_ratio": false,
+     "alpha": 0.5,
+     "size": [
+      "100%",
+      "100%"
+     ],
+     "layer": 0
+    }
+   },
+   {
+    "title": {
+     "type": "label",
+     "text": "§c§lS§6§lM§e§lP",
+     "shadow": true,
+     "anchor_from": "top_middle",
+     "anchor_to": "top_middle",
+     "offset": [
+      0,
+      4
+     ],
+     "font_scale_factor": 1.15,
+     "layer": 4,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "((#hud_title_text_string - '~QQN') = #hud_title_text_string)",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "nm0": {
+     "type": "label",
+     "text": "#nm",
+     "color": [
+      1,
+      0.33,
+      0.33
+     ],
+     "shadow": true,
+     "anchor_from": "top_middle",
+     "anchor_to": "top_middle",
+     "offset": [
+      0,
+      4
+     ],
+     "font_scale_factor": 1.15,
+     "layer": 4,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "('%.195s' * #hud_title_text_string)",
+       "target_property_name": "#nmA"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "('%.181s' * #hud_title_text_string)",
+       "target_property_name": "#nmB"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(#nmA - #nmB)",
+       "target_property_name": "#nm"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - '~QQN0Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "nm1": {
+     "type": "label",
+     "text": "#nm",
+     "color": [
+      1,
+      0.67,
+      0
+     ],
+     "shadow": true,
+     "anchor_from": "top_middle",
+     "anchor_to": "top_middle",
+     "offset": [
+      0,
+      4
+     ],
+     "font_scale_factor": 1.15,
+     "layer": 4,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "('%.195s' * #hud_title_text_string)",
+       "target_property_name": "#nmA"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "('%.181s' * #hud_title_text_string)",
+       "target_property_name": "#nmB"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(#nmA - #nmB)",
+       "target_property_name": "#nm"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - '~QQN1Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "nm2": {
+     "type": "label",
+     "text": "#nm",
+     "color": [
+      1,
+      1,
+      0.33
+     ],
+     "shadow": true,
+     "anchor_from": "top_middle",
+     "anchor_to": "top_middle",
+     "offset": [
+      0,
+      4
+     ],
+     "font_scale_factor": 1.15,
+     "layer": 4,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "('%.195s' * #hud_title_text_string)",
+       "target_property_name": "#nmA"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "('%.181s' * #hud_title_text_string)",
+       "target_property_name": "#nmB"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(#nmA - #nmB)",
+       "target_property_name": "#nm"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - '~QQN2Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "nm3": {
+     "type": "label",
+     "text": "#nm",
+     "color": [
+      0.33,
+      1,
+      0.33
+     ],
+     "shadow": true,
+     "anchor_from": "top_middle",
+     "anchor_to": "top_middle",
+     "offset": [
+      0,
+      4
+     ],
+     "font_scale_factor": 1.15,
+     "layer": 4,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "('%.195s' * #hud_title_text_string)",
+       "target_property_name": "#nmA"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "('%.181s' * #hud_title_text_string)",
+       "target_property_name": "#nmB"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(#nmA - #nmB)",
+       "target_property_name": "#nm"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - '~QQN3Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "nm4": {
+     "type": "label",
+     "text": "#nm",
+     "color": [
+      0.33,
+      1,
+      1
+     ],
+     "shadow": true,
+     "anchor_from": "top_middle",
+     "anchor_to": "top_middle",
+     "offset": [
+      0,
+      4
+     ],
+     "font_scale_factor": 1.15,
+     "layer": 4,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "('%.195s' * #hud_title_text_string)",
+       "target_property_name": "#nmA"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "('%.181s' * #hud_title_text_string)",
+       "target_property_name": "#nmB"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(#nmA - #nmB)",
+       "target_property_name": "#nm"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - '~QQN4Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "nm5": {
+     "type": "label",
+     "text": "#nm",
+     "color": [
+      0.33,
+      0.33,
+      1
+     ],
+     "shadow": true,
+     "anchor_from": "top_middle",
+     "anchor_to": "top_middle",
+     "offset": [
+      0,
+      4
+     ],
+     "font_scale_factor": 1.15,
+     "layer": 4,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "('%.195s' * #hud_title_text_string)",
+       "target_property_name": "#nmA"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "('%.181s' * #hud_title_text_string)",
+       "target_property_name": "#nmB"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(#nmA - #nmB)",
+       "target_property_name": "#nm"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - '~QQN5Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "nm6": {
+     "type": "label",
+     "text": "#nm",
+     "color": [
+      1,
+      0.33,
+      1
+     ],
+     "shadow": true,
+     "anchor_from": "top_middle",
+     "anchor_to": "top_middle",
+     "offset": [
+      0,
+      4
+     ],
+     "font_scale_factor": 1.15,
+     "layer": 4,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "('%.195s' * #hud_title_text_string)",
+       "target_property_name": "#nmA"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "('%.181s' * #hud_title_text_string)",
+       "target_property_name": "#nmB"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(#nmA - #nmB)",
+       "target_property_name": "#nm"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - '~QQN6Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "nm7": {
+     "type": "label",
+     "text": "#nm",
+     "color": [
+      1,
+      1,
+      1
+     ],
+     "shadow": true,
+     "anchor_from": "top_middle",
+     "anchor_to": "top_middle",
+     "offset": [
+      0,
+      4
+     ],
+     "font_scale_factor": 1.15,
+     "layer": 4,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "('%.195s' * #hud_title_text_string)",
+       "target_property_name": "#nmA"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "('%.181s' * #hud_title_text_string)",
+       "target_property_name": "#nmB"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(#nmA - #nmB)",
+       "target_property_name": "#nm"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - '~QQN7Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "i0": {
+     "type": "image",
+     "texture": "textures/ui/shop/hud_player",
+     "size": [
+      9,
+      9
+     ],
+     "layer": 2,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      3,
+      19
+     ]
+    }
+   },
+   {
+    "i1": {
+     "type": "image",
+     "texture": "textures/ui/shop/hud_money",
+     "size": [
+      9,
+      9
+     ],
+     "layer": 2,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      3,
+      32
+     ]
+    }
+   },
+   {
+    "n1": {
+     "type": "label",
+     "text": "Money",
+     "color": [
+      1,
+      1,
+      1
+     ],
+     "shadow": true,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      14,
+      33
+     ],
+     "layer": 4
+    }
+   },
+   {
+    "i2": {
+     "type": "image",
+     "texture": "textures/ui/shop/hud_shards",
+     "size": [
+      9,
+      9
+     ],
+     "layer": 2,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      3,
+      44
+     ]
+    }
+   },
+   {
+    "n2": {
+     "type": "label",
+     "text": "Shards",
+     "color": [
+      1,
+      1,
+      1
+     ],
+     "shadow": true,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      14,
+      45
+     ],
+     "layer": 4
+    }
+   },
+   {
+    "i3": {
+     "type": "image",
+     "texture": "textures/ui/shop/hud_kills",
+     "size": [
+      9,
+      9
+     ],
+     "layer": 2,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      3,
+      56
+     ]
+    }
+   },
+   {
+    "n3": {
+     "type": "label",
+     "text": "Kills",
+     "color": [
+      1,
+      1,
+      1
+     ],
+     "shadow": true,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      14,
+      57
+     ],
+     "layer": 4
+    }
+   },
+   {
+    "i4": {
+     "type": "image",
+     "texture": "textures/ui/shop/hud_deaths",
+     "size": [
+      9,
+      9
+     ],
+     "layer": 2,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      3,
+      68
+     ]
+    }
+   },
+   {
+    "n4": {
+     "type": "label",
+     "text": "Deaths",
+     "color": [
+      1,
+      1,
+      1
+     ],
+     "shadow": true,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      14,
+      69
+     ],
+     "layer": 4
+    }
+   },
+   {
+    "i5": {
+     "type": "image",
+     "texture": "textures/ui/shop/hud_time",
+     "size": [
+      9,
+      9
+     ],
+     "layer": 2,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      3,
+      80
+     ]
+    }
+   },
+   {
+    "n5": {
+     "type": "label",
+     "text": "Playtime",
+     "color": [
+      1,
+      1,
+      1
+     ],
+     "shadow": true,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      14,
+      81
+     ],
+     "layer": 4
+    }
+   },
+   {
+    "v0": {
+     "type": "panel",
+     "size": [
+      79,
+      12
+     ],
+     "layer": 3,
+     "clips_children": true,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      14,
+      20
+     ],
+     "controls": [
+      {
+       "v": {
+        "type": "label",
+        "text": "#sbn",
+        "color": [
+         1,
+         1,
+         1
+        ],
+        "shadow": true,
+        "anchor_from": "top_left",
+        "anchor_to": "top_left",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.19s' * #hud_title_text_string)",
+          "target_property_name": "#pre"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(#pre - 'sb:')",
+          "target_property_name": "#sbn"
+         }
+        ]
+       }
+      }
+     ]
+    }
+   },
+   {
+    "w1": {
+     "type": "panel",
+     "size": [
+      41,
+      10
+     ],
+     "layer": 3,
+     "clips_children": true,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      52,
+      33
+     ],
+     "controls": [
+      {
+       "wide": {
+        "type": "panel",
+        "size": [
+         900,
+         10
+        ],
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "controls": [
+         {
+          "v": {
+           "type": "label",
+           "text": "#sbv",
+           "color": [
+            0.35,
+            1,
+            0.4
+           ],
+           "shadow": true,
+           "anchor_from": "right_middle",
+           "anchor_to": "right_middle",
+           "bindings": [
+            {
+             "binding_name": "#hud_title_text_string"
+            },
+            {
+             "binding_type": "view",
+             "source_property_name": "('%.41s' * #hud_title_text_string)",
+             "target_property_name": "#sbv"
+            }
+           ]
+          }
+         }
+        ]
+       }
+      }
+     ]
+    }
+   },
+   {
+    "w2": {
+     "type": "panel",
+     "size": [
+      41,
+      10
+     ],
+     "layer": 3,
+     "clips_children": true,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      52,
+      45
+     ],
+     "controls": [
+      {
+       "wide": {
+        "type": "panel",
+        "size": [
+         900,
+         10
+        ],
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "controls": [
+         {
+          "v": {
+           "type": "label",
+           "text": "#sbv",
+           "color": [
+            0.78,
+            0.45,
+            1
+           ],
+           "shadow": true,
+           "anchor_from": "right_middle",
+           "anchor_to": "right_middle",
+           "bindings": [
+            {
+             "binding_name": "#hud_title_text_string"
+            },
+            {
+             "binding_type": "view",
+             "source_property_name": "('%.63s' * #hud_title_text_string)",
+             "target_property_name": "#sbv"
+            }
+           ]
+          }
+         }
+        ]
+       }
+      }
+     ]
+    }
+   },
+   {
+    "w3": {
+     "type": "panel",
+     "size": [
+      41,
+      10
+     ],
+     "layer": 3,
+     "clips_children": true,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      52,
+      57
+     ],
+     "controls": [
+      {
+       "wide": {
+        "type": "panel",
+        "size": [
+         900,
+         10
+        ],
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "controls": [
+         {
+          "v": {
+           "type": "label",
+           "text": "#sbv",
+           "color": [
+            1,
+            0.38,
+            0.38
+           ],
+           "shadow": true,
+           "anchor_from": "right_middle",
+           "anchor_to": "right_middle",
+           "bindings": [
+            {
+             "binding_name": "#hud_title_text_string"
+            },
+            {
+             "binding_type": "view",
+             "source_property_name": "('%.85s' * #hud_title_text_string)",
+             "target_property_name": "#sbv"
+            }
+           ]
+          }
+         }
+        ]
+       }
+      }
+     ]
+    }
+   },
+   {
+    "w4": {
+     "type": "panel",
+     "size": [
+      41,
+      10
+     ],
+     "layer": 3,
+     "clips_children": true,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      52,
+      69
+     ],
+     "controls": [
+      {
+       "wide": {
+        "type": "panel",
+        "size": [
+         900,
+         10
+        ],
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "controls": [
+         {
+          "v": {
+           "type": "label",
+           "text": "#sbv",
+           "color": [
+            1,
+            0.62,
+            0.15
+           ],
+           "shadow": true,
+           "anchor_from": "right_middle",
+           "anchor_to": "right_middle",
+           "bindings": [
+            {
+             "binding_name": "#hud_title_text_string"
+            },
+            {
+             "binding_type": "view",
+             "source_property_name": "('%.107s' * #hud_title_text_string)",
+             "target_property_name": "#sbv"
+            }
+           ]
+          }
+         }
+        ]
+       }
+      }
+     ]
+    }
+   },
+   {
+    "w5": {
+     "type": "panel",
+     "size": [
+      41,
+      10
+     ],
+     "layer": 3,
+     "clips_children": true,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      52,
+      81
+     ],
+     "controls": [
+      {
+       "wide": {
+        "type": "panel",
+        "size": [
+         900,
+         10
+        ],
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "controls": [
+         {
+          "v": {
+           "type": "label",
+           "text": "#sbv",
+           "color": [
+            0.35,
+            0.7,
+            1
+           ],
+           "shadow": true,
+           "anchor_from": "right_middle",
+           "anchor_to": "right_middle",
+           "bindings": [
+            {
+             "binding_name": "#hud_title_text_string"
+            },
+            {
+             "binding_type": "view",
+             "source_property_name": "('%.129s' * #hud_title_text_string)",
+             "target_property_name": "#sbv"
+            }
+           ]
+          }
+         }
+        ]
+       }
+      }
+     ]
+    }
+   },
+   {
+    "i6": {
+     "type": "image",
+     "texture": "textures/ui/shop/hud_kills",
+     "size": [
+      9,
+      9
+     ],
+     "layer": 2,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      3,
+      92
+     ]
+    }
+   },
+   {
+    "n6": {
+     "type": "label",
+     "text": "Duel",
+     "color": [
+      1,
+      1,
+      1
+     ],
+     "shadow": true,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      14,
+      93
+     ],
+     "layer": 4
+    }
+   },
+   {
+    "w6": {
+     "type": "panel",
+     "size": [
+      41,
+      10
+     ],
+     "layer": 3,
+     "clips_children": true,
+     "anchor_from": "top_left",
+     "anchor_to": "top_left",
+     "offset": [
+      52,
+      93
+     ],
+     "controls": [
+      {
+       "wide": {
+        "type": "panel",
+        "size": [
+         900,
+         10
+        ],
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "controls": [
+         {
+          "v": {
+           "type": "label",
+           "text": "#sbv",
+           "color": [
+            1,
+            0.45,
+            0.45
+           ],
+           "shadow": true,
+           "anchor_from": "right_middle",
+           "anchor_to": "right_middle",
+           "bindings": [
+            {
+             "binding_name": "#hud_title_text_string"
+            },
+            {
+             "binding_type": "view",
+             "source_property_name": "('%.151s' * #hud_title_text_string)",
+             "target_property_name": "#sbv"
+            }
+           ]
+          }
+         }
+        ]
+       }
+      }
+     ]
+    }
+   }
+  ]
+ },
+ "root_left@smp_hud.root": {
+  "anchor_from": "left_middle",
+  "anchor_to": "left_middle",
+  "offset": [
+   14,
+   -8
+  ],
+  "bindings": [
+   {
+    "binding_name": "#hud_title_text_string"
+   },
+   {
+    "binding_type": "view",
+    "source_property_name": "((not ((#hud_title_text_string - 'sb:') = #hud_title_text_string)) and (not ((#hud_title_text_string - 'QQL') = #hud_title_text_string)))",
+    "target_property_name": "#visible"
+   }
+  ]
+ },
+ "banner": {
+  "type": "panel",
+  "size": [
+   180,
+   60
+  ],
+  "anchor_from": "center",
+  "anchor_to": "center",
+  "layer": 7,
+  "bindings": [
+   {
+    "binding_name": "#hud_title_text_string"
+   },
+   {
+    "binding_type": "view",
+    "source_property_name": "(not ((#hud_title_text_string - 'QQBAN') = #hud_title_text_string))",
+    "target_property_name": "#visible"
+   }
+  ],
+  "controls": [
+   {
+    "deco_top": {
+     "type": "image",
+     "texture": "textures/ui/shop/duel_deco",
+     "size": [
+      104,
+      8
+     ],
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -16
+     ],
+     "layer": 7
+    }
+   },
+   {
+    "line2": {
+     "type": "label",
+     "text": "§fof §a§limmunity§r§f in Duel combat.",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      8.5
+     ],
+     "layer": 7
+    }
+   },
+   {
+    "deco_bottom": {
+     "type": "image",
+     "texture": "textures/ui/shop/duel_deco",
+     "size": [
+      104,
+      8
+     ],
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      21
+     ],
+     "layer": 7
+    }
+   },
+   {
+    "line1_0": {
+     "type": "label",
+     "text": "§fYou have §a§l2 free hours§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQBHQ') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_1": {
+     "type": "label",
+     "text": "§fYou have §a§l1 free minute§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB1Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_2": {
+     "type": "label",
+     "text": "§fYou have §a§l2 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB2Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_3": {
+     "type": "label",
+     "text": "§fYou have §a§l3 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB3Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_4": {
+     "type": "label",
+     "text": "§fYou have §a§l4 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB4Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_5": {
+     "type": "label",
+     "text": "§fYou have §a§l5 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB5Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_6": {
+     "type": "label",
+     "text": "§fYou have §a§l6 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB6Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_7": {
+     "type": "label",
+     "text": "§fYou have §a§l7 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB7Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_8": {
+     "type": "label",
+     "text": "§fYou have §a§l8 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB8Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_9": {
+     "type": "label",
+     "text": "§fYou have §a§l9 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB9Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_10": {
+     "type": "label",
+     "text": "§fYou have §a§l10 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB10Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_11": {
+     "type": "label",
+     "text": "§fYou have §a§l11 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB11Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_12": {
+     "type": "label",
+     "text": "§fYou have §a§l12 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB12Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_13": {
+     "type": "label",
+     "text": "§fYou have §a§l13 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB13Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_14": {
+     "type": "label",
+     "text": "§fYou have §a§l14 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB14Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_15": {
+     "type": "label",
+     "text": "§fYou have §a§l15 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB15Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_16": {
+     "type": "label",
+     "text": "§fYou have §a§l16 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB16Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_17": {
+     "type": "label",
+     "text": "§fYou have §a§l17 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB17Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_18": {
+     "type": "label",
+     "text": "§fYou have §a§l18 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB18Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_19": {
+     "type": "label",
+     "text": "§fYou have §a§l19 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB19Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_20": {
+     "type": "label",
+     "text": "§fYou have §a§l20 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB20Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_21": {
+     "type": "label",
+     "text": "§fYou have §a§l21 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB21Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_22": {
+     "type": "label",
+     "text": "§fYou have §a§l22 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB22Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_23": {
+     "type": "label",
+     "text": "§fYou have §a§l23 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB23Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_24": {
+     "type": "label",
+     "text": "§fYou have §a§l24 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB24Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_25": {
+     "type": "label",
+     "text": "§fYou have §a§l25 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB25Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_26": {
+     "type": "label",
+     "text": "§fYou have §a§l26 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB26Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_27": {
+     "type": "label",
+     "text": "§fYou have §a§l27 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB27Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_28": {
+     "type": "label",
+     "text": "§fYou have §a§l28 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB28Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_29": {
+     "type": "label",
+     "text": "§fYou have §a§l29 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB29Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_30": {
+     "type": "label",
+     "text": "§fYou have §a§l30 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB30Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_31": {
+     "type": "label",
+     "text": "§fYou have §a§l31 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB31Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_32": {
+     "type": "label",
+     "text": "§fYou have §a§l32 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB32Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_33": {
+     "type": "label",
+     "text": "§fYou have §a§l33 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB33Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_34": {
+     "type": "label",
+     "text": "§fYou have §a§l34 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB34Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_35": {
+     "type": "label",
+     "text": "§fYou have §a§l35 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB35Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_36": {
+     "type": "label",
+     "text": "§fYou have §a§l36 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB36Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_37": {
+     "type": "label",
+     "text": "§fYou have §a§l37 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB37Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_38": {
+     "type": "label",
+     "text": "§fYou have §a§l38 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB38Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_39": {
+     "type": "label",
+     "text": "§fYou have §a§l39 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB39Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_40": {
+     "type": "label",
+     "text": "§fYou have §a§l40 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB40Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_41": {
+     "type": "label",
+     "text": "§fYou have §a§l41 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB41Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_42": {
+     "type": "label",
+     "text": "§fYou have §a§l42 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB42Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_43": {
+     "type": "label",
+     "text": "§fYou have §a§l43 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB43Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_44": {
+     "type": "label",
+     "text": "§fYou have §a§l44 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB44Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_45": {
+     "type": "label",
+     "text": "§fYou have §a§l45 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB45Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_46": {
+     "type": "label",
+     "text": "§fYou have §a§l46 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB46Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_47": {
+     "type": "label",
+     "text": "§fYou have §a§l47 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB47Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_48": {
+     "type": "label",
+     "text": "§fYou have §a§l48 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB48Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_49": {
+     "type": "label",
+     "text": "§fYou have §a§l49 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB49Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_50": {
+     "type": "label",
+     "text": "§fYou have §a§l50 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB50Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_51": {
+     "type": "label",
+     "text": "§fYou have §a§l51 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB51Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_52": {
+     "type": "label",
+     "text": "§fYou have §a§l52 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB52Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_53": {
+     "type": "label",
+     "text": "§fYou have §a§l53 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB53Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_54": {
+     "type": "label",
+     "text": "§fYou have §a§l54 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB54Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_55": {
+     "type": "label",
+     "text": "§fYou have §a§l55 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB55Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_56": {
+     "type": "label",
+     "text": "§fYou have §a§l56 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB56Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_57": {
+     "type": "label",
+     "text": "§fYou have §a§l57 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB57Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_58": {
+     "type": "label",
+     "text": "§fYou have §a§l58 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB58Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_59": {
+     "type": "label",
+     "text": "§fYou have §a§l59 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB59Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_60": {
+     "type": "label",
+     "text": "§fYou have §a§l60 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB60Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_61": {
+     "type": "label",
+     "text": "§fYou have §a§l61 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB61Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_62": {
+     "type": "label",
+     "text": "§fYou have §a§l62 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB62Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_63": {
+     "type": "label",
+     "text": "§fYou have §a§l63 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB63Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_64": {
+     "type": "label",
+     "text": "§fYou have §a§l64 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB64Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_65": {
+     "type": "label",
+     "text": "§fYou have §a§l65 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB65Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_66": {
+     "type": "label",
+     "text": "§fYou have §a§l66 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB66Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_67": {
+     "type": "label",
+     "text": "§fYou have §a§l67 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB67Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_68": {
+     "type": "label",
+     "text": "§fYou have §a§l68 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB68Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_69": {
+     "type": "label",
+     "text": "§fYou have §a§l69 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB69Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_70": {
+     "type": "label",
+     "text": "§fYou have §a§l70 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB70Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_71": {
+     "type": "label",
+     "text": "§fYou have §a§l71 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB71Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_72": {
+     "type": "label",
+     "text": "§fYou have §a§l72 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB72Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_73": {
+     "type": "label",
+     "text": "§fYou have §a§l73 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB73Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_74": {
+     "type": "label",
+     "text": "§fYou have §a§l74 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB74Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_75": {
+     "type": "label",
+     "text": "§fYou have §a§l75 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB75Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_76": {
+     "type": "label",
+     "text": "§fYou have §a§l76 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB76Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_77": {
+     "type": "label",
+     "text": "§fYou have §a§l77 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB77Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_78": {
+     "type": "label",
+     "text": "§fYou have §a§l78 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB78Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_79": {
+     "type": "label",
+     "text": "§fYou have §a§l79 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB79Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_80": {
+     "type": "label",
+     "text": "§fYou have §a§l80 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB80Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_81": {
+     "type": "label",
+     "text": "§fYou have §a§l81 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB81Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_82": {
+     "type": "label",
+     "text": "§fYou have §a§l82 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB82Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_83": {
+     "type": "label",
+     "text": "§fYou have §a§l83 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB83Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_84": {
+     "type": "label",
+     "text": "§fYou have §a§l84 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB84Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_85": {
+     "type": "label",
+     "text": "§fYou have §a§l85 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB85Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_86": {
+     "type": "label",
+     "text": "§fYou have §a§l86 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB86Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_87": {
+     "type": "label",
+     "text": "§fYou have §a§l87 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB87Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_88": {
+     "type": "label",
+     "text": "§fYou have §a§l88 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB88Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_89": {
+     "type": "label",
+     "text": "§fYou have §a§l89 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB89Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_90": {
+     "type": "label",
+     "text": "§fYou have §a§l90 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB90Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_91": {
+     "type": "label",
+     "text": "§fYou have §a§l91 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB91Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_92": {
+     "type": "label",
+     "text": "§fYou have §a§l92 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB92Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_93": {
+     "type": "label",
+     "text": "§fYou have §a§l93 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB93Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_94": {
+     "type": "label",
+     "text": "§fYou have §a§l94 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB94Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_95": {
+     "type": "label",
+     "text": "§fYou have §a§l95 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB95Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_96": {
+     "type": "label",
+     "text": "§fYou have §a§l96 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB96Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_97": {
+     "type": "label",
+     "text": "§fYou have §a§l97 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB97Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_98": {
+     "type": "label",
+     "text": "§fYou have §a§l98 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB98Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_99": {
+     "type": "label",
+     "text": "§fYou have §a§l99 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB99Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_100": {
+     "type": "label",
+     "text": "§fYou have §a§l100 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB100Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_101": {
+     "type": "label",
+     "text": "§fYou have §a§l101 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB101Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_102": {
+     "type": "label",
+     "text": "§fYou have §a§l102 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB102Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_103": {
+     "type": "label",
+     "text": "§fYou have §a§l103 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB103Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_104": {
+     "type": "label",
+     "text": "§fYou have §a§l104 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB104Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_105": {
+     "type": "label",
+     "text": "§fYou have §a§l105 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB105Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_106": {
+     "type": "label",
+     "text": "§fYou have §a§l106 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB106Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_107": {
+     "type": "label",
+     "text": "§fYou have §a§l107 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB107Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_108": {
+     "type": "label",
+     "text": "§fYou have §a§l108 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB108Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_109": {
+     "type": "label",
+     "text": "§fYou have §a§l109 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB109Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_110": {
+     "type": "label",
+     "text": "§fYou have §a§l110 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB110Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_111": {
+     "type": "label",
+     "text": "§fYou have §a§l111 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB111Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_112": {
+     "type": "label",
+     "text": "§fYou have §a§l112 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB112Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_113": {
+     "type": "label",
+     "text": "§fYou have §a§l113 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB113Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_114": {
+     "type": "label",
+     "text": "§fYou have §a§l114 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB114Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_115": {
+     "type": "label",
+     "text": "§fYou have §a§l115 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB115Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_116": {
+     "type": "label",
+     "text": "§fYou have §a§l116 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB116Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_117": {
+     "type": "label",
+     "text": "§fYou have §a§l117 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB117Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_118": {
+     "type": "label",
+     "text": "§fYou have §a§l118 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB118Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "line1_119": {
+     "type": "label",
+     "text": "§fYou have §a§l119 free minutes§r",
+     "shadow": true,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      -3
+     ],
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQB119Q') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   }
+  ]
+ },
+ "sale": {
+  "type": "panel",
+  "size": [
+   100,
+   12
+  ],
+  "anchor_from": "center",
+  "anchor_to": "center",
+  "offset": [
+   "-1%",
+   "24%"
+  ],
+  "layer": 8,
+  "clips_children": true,
+  "bindings": [
+   {
+    "binding_name": "#hud_title_text_string"
+   },
+   {
+    "binding_type": "view",
+    "source_property_name": "(not ((#hud_title_text_string - 'sb:') = #hud_title_text_string))",
+    "target_property_name": "#visible"
+   }
+  ],
+  "controls": [
+   {
+    "wide_g": {
+     "type": "panel",
+     "size": [
+      900,
+      12
+     ],
+     "anchor_from": "right_middle",
+     "anchor_to": "right_middle",
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "((#hud_title_text_string - 'QQR') = #hud_title_text_string)",
+       "target_property_name": "#visible"
+      }
+     ],
+     "controls": [
+      {
+       "v": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "((#hud_title_text_string - 'QQS') = #hud_title_text_string)",
+          "target_property_name": "#visible"
+         }
+        ]
+       }
+      },
+      {
+       "v1": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS1Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.996
+       }
+      },
+      {
+       "v2": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS2Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.984
+       }
+      },
+      {
+       "v3": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS3Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.965
+       }
+      },
+      {
+       "v4": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS4Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.938
+       }
+      },
+      {
+       "v5": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS5Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.905
+       }
+      },
+      {
+       "v6": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS6Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.864
+       }
+      },
+      {
+       "v7": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS7Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.819
+       }
+      },
+      {
+       "v8": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS8Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.768
+       }
+      },
+      {
+       "v9": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS9Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.713
+       }
+      },
+      {
+       "v10": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS10Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.655
+       }
+      },
+      {
+       "v11": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS11Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.594
+       }
+      },
+      {
+       "v12": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS12Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.531
+       }
+      },
+      {
+       "v13": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS13Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.469
+       }
+      },
+      {
+       "v14": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS14Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.406
+       }
+      },
+      {
+       "v15": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS15Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.345
+       }
+      },
+      {
+       "v16": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS16Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.287
+       }
+      },
+      {
+       "v17": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS17Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.232
+       }
+      },
+      {
+       "v18": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS18Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.181
+       }
+      },
+      {
+       "v19": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS19Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.136
+       }
+      },
+      {
+       "v20": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS20Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.095
+       }
+      },
+      {
+       "v21": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS21Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.062
+       }
+      },
+      {
+       "v22": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS22Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.035
+       }
+      },
+      {
+       "v23": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS23Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.016
+       }
+      },
+      {
+       "v24": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         0.33,
+         1,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS24Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.004
+       }
+      }
+     ]
+    }
+   },
+   {
+    "wide_r": {
+     "type": "panel",
+     "size": [
+      900,
+      12
+     ],
+     "anchor_from": "right_middle",
+     "anchor_to": "right_middle",
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQR') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ],
+     "controls": [
+      {
+       "v": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "((#hud_title_text_string - 'QQS') = #hud_title_text_string)",
+          "target_property_name": "#visible"
+         }
+        ]
+       }
+      },
+      {
+       "v1": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS1Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.996
+       }
+      },
+      {
+       "v2": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS2Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.984
+       }
+      },
+      {
+       "v3": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS3Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.965
+       }
+      },
+      {
+       "v4": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS4Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.938
+       }
+      },
+      {
+       "v5": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS5Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.905
+       }
+      },
+      {
+       "v6": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS6Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.864
+       }
+      },
+      {
+       "v7": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS7Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.819
+       }
+      },
+      {
+       "v8": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS8Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.768
+       }
+      },
+      {
+       "v9": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS9Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.713
+       }
+      },
+      {
+       "v10": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS10Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.655
+       }
+      },
+      {
+       "v11": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS11Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.594
+       }
+      },
+      {
+       "v12": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS12Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.531
+       }
+      },
+      {
+       "v13": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS13Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.469
+       }
+      },
+      {
+       "v14": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS14Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.406
+       }
+      },
+      {
+       "v15": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS15Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.345
+       }
+      },
+      {
+       "v16": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS16Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.287
+       }
+      },
+      {
+       "v17": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS17Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.232
+       }
+      },
+      {
+       "v18": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS18Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.181
+       }
+      },
+      {
+       "v19": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS19Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.136
+       }
+      },
+      {
+       "v20": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS20Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.095
+       }
+      },
+      {
+       "v21": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS21Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.062
+       }
+      },
+      {
+       "v22": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS22Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.035
+       }
+      },
+      {
+       "v23": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS23Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.016
+       }
+      },
+      {
+       "v24": {
+        "type": "label",
+        "text": "#sbv",
+        "color": [
+         1,
+         0.33,
+         0.33
+        ],
+        "shadow": true,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "bindings": [
+         {
+          "binding_name": "#hud_title_text_string"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "('%.181s' * #hud_title_text_string)",
+          "target_property_name": "#sbv"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#hud_title_text_string - 'QQS24Q') = #hud_title_text_string))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "alpha": 0.004
+       }
+      }
+     ]
+    }
+   }
+  ]
+ }
+}

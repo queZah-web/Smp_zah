@@ -1,0 +1,24 @@
+{
+  "resource_pack_name": "shopchestgui",
+  "texture_name": "atlas.items",
+  "texture_data": {
+    "smp_duel_crown": {
+      "textures": "textures/items/smp_duel_crown"
+    },
+    "smp_frost_crown": {
+      "textures": "textures/items/smp_frost_crown"
+    },
+    "smp_heart": {
+      "textures": "textures/items/smp_heart"
+    },
+    "smp_heart_cursed": {
+      "textures": "textures/items/smp_heart_cursed"
+    },
+    "smp_heart_half": {
+      "textures": "textures/items/smp_heart_half"
+    },
+    "smp_sell_slot": {
+      "textures": "textures/items/smp_sell_slot"
+    }
+  }
+}

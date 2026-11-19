@@ -1,0 +1,22 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:item": {
+    "description": {
+      "identifier": "smp:sell_slot",
+      "menu_category": {
+        "category": "none"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "textures": {
+          "default": "smp_sell_slot"
+        }
+      },
+      "minecraft:display_name": {
+        "value": "§c§lSELL SLOT"
+      },
+      "minecraft:max_stack_size": 1
+    }
+  }
+}

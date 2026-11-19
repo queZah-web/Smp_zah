@@ -1,0 +1,32 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "SMP",
+    "description": "SMP server pack - This mod was created by @Zahraiiq",
+    "uuid": "7ab1058a-9554-45e8-991e-84727e37aa6f",
+    "version": [
+      1,
+      4,
+      38
+    ],
+    "min_engine_version": [
+      1,
+      26,
+      40
+    ]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "379d2b65-90f0-4923-a544-b4f076700db4",
+      "version": [
+        1,
+        4,
+        38
+      ]
+    }
+  ],
+  "capabilities": [
+    "pbr"
+  ]
+}
