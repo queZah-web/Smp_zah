@@ -52,6 +52,7 @@ import "./tntrun.js";      // TNT Run event: the arena (Owner: /opr > Building /
 import "./squidgame.js";   // Red Light, Green Light event: the arena + the doll (Owner: /opr > Building / Events > Red Light), /redlight
 import "./dropper.js";     // Dropper event: the tower with 7 stages (Owner: /opr > Building / Events > Dropper), /dropper
 import "./pillars.js";     // Pillars of Fortune event: 16 pillars in the sky (Owner: /opr > Building / Events > Pillars), /pillars
+import "./colorrush.js";   // Color Rush event: the colour floor hall (Owner: /opr > Building / Events > Color Rush), /colors
 import "./nv.js";
 import "./newgift.js";
 import "./kits.js";

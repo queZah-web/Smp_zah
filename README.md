@@ -218,3 +218,15 @@ Everything else works like the classic game (lockers for the own things, random 
 the void at the end, prize, stats). It has its own settings, lockers, data and stats (`/pillars1`, `pq:*`, wins `qw`).
 A player can only be in one of the two Pillars games at a time.
 Code: `systems/pillarsdesign.js` (`makeDesign`: BIG + SMALL), `systems/pillars.js` (`makeGame`: CLASSIC + ONE).
+
+## Color Rush (event) - Building > Color Rush, Events > Color Rush (Owner), /colors (players)
+**The hall** (53 x 53, land saved for Undo): a 33 x 33 wool floor over a deep pit, a gap + a glass wall on a light blue rim
+(nobody can stand beside the floor), a walkway with seats, stone-brick walls with 4 big COLOUR PANELS, a leaderboard.
+**Two floors** (the Owner chooses): MIXED = every block its own colour, PATCHES = 3 x 3 patches of one colour; 12 colours,
+every colour the same number of times, shuffled, no equal neighbours side by side; a NEW floor every round.
+**A game**: 2 - 30 players; time to find the colour (first round 6 / 5 / 4 / 3 s), faster every round (0 / 0.2 / 0.4 s, never
+under 1 s), how the other blocks vanish (at once / in waves 0.5 s / 1 s), prize.
+- A colour is called (title in that colour, the wall panels turn that colour, a shrinking bar in the colour), then every
+  other block vanishes; who falls is out (announced, goes to the walkway). The last one wins; if the last players fall in the
+  same round they win together (the prize is shared). No PvP, Adventure, no items.
+- Code: `systems/colordesign.js` (hall, floor patterns), `systems/colorrush.js` (build, game, pages, `/colors`).
