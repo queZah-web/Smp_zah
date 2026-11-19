@@ -42,6 +42,7 @@ import "./tpbutton.js";  // teleport buttons: an admin places a button (+ hologr
 import "./warp.js";       // /warp: admin saves server warps, players teleport
 import "./crates.js";      // crates (shulker-box crate + keys every 30 real minutes)
 import "./arena.js";       // the 2 fighting arenas (/arena, Owner: /opr > Building > Arenas)
+import "./afkhall.js";     // the AFK Hall (Owner: /opr > Building > AFK Hall) - becomes the AFK area
 import "./nv.js";
 import "./newgift.js";   // 16 cooked steaks for NEW players only (once)
 import "./opcore.js";

@@ -221,12 +221,15 @@ export function buildingPage(player, back) {
   const f = make("Operator: Building", SHORT_ROWS); f.self = self; f.glass = true;
   set(f, 0 * COLS + 4, hdr(1, "g") + "§a§lBuilding\n§r§7Ready places that are built for you\n§r§7Only the Owner can use this", "textures/blocks/grass_side_carried", null);
   set(f, 2 * COLS + 4, hdr(1, z ? "g" : "c") + "§a§lSpawn\n§r§7Grand: walled sanctuary, giant tree,\n§r§7Crate Temple, Hall of Legends (TOP)\n§r§7Small: 41 x 41 garden\n§r§7Now: " + (busy ? "§ebeing built" : z ? "§abuilt" : "§fnot built") + "\n§r§eClick to open", "textures/blocks/sapling_oak", { run: () => spawnPage(player, self) });
+  set(f, 2 * COLS + 2, hdr(1, "g") + "§d§lAFK Hall\n§r§7The Crimson Hall: red & white,\n§r§7glass dome, chandeliers, seats\n§r§7It becomes the AFK area (/afk)\n§r§eClick to open", "textures/items/clock_item", { run: () => { try { afkHook.page(player, self); } catch (e) { say(player, "§c[AFK] " + e); } } });
   set(f, 2 * COLS + 6, hdr(1, "g") + "§c§lArenas\n§r§7Two colosseums for fighting:\n§r§7Keep Inventory / No Keep\n§r§7You choose the rules of each one\n§r§eClick to open", "textures/items/diamond_sword", { run: () => { try { arenaHook.page(player, self); } catch (e) { say(player, "§c[Arena] " + e); } } });
   backBtn(f, back); status(player, f);
   open(player, f);
 }
 /** set by arena.js (no import loop) */
 export const arenaHook = { page: () => {} };
+/** set by afkhall.js (no import loop) */
+export const afkHook = { page: () => {} };
 function spawnPage(player, back) {
   if (!isOwner(player)) return;
   const self = () => spawnPage(player, back), z = getZone();

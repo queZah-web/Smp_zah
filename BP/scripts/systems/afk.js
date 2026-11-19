@@ -140,6 +140,15 @@ export function clearAfkZone(actor) {
   slog(actor, "afkset", null, "area removed");
   return { ok: true };
 }
+/** Building > AFK Hall (afkhall.js): puts an exact area + arrival spot (or null = no area). Owner only. Returns { ok, old } or { err } */
+export function setAfkZoneExact(actor, zone) {
+  if (!isOwnerPlayer(actor)) return { err: "Only the Owner can do this." };
+  const c = load(); if (!c) return { err: "The settings could not be read yet. Try again in a moment." };
+  const old = c.z ? { ...c.z } : null; c.z = zone ? { ...zone } : null;
+  if (!persist()) { c.z = old; return { err: "Could not save." }; }
+  slog(actor, "afkset", null, zone ? "area set by the AFK Hall builder" : "area put back (AFK Hall undo)");
+  return { ok: true, old };
+}
 /** operator test: go to the AFK spot at once (no cooldown) */
 export function gotoAfkZone(actor) {
   if (!can(actor, "afkset")) return denied(actor);

@@ -52,3 +52,11 @@ armory, rest hall, hall of champions, 8 staircases), 11 rows of seats, a royal b
 - The rules work in the **pit** only; everywhere else in the arena nobody takes damage. Only the Owner can change the building.
 - Keep Inventory uses the normal API: the drops of a death in the pit are taken off the ground and given back at respawn.
 - Code: `systems/arenadesign.js` (design), `systems/arena.js` (build, rules, menus, protection, `/arena`).
+
+## Building > AFK Hall (Owner only)
+"The Crimson Hall" (45 x 46, 39 high, ~18.5k blocks): white floor with a red pattern and a glowing crest, red carpet,
+4 rows of stone seats, pillars with red / white medallions, red & white banners, red / purple crystals in the corners,
+a tall glass dome on red ribs, chandeliers. Built around the Owner (no lag, land saved for Undo).
+When it is ready the **AFK area** (afk.js) becomes the inside of the hall: `/afk` goes there and the AFK rewards work.
+Only the Owner can change the hall. Undo puts the land and the old AFK area back.
+Code: `systems/afkdesign.js` (design), `systems/afkhall.js` (builder, page, protection).
