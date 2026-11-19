@@ -40,6 +40,7 @@ import { cratesAdminPage, takeKeysForm } from "./crates.js";
 import { oprMsg, OprForm } from "./oprlang.js";
 import { hubButtons } from "./eventsmenu.js";
 import { activeCount as eventsRunning } from "./events.js";
+import { buildingPage } from "./spawnbuild.js";
 
 const SYM = OPMENU.symbol;
 const ICON = {
@@ -446,6 +447,7 @@ export function opPage(player, back) {
   perm(f, 1 * COLS + 5, player, "inventory", "§d§lInventory\n§r§7See what the players carry\n§r§7and take items from them\n§r§eClick to open", "textures/ui/shop/i3d_barrel", () => inventoryHubPage(player, self));
   set(f, 2 * COLS + 5, hdr(1) + "§6§lServer & staff\n§r§7Protection bypass, X-ray, spawn,\n§r§7shop control, leaderboards, staff roles", "textures/ui/shop/ic_gear", { run: () => serverPage(player, self) });
   set(f, 1 * COLS + 6, hdr(1) + "§d§lLogs\n§r§7All the logs of the server:\n§r§7shop & money, staff actions, duels,\n§r§7Heart Logs, alerts\n§r§eClick to open", ICON.book, { run: () => logsHubPage(player, self) });
+  if (isOwner(player)) set(f, 2 * COLS + 6, hdr(1, "g") + "§a§lBuilding\n§r§7Ready places built for you:\n§r§7a green Spawn (only the Owner\n§r§7can change it)\n§r§eClick to open", "textures/blocks/grass_side_carried", { run: () => buildingPage(player, self) });
   if (isOwner(player)) set(f, 4 * COLS + 4, hdr(1, "g") + "§5§lOwner\n§r§7Only you: decide what Helper, Mod\n§r§7and Admin may do, hand over the Owner", ICON.crown, { run: () => ownerPage(player, self) });
   perm(f, 4 * COLS + 3, player, "spectate", "§b§lSpectator\n§r§7Now: §f" + modeLabel(player) + "\n§r§7Here or on a player\n§r§eClick to open", "textures/items/spyglass", () => spectatorPage(player, self), isSpectator(player) ? "g" : "c");
   { const v = isVanished(player), vm = visionMode(player), need = can(player, "vanish") ? "vanish" : "orevision";
