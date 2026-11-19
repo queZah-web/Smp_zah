@@ -123,7 +123,7 @@ stands (blue + red locker rooms, snack bar, trophy hall, entrance hall, 4 stairc
 
 **A match** (`/opr > Events > Football`): the Owner chooses the players (online, or "everybody on the pitch"), the team
 size (1 - 10) and the time (5, 10, 15, 20, 32, 45, 60 min), then Start.
-- Teams at random: BLUE (blue + white kit, defends north) and RED (red + black kit, defends south); every player is sent to
+- Teams at random: BLUE (blue diamond + white iron kit, defends north) and RED (black netherite + red boots, defends south); sent to
   his half. His own armour waits in a hidden locker under the pitch and comes back at the end (also after leaving / a restart),
   with his game mode and his old place. Adventure mode, no damage, no hunger; the kit can't be dropped.
 - The ball is `smp:football` (looks like the sulfur cube, no AI, can't be hurt / despawn). Hit = kick where you look
@@ -136,3 +136,20 @@ size (1 - 10) and the time (5, 10, 15, 20, 32, 45, 60 min), then Start.
 - The Owner can pause / resume, put the ball back in the middle, end now (winner) or stop (no winner).
 - Code: `systems/stadiumdesign.js` (design), `systems/football.js` (build, match, pages, `/football`),
   `BP/entities/smp_football.json` + `RP/entity/smp_football.entity.json` (the ball).
+
+## TNT Run (event) - Building > TNT Run, Events > TNT Run (Owner), /tntrun (players)
+**The arena** (63 x 63, ~46k blocks, built around the Owner, land saved for Undo): 4 floors of 43 x 43, 8 blocks apart, with a
+TNT block under every floor block - layer 1 sand with gravel rings, layer 2 sand, layer 3 gravel, layer 4 sand with a red sand
+star - the elimination floor below, walls of stone bricks / andesite / quartz pillars / chiseled bands / red tops / lights,
+6 rows of seats on top all around (behind glass), a back wall, corner towers and a TNT RUN leaderboard hologram.
+
+**A game** (`/opr > Events > TNT Run`): the Owner chooses 2 - 16 players (online, or everybody at the arena), the block delay
+(0.25 / 0.5 / 0.75 / 1 / 1.5 s, default 0.5 s), the double jumps (0 - 5 feathers) and the prize ($0 - $10,000), then Start.
+- The floors are put back as new, the players go onto layer 1, 10 s countdown, GO.
+- Every block a player stands on (or jumps from) disappears after the delay: the sand / gravel and the TNT under it, with a
+  sound - no explosion, standing still does not help. Falling = the next layer; below layer 4 = OUT (announced, title, the
+  player goes to the seats and watches).
+- No PvP (no damage, no knockback), Adventure mode (no breaking / placing), no items - only the Double Jump feather.
+- The last one standing wins: announced (+ 2nd / 3rd), the prize, effects. Wins / losses are saved (`/tntrun`, the board).
+  After the game everybody goes back to his place and game mode, and the floors are put back.
+- Code: `systems/tntdesign.js` (design), `systems/tntrun.js` (build, game, pages, `/tntrun`).

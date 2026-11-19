@@ -44,6 +44,7 @@ export const LISTS = {
   kills: { label: "Kills", title: "KILLS LEADERBOARD", sub: "Top 10 Killers", foot: "Fear the best!", get: (r) => r.kills, fmt: (v) => "§c" + num(v) + " kills" },
   shards: { label: "Shards", title: "SHARDS LEADERBOARD", sub: "Top 10 Shard Holders", foot: "Shiny!", get: (r) => r.shards, fmt: (v) => "§d" + num(v) + " shards" },
   skills: { label: "Skills", title: "SKILLS LEADERBOARD", sub: "Top 10 Skill Masters", foot: "Practice makes perfect!", get: (r) => skillTotal(r.id), fmt: (v) => "§bTotal Lv " + num(v) },
+  tntrun: { label: "TNT Run", title: "TNT RUN LEADERBOARD", sub: "Top 10 TNT Run Winners", foot: "Don't stop running!", get: (r) => r.tw, fmt: (v) => "§f" + num(v) + " wins" },   // not in TOP_KEYS (no daily reward): only the board in the TNT Run arena + /tntrun
   ach: { label: "Achievements", title: "ACHIEVEMENTS LEADERBOARD", sub: "Top 10 Achievers", foot: "Gotta unlock them all!", get: (r) => achTotal(r.id), fmt: (v) => "§6" + num(v) + "/" + ACHIEVEMENTS.length },
 };
 export const TOP_KEYS = ["money", "clan", "duel", "sell", "buy", "play", "kills", "shards", "skills", "ach"];

@@ -3,7 +3,7 @@
 //
 // The Owner builds the stadium (stadiumdesign.js) once, then runs matches:
 //   * chooses the players (online players, or everybody standing on the pitch), the team size (1 - 10) and the time (5 - 60 min)
-//   * Start: the teams are made at RANDOM.  BLUE team = blue + white kit, defends the north goal.  RED team = red + black kit,
+//   * Start: the teams are made at RANDOM.  BLUE team = blue diamond + white iron kit, defends the north goal.  RED team = black netherite + red kit,
 //     defends the south goal.  Everybody is sent to the half of his team; his own armour waits in a locker (a hidden barrel
 //     under the pitch) and comes back at the end; Adventure mode (nobody can break / place); nobody can be hurt.
 //   * the BALL is a sulfur cube (smp:football: it looks like the sulfur cube, no AI, can't be hurt, can't despawn)
@@ -36,8 +36,9 @@ const BALL = "smp:football", KIT_LORE = "§8Football match item";
 const SIZES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], MINUTES = [5, 10, 15, 20, 32, 45, 60];
 const KICKOFF_PAUSE = 30, START_COUNT = 10, FOULS_OUT = 3, BENCH_SECS = 30;
 const TEAM = {
-  b: { name: "BLUE", ar: "الأزرق", col: "§9", side: -1, kit: [[1, 1, 1], [0.15, 0.35, 0.95], [1, 1, 1], [0.15, 0.35, 0.95]] },
-  r: { name: "RED", ar: "الأحمر", col: "§c", side: 1, kit: [[0.1, 0.1, 0.1], [0.85, 0.1, 0.1], [0.1, 0.1, 0.1], [0.85, 0.1, 0.1]] },
+  // the two kits look completely different (not only a dye colour): BLUE = shiny blue diamond + white iron, RED = black netherite + red
+  b: { name: "BLUE", ar: "الأزرق", col: "§9", side: -1, armor: ["minecraft:diamond_helmet", "minecraft:diamond_chestplate", "minecraft:iron_leggings", "minecraft:diamond_boots"], kit: [null, null, null, null] },
+  r: { name: "RED", ar: "الأحمر", col: "§c", side: 1, armor: ["minecraft:netherite_helmet", "minecraft:netherite_chestplate", "minecraft:netherite_leggings", "minecraft:leather_boots"], kit: [null, null, null, [0.85, 0.1, 0.1]] },
 };
 const other = (t) => (t === "b" ? "r" : "b");
 const say = (p, m) => { try { p.sendMessage(oprMsg(p, m)); } catch (e) { /* ignore */ } };
@@ -193,7 +194,6 @@ function spear(team) {
   return it;
 }
 const SLOTS = () => [EquipmentSlot.Head, EquipmentSlot.Chest, EquipmentSlot.Legs, EquipmentSlot.Feet, EquipmentSlot.Offhand];
-const ARMOR_IDS = ["minecraft:leather_helmet", "minecraft:leather_chestplate", "minecraft:leather_leggings", "minecraft:leather_boots"];
 const lockerBox = (n) => { const s = stadium(); if (!s) return null; try { const l = lockerAt(n); return dimOf(s).getBlock({ x: s.cx + l.x, y: s.cy + l.y, z: s.cz + l.z })?.getComponent("minecraft:inventory")?.container ?? null; } catch (e) { return null; } };
 const mem = new Map();                    // fallback when a locker can not be used: player id -> ItemStack[] (kept in memory)
 
@@ -206,7 +206,7 @@ function equip(p, rec) {
     try { eq.setEquipment(slot, undefined); } catch (e) { /* ignore */ }
   });
   if (keep.length) mem.set(p.id, keep);
-  ARMOR_IDS.forEach((id, i) => { try { eq?.setEquipment(SLOTS()[i], kitItem(id, TEAM[rec.t].kit[i], rec.t)); } catch (e) { /* ignore */ } });
+  TEAM[rec.t].armor.forEach((id, i) => { try { eq?.setEquipment(SLOTS()[i], kitItem(id, TEAM[rec.t].kit[i], rec.t)); } catch (e) { /* ignore */ } });
   const sp = spear(rec.t); if (sp) { try { p.getComponent("minecraft:inventory")?.container?.addItem(sp); } catch (e) { /* ignore */ } }
   try { p.setGameMode(GameMode.Adventure ?? GameMode.adventure); } catch (e) { /* ignore */ }
 }
