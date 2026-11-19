@@ -1,6 +1,10 @@
 // Arabic texts of the Operator menu (/opr) and everything inside it. Key = the English text exactly as the code writes it (pieces of a line), value = Arabic.
 // Used only by oprlang.js for players whose language is Arabic. A text that is not here simply stays English (nothing breaks).
 export const PART = {
+"Item timer": "مؤقت الأغراض",
+"The small Clear lag countdown": "العداد الصغير حق الكلير لاق",
+"above every dropped item": "فوق كل غرض طايح",
+"Item timer is now": "مؤقت الأغراض الحين",
 "Fast healing": "العلاج السريع",
 "Java style: +half a heart every": "مثل الجافا: +نص قلب كل",
 "0.5 s when your food bar is full": "نص ثانية إذا الأكل ممتلي",

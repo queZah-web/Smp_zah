@@ -48,5 +48,6 @@ import "./chatban.js";     // swear filter: mute 1 hour + staff alert (the filte
 import "./fastheal.js";     // fast healing, Java style (Admin / Owner: /opr > World > Fast healing)  // hoppers move 20 items at once (DonutSMP style)
 import "./afkhall.js";     // the AFK Hall (Owner: /opr > Building > AFK Hall) - becomes the AFK area
 import "./nv.js";
-import "./newgift.js";   // 16 cooked steaks for NEW players only (once)
+import "./newgift.js";
+import "./kits.js";       // /kit: Starter Kit (new players, once) + a random daily kit   // 16 cooked steaks for NEW players only (once)
 import "./opcore.js";

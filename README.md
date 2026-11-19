@@ -95,3 +95,13 @@ game version: `python3 tools/build_chatguard.py 1.26.60`). The SMP pack itself s
 admins (operators or tag `chat_admin`), log. Admins / tag `chat_bypass` are not filtered.
 Commands (admins): `/cs:log`, `/cs:unmute <name>`, `/cs:mute <name> <minutes>`. Needs Beta APIs.
 Build: `PACK=chatshield python3 tools/build_chatguard.py <game version>`.
+
+## Kits (/kit)
+- Starter Kit: new players only (data created after the kit system first ran), once: iron sword, stone tools,
+  leather armor, bread, torches, logs, crafting table, bed.
+- Daily Kit: everybody, once a day (midnight of UTC_OFFSET_HOURS): one random kit of 8 (Iron Warrior, Chain Ranger,
+  Miner, Lumberjack, Farmer, Builder, Explorer, Fisher) - normal gear only.
+- Kit items have the lore "Kit item": the shop / sell box refuse them. Edit the kits at the top of `systems/kits.js`.
+
+## Item timer switch
+`/opr > World > Item timer` (Admin / Owner): turns the floating Clear lag countdown above dropped items ON / OFF.

@@ -21,8 +21,22 @@ const colorOf = (s) => (s <= 10 ? "\u00a7c\u00a7l" : s <= 30 ? "\u00a76\u00a7l" 
 const drop = (id) => { const st = labels.get(id); labels.delete(id); try { if (st && okEnt(st.ent)) st.ent.remove(); } catch (x) { /* ignore */ } };
 const dropAll = () => { for (const id of [...labels.keys()]) drop(id); };
 
+// ON / OFF (Admin / Owner: /opr > World > Item timer), saved in the world, default ON
+const ON_KEY = "itemtimer:on";
+let on = null;
+export function itemTimerOn() { if (on !== null) return on; try { on = world.getDynamicProperty(ON_KEY) !== false; } catch (e) { return true; } return on; }
+/** Admin / Owner only (role checked by the caller page too).  Returns { ok } or { err } */
+export function setItemTimer(actor, v, roleOk) {
+  if (!roleOk) return { err: "Only the Admin or the Owner can change this." };
+  on = !!v;
+  try { world.setDynamicProperty(ON_KEY, on); } catch (e) { return { err: "Could not save." }; }
+  if (!on) dropAll();
+  return { ok: true };
+}
+
 // every 5 ticks: create / update / remove the labels
 system.runInterval(() => {
+  if (!itemTimerOn()) { if (labels.size) dropAll(); return; }
   try {
     const left = clearLagLeftMs();
     const sec = left === null ? 0 : Math.max(0, Math.ceil(left / 1000)), clearText = left === null ? null : colorOf(sec) + clock(sec);   // Clear lag OFF: no timer on normal items
