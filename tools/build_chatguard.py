@@ -15,10 +15,12 @@ def beta_for(game):
 if __name__ == "__main__":
     game = sys.argv[1]; beta = beta_for(game)
     if not beta: sys.exit("unknown game version " + game)
-    src = os.path.join(ROOT, "chatguard"); m = json.load(open(os.path.join(src, "manifest.template.json")))
+    pack = os.environ.get("PACK", "chatguard")                     # PACK=chatshield -> the standalone filter
+    src = os.path.join(ROOT, pack); m = json.load(open(os.path.join(src, "manifest.template.json")))
     m["dependencies"][0]["version"] = beta
     out = sys.argv[2] if len(sys.argv) > 2 else os.path.join(ROOT, "SMP_ChatGuard_" + game + ".mcpack")
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
-        z.writestr("SMP_ChatGuard/manifest.json", json.dumps(m, indent=2))
-        for f in ["pack_icon.png", "scripts/main.js", "scripts/filter.js"]: z.write(os.path.join(src, f), "SMP_ChatGuard/" + f)
+        top = "ChatShield" if pack == "chatshield" else "SMP_ChatGuard"
+        z.writestr(top + "/manifest.json", json.dumps(m, indent=2))
+        for f in ["pack_icon.png", "scripts/main.js", "scripts/filter.js"]: z.write(os.path.join(src, f), top + "/" + f)
     print(out, "->", beta)

@@ -89,3 +89,9 @@ game version: `python3 tools/build_chatguard.py 1.26.60`). The SMP pack itself s
 - A blocked message: nobody sees it, the player is muted for **1 hour**, online staff see the name, the word and the
   message, offline staff get an alert, the staff log + chat ban log keep it. The Owner is never filtered.
 - Code: `chatguard/scripts/filter.js` (lists + matching), `chatguard/scripts/main.js`, `BP/scripts/systems/chatban.js`.
+
+## Chat Shield (standalone anti-swear mod for any world / server)
+`chatshield/` - the same filter without the SMP pack: blocks the message, mutes 1 hour (its own data), tells the
+admins (operators or tag `chat_admin`), log. Admins / tag `chat_bypass` are not filtered.
+Commands (admins): `/cs:log`, `/cs:unmute <name>`, `/cs:mute <name> <minutes>`. Needs Beta APIs.
+Build: `PACK=chatshield python3 tools/build_chatguard.py <game version>`.
