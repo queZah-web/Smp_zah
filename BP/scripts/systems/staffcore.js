@@ -374,6 +374,21 @@ export function mute(actor, target, ms, reason) {
   if (r.ok) { const t = online(target.id); if (t) say(t, "§c[Mute] You were muted by the staff. Reason: §f" + r.rec.r + " §7(" + left(r.rec.u) + ")"); }
   return r;
 }
+/** the chat filter (chatban.js): mutes without a staff member (never the Owner). Returns { ok, rec } or { err } */
+export function autoMute(target, ms, reason, by = "Chat filter") {
+  try {
+    if (!target || !target.id) return { err: "Player not found." };
+    if (isOwnerId(target.id)) return { err: "The Owner is never muted." };
+    const m = stores.mute.get(); if (!m) return { err: "Could not read the data." };
+    const old = m[target.id];
+    const until = Date.now() + ms;
+    m[target.id] = { n: String(target.name).slice(0, 32), u: Math.max(until, old && old.u ? old.u : 0), r: clean(reason, 80) || "Swearing", by, t: Date.now() };
+    if (!stores.mute.save()) { if (old) m[target.id] = old; else delete m[target.id]; return { err: "Could not save (storage full)." }; }
+    slog(null, "mute", target, leftText(m[target.id].u) + " - " + m[target.id].r + " (" + by + ")");
+    const t0 = online(target.id); if (t0) abilityMute(t0, true);
+    return { ok: true, rec: m[target.id] };
+  } catch (e) { return { err: "Something went wrong." }; }
+}
 export function unmute(actor, target) {
   const r = liftPun("mute", "mute", "unmute", actor, target);
   if (r.ok) { const t = online(target.id); if (t) { abilityMute(t, false); say(t, "§a[Mute] You can chat again."); } }

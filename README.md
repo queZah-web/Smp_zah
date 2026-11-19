@@ -80,3 +80,12 @@ Java-style healing: natural regeneration off, +1 health every 0.5 s while satura
 saturation), or hunger > 18 (uses 1 hunger). Admin / Owner switch it in `/opr > World > Fast healing` (default ON;
 OFF = vanilla healing again). The saturation HUD bar of that pack is not merged (it rewrites the action bar every tick).
 Code: `systems/fastheal.js`.
+
+## Swear filter (chat)
+Reading / stopping chat needs **Beta APIs**, so the filter is a small extra pack: `chatguard/` (build it for your exact
+game version: `python3 tools/build_chatguard.py 1.26.60`). The SMP pack itself stays on the stable API.
+- Arabic (Iraqi, Gulf, Levant, Egyptian), Franco-Arabic and English swearing; tricks are caught (spaces, symbols,
+  repeated letters, numbers for letters, گ / چ, harakat). Normal words that contain a short bad word are not blocked.
+- A blocked message: nobody sees it, the player is muted for **1 hour**, online staff see the name, the word and the
+  message, offline staff get an alert, the staff log + chat ban log keep it. The Owner is never filtered.
+- Code: `chatguard/scripts/filter.js` (lists + matching), `chatguard/scripts/main.js`, `BP/scripts/systems/chatban.js`.
