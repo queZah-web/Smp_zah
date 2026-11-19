@@ -209,3 +209,12 @@ below; a glass viewers' ring (radius 42 - 45) out of reach; 32 hidden locker bar
   his own things + XP come back exactly and he goes back to where he was. Killed: drops removed, given back after respawn.
   Offline / a restart: given back when he joins again (never twice). Only players' blocks / falling blocks can be broken.
 - Code: `systems/pillarsdesign.js` (design), `systems/pillars.js` (build, lockers, items, events, game, pages, `/pillars`).
+
+## Pillars of Fortune 1x1 (event) - Building > Pillars 1x1, Events > Pillars 1x1 (Owner), /pillars1 (players)
+The same game as Pillars of Fortune, on a second arena of its own (the classic one stays): 16 pillars of ONE block, 81 high,
+11 outer (radius 15) + 5 inner (radius 7), about 7 blocks apart, a 1 x 1 golden centre pillar, 77 x 77 (build it next to the
+classic one: it keeps away from it by itself). The players start on top of a 1 x 1 pillar and must build with the random items.
+Everything else works like the classic game (lockers for the own things, random items + events, pillars fall one by one,
+the void at the end, prize, stats). It has its own settings, lockers, data and stats (`/pillars1`, `pq:*`, wins `qw`).
+A player can only be in one of the two Pillars games at a time.
+Code: `systems/pillarsdesign.js` (`makeDesign`: BIG + SMALL), `systems/pillars.js` (`makeGame`: CLASSIC + ONE).

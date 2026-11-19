@@ -1,6 +1,21 @@
 // Arabic texts of the Operator menu (/opr) and everything inside it. Key = the English text exactly as the code writes it (pieces of a line), value = Arabic.
 // Used only by oprlang.js for players whose language is Arabic. A text that is not here simply stays English (nothing breaks).
 export const PART = {
+"Event: Pillars 1x1": "فعالية: أعمدة 1×1",
+"Pillars of Fortune 1x1": "أعمدة الحظ 1×1",
+"Pillars 1x1": "أعمدة 1×1",
+"16 pillars of ONE block (80 high)": "16 عمود من بلوكة وحدة (ارتفاع 80)",
+"in a circle + a 1 x 1 centre, 77 x 77": "بدائرة + وسط 1×1، 77 × 77",
+"Pillars of Fortune, hard: 16": "أعمدة الحظ، صعبة: 16",
+"pillars of ONE block in the sky": "عمود من بلوكة وحدة بالسما",
+"Games: Events > Pillars 1x1": "الألعاب: الفعاليات > أعمدة 1×1",
+"Pillars of Fortune on pillars": "أعمدة الحظ على أعمدة",
+"of ONE block (hard)": "من بلوكة وحدة (صعبة)",
+"Build the Pillars 1x1 arena here?": "تبني ساحة أعمدة 1×1 هنا؟",
+"Remove the Pillars 1x1 arena?": "تشيل ساحة أعمدة 1×1؟",
+"Pillars 1x1: players": "أعمدة 1×1: اللاعبين",
+"Everything in 77 x 77 blocks around you,": "كل شيء في 77 × 77 بلوك حولك،",
+"Choose at least 2 online players (not playing / waiting in the other Pillars game).": "اختار لاعبين اثنين أونلاين على الأقل (مو باللعبة الثانية للأعمدة).",
 "Event: Pillars": "فعالية: أعمدة الحظ",
 "Pillars of Fortune": "أعمدة الحظ",
 "Random items, 16 pillars in the sky,": "أغراض عشوائية، 16 عمود بالسما،",
