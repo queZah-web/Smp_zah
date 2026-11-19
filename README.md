@@ -74,3 +74,9 @@ Staff with the Admin or Owner role open, sell, take, break and switch the hologr
 ## Fast hoppers
 Every hopper moves up to 20 items every 0.4 s (pull from above, push where it points; furnace input / output too),
 locked hoppers do nothing, crates are never emptied. Code: `systems/fasthopper.js` (`FAST_HOPPER` settings).
+
+## Fast healing (merged from "Java Saturation" by Raiyon)
+Java-style healing: natural regeneration off, +1 health every 0.5 s while saturation >= 3 and hunger >= 18 (uses 1.5
+saturation), or hunger > 18 (uses 1 hunger). Admin / Owner switch it in `/opr > World > Fast healing` (default ON;
+OFF = vanilla healing again). The saturation HUD bar of that pack is not merged (it rewrites the action bar every tick).
+Code: `systems/fastheal.js`.

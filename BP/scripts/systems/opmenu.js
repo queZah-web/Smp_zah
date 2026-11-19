@@ -41,6 +41,7 @@ import { oprMsg, OprForm } from "./oprlang.js";
 import { hubButtons } from "./eventsmenu.js";
 import { activeCount as eventsRunning } from "./events.js";
 import { buildingPage } from "./spawnbuild.js";
+import { fastHealOn, setFastHeal } from "./fastheal.js";
 
 const SYM = OPMENU.symbol;
 const ICON = {
@@ -197,6 +198,9 @@ function categoryPage(player, back, title, layout, extra) {
 }
 const moderationPage = (player, back) => categoryPage(player, back, "Moderation", [[1 * COLS + 3, SLOT.reports], [1 * COLS + 4, SLOT.punish], [1 * COLS + 5, SLOT.bans], [2 * COLS + 3, SLOT.alerts], [2 * COLS + 4, SLOT.logs], [2 * COLS + 5, SLOT.staffLog]]);
 const worldPage = (player, back) => categoryPage(player, back, "World", [[2 * COLS + 3, SLOT.lands], [2 * COLS + 4, SLOT.locks]], (f, self) => {
+  { const fh = fastHealOn(), r = roleOf(player), okRole = r === "owner" || r === "admin";
+    set(f, 1 * COLS + 5, hdr(1, fh ? "g" : "r") + "§c§lFast healing\n§r§7Java style: +half a heart every\n§r§70.5 s when your food bar is full\n§r§7Now: " + (fh ? "§aON" : "§cOFF §7(normal healing)") + "\n§r" + (okRole ? "§eClick to switch" : "§cAdmin / Owner only"), "textures/items/apple_golden",
+      { run: () => { if (!okRole) return say(player, "§c[Operator] Only the Admin or the Owner can change this."); const res = setFastHeal(player, !fh); say(player, res.err ? "§c[Operator] " + res.err : "§a[Operator] Fast healing is now " + (!fh ? "§aON" : "§cOFF") + "§a."); self(); } }); }
   perm(f, 1 * COLS + 4, player, "clearlag", "§a§lClear lag\n§r§7Remove the dropped items on the ground\n§r§eClick to open", "textures/ui/shop/i3d_tnt", () => clearLagPage(player, self), "g");
   // layout: row 1 = server tools (Clear lag - Performance is inside the Clear lag category) | row 2 = places & protection (Lands, Locks, The End) | row 3 = crates (Crates, Crate keys)
   const v = eventView(), on = v.open, cd = !on && v.openAt > 0;
