@@ -640,7 +640,7 @@ function shardItems(player, back) {
   listPage(player, "Shard Items", entries, back, 0, (f) => adminBtns(player, f, { prices: () => adminList(player, "item", () => shardItems(player, back)), time: () => adminList(player, "shardlimit", () => shardItems(player, back)) }));
 }
 function specialPage(player, kind, mob, back) {
-  const key = specialKey(kind), left = remaining(player, key), hours = hoursOf(key), uLeft = unitsLeft(player, key);
+  const key = specialKey(kind, mob), left = remaining(player, key), hours = hoursOf(key), uLeft = unitsLeft(player, key);
   const label = kind === "spawner" ? `${mob.name} Spawner` : `${mob.name} Spawn Egg`, icon = kind === "spawner" ? NAV.spawner : "textures/ui/shop/egg_" + mob.id;
   const f = make(label); const refresh = () => specialPage(player, kind, mob, back); f.self = refresh;
   set(f, 1 * COLS + 4, hdr(1) + "§f" + label + "\n§r§7Shards: §d" + num(specialPrice(kind, "shards", mob, player)) + "\n§r§7Money: §a" + money(specialPrice(kind, "money", mob, player)) +

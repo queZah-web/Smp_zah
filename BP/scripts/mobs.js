@@ -4,6 +4,7 @@ export const SPAWNERS = [{"id": "pig", "name": "Pig", "aux": 12}, {"id": "cow", 
 export const EGGS = [
   { id: "pig", name: "Pig", money: 10000, shards: 300 },
   { id: "cow", name: "Cow", money: 10000, shards: 300 },
+  { id: "villager", name: "Villager", money: 10000, shards: 300, key: "spawn_egg_villager" },   // its own limit: 10 every 12 h (limits.js)
   { id: "zombie", name: "Zombie", money: 20000, shards: 600 },
   { id: "skeleton", name: "Skeleton", money: 25000, shards: 750 },
   { id: "creeper", name: "Creeper", money: 30000, shards: 900 },

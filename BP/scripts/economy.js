@@ -100,12 +100,12 @@ export const specialPrice = (kind, cur, mob, p) => {
   const base = kind === "spawner" ? (cur === "shards" ? (mob ? spawnerShards(mob) : Math.min(...SPAWNERS.map(spawnerShards))) : spawnerMoney(mob)) : (cur === "shards" ? mob.shards : mob.money);
   return cur === "money" && p ? buyPrice(p, base, 0) : base;        // only money prices get the Trading discount
 };
-export const specialKey = (kind) => (kind === "spawner" ? "spawner" : "spawn_egg");
+export const specialKey = (kind, mob) => (kind === "spawner" ? "spawner" : mob?.key ?? "spawn_egg");   // an egg can have its own limit (villager)
 
 /** kind: "spawner" | "egg"   cur: "shards" | "money" */
 export function buySpecial(p, kind, mob, cur) {
   { const em = econMsg(p); if (em) return fail(p, em); }
-  const key = specialKey(kind), price = specialPrice(kind, cur, mob, p);
+  const key = specialKey(kind, mob), price = specialPrice(kind, cur, mob, p);
   const label = kind === "spawner" ? `${mob.name} Spawner` : `${mob.name} Spawn Egg`;
   if (!limitCheck(p, key, kind === "spawner" ? "Spawners" : "Spawn eggs")) return false;
   const have = cur === "shards" ? stats(p).shards : balance(p);

@@ -39,14 +39,14 @@ export const ITEMS = new Map();              // item id -> every catalogue entry
 const BASE_IT = new Map();                   // entry -> { b, s } normal prices
 for (const c of CATEGORIES) for (const it of c.items) { if (!ITEMS.has(it[0])) ITEMS.set(it[0], []); ITEMS.get(it[0]).push(it); BASE_IT.set(it, { b: it[3], s: it[4] }); }
 export const baseItemPrice = (it) => BASE_IT.get(it);
-export const canRemoveLimit = (key) => key !== "spawner" && key !== "spawn_egg";     // the spawner / egg shops always need their time
+export const canRemoveLimit = (key) => key !== "spawner" && key !== "spawn_egg" && key !== "spawn_egg_villager";     // the spawner / egg shops always need their time
 export const baseBook = (id) => BASE.bk[id];
 export const basePotion = (x) => basePotionPrice(x.eff, x.form, x.v);
 for (const e of EGGS) BASE.eg[e.id] = { m: e.money, s: e.shards };
 for (const it of SHARD_ITEMS) BASE.si[it[0]] = it[2];
 
 export const LIMIT_KEYS = Object.keys(BASE.lim);
-export const LIMIT_NAMES = { spawner: "Spawners", spawn_egg: "Spawn eggs", elytra: "Elytra", nether_star: "Nether Star", beacon: "Beacon", dragon_egg: "Dragon Egg" };
+export const LIMIT_NAMES = { spawner: "Spawners", spawn_egg: "Spawn eggs", spawn_egg_villager: "Villager spawn egg", elytra: "Elytra", nether_star: "Nether Star", beacon: "Beacon", dragon_egg: "Dragon Egg" };
 export const baseSpawner = (id) => BASE.sp[id];
 export const baseEgg = (id) => BASE.eg[id];
 export const baseItem = (id) => BASE.si[id];

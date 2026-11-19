@@ -230,3 +230,13 @@ under 1 s), how the other blocks vanish (at once / in waves 0.5 s / 1 s), prize.
   other block vanishes; who falls is out (announced, goes to the walkway). The last one wins; if the last players fall in the
   same round they win together (the prize is shared). No PvP, Adventure, no items.
 - Code: `systems/colordesign.js` (hall, floor patterns), `systems/colorrush.js` (build, game, pages, `/colors`).
+
+## Villager spawn egg + villager restock
+- `/shop` > Shards Shop > Spawn Eggs: **Villager Spawn Egg** for $10,000 (or 300 shards), its OWN limit: 10 every 12 hours
+  (key `spawn_egg_villager`, the admin can change it like the others; the other eggs keep the shared `spawn_egg` limit).
+- Villager trades come back 20 minutes after a player traded with the villager: the time is saved on the villager (it goes on
+  while nobody is there, after a restart, after leaving the server); the next time a player is near and the time is over, the
+  game's own resupply runs (every used-up trade / red X works again) and the villager goes on with his normal schedule.
+  A timer "⟳ 14:52" shows above the villager only while a player is within 5 blocks; a real name stays (timer under it).
+  The game does not tell scripts when a trade is used up, so the 20 minutes start at the first trade.
+  Code: `systems/villagerrestock.js`.

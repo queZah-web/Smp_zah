@@ -5,8 +5,8 @@ import { countdown, num } from "./format.js";
 //   The window starts at the player's first purchase and lasts HOURS hours; when it ends the player gets the whole COUNT again.
 //   The admin changes the hours (1 / 6 / 12 / 24 / 48 h), the count and the prices in the shop itself (shopadmin.js saves it).
 // key = item id ("diamond"), "book:<enchant>", "pot:<effect>:<form>:<level>", "spawner", "spawn_egg"  (shared by money shop and shard shop)
-export const LIMITS = { elytra: 48, nether_star: 24, beacon: 24, dragon_egg: 72, spawner: 24, spawn_egg: 24 };   // key -> hours of the window (0 = admin removed the limit)
-export const COUNTS = {};                  // key -> units per window (missing = 1)
+export const LIMITS = { elytra: 48, nether_star: 24, beacon: 24, dragon_egg: 72, spawner: 24, spawn_egg: 24, spawn_egg_villager: 12 };   // key -> hours of the window (0 = admin removed the limit)
+export const COUNTS = { spawn_egg_villager: 10 };   // key -> units per window (missing = 1)
 export const CAT_LIM = {};                 // category id -> { h, c }: default for every entry of that category that has no limit of its own
 export const KEY_CAT = new Map();          // key -> category id (filled by shopadmin.js)
 export const MAX_COUNT = 1000000;
