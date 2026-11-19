@@ -190,3 +190,22 @@ The lobby at the foot (south) with the 7 stage colours and a DROPPER leaderboard
 - No ender pearls (a message), no items, no water / building / breaking, no PvP, no fall damage.
 - The arms (stage 4 + 7) only turn while somebody plays that stage.
 - Code: `systems/dropperdesign.js` (design, `TallCanvas`, the openings), `systems/dropper.js` (build, game, pages, `/dropper`).
+
+## Pillars of Fortune (event) - Building > Pillars, Events > Pillars (Owner), /pillars (players)
+**The arena** (93 x 93, 118 high, land saved for Undo): 16 stone pillars (7 x 7, 81 high, each its own colour) in the sky -
+11 outer (radius 27) + 5 inner (radius 13), 5 - 8 blocks apart - and a gold / quartz centre platform; a dark magma floor far
+below; a glass viewers' ring (radius 42 - 45) out of reach; 32 hidden locker barrels under the floor. Pillars are big fills.
+
+**A game**: 2 - 16 players, a random item every 5 / 8 / 12 s, a pillar falls every 25 / 40 / 60 s, random events on / off, prize.
+- Start: the arena is put back as new. Every player's OWN inventory, armour and off hand go into his lockers (the real items,
+  with all enchantments / names) and his XP is noted: he plays with nothing of his own. Own pillar each, rules, 10 s, GO.
+- Random items: common 55 % / useful 25 % / rare 15 % / legendary 5 % (blocks, food, snowballs, ender pearl, slime, bow,
+  shield, fishing rod, wind charge, iron gear, golden apples, knockback sticks, diamond sword, totem ...). All carry the
+  lore "Pillars of Fortune item": can't be sold, and every game item disappears after the game (also from viewers).
+- Random events every 60 s: block rain, sudden night (darkness), lucky drop, low gravity, speed rush.
+- From 90 s the pillars fall one by one (outer ring first, 10 s red flashing warning), then the centre breaks ring by ring,
+  then every built block vanishes - so the game always ends.
+- OUT (15 blocks under the tops, too far away, killed, left): announced + players left; everything from the game is removed,
+  his own things + XP come back exactly and he goes back to where he was. Killed: drops removed, given back after respawn.
+  Offline / a restart: given back when he joins again (never twice). Only players' blocks / falling blocks can be broken.
+- Code: `systems/pillarsdesign.js` (design), `systems/pillars.js` (build, lockers, items, events, game, pages, `/pillars`).

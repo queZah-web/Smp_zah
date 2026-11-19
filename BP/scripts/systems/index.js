@@ -51,6 +51,7 @@ import "./football.js";    // Football event: the stadium (Owner: /opr > Buildin
 import "./tntrun.js";      // TNT Run event: the arena (Owner: /opr > Building / Events > TNT Run), games, /tntrun
 import "./squidgame.js";   // Red Light, Green Light event: the arena + the doll (Owner: /opr > Building / Events > Red Light), /redlight
 import "./dropper.js";     // Dropper event: the tower with 7 stages (Owner: /opr > Building / Events > Dropper), /dropper
+import "./pillars.js";     // Pillars of Fortune event: 16 pillars in the sky (Owner: /opr > Building / Events > Pillars), /pillars
 import "./nv.js";
 import "./newgift.js";
 import "./kits.js";
