@@ -113,3 +113,26 @@ contents are read from the block and saved on the dropped item (a shulker item c
 Hover = the game's tooltip lists the contents (lore); hold the box + right-click into the air = chest window with the real
 items (icons, amounts, enchant glint, same slots). Boxes never broken since the update say "not scanned yet".
 Code: `systems/shulkerpeek.js`.
+
+## Football (event) - Building > Stadium, Events > Football (Owner), /football (players)
+**The stadium** (85 x 109, ~36k blocks, built around the Owner, no lag, the land is saved for Undo): a striped 35 x 59 pitch
+inside a white line (halfway line, centre circle, penalty / goal boxes, spots, corner flags), 2 goals with nets, LED boards,
+10 rows of stands on all 4 sides, blue / red dugouts, a glass roof on dark-oak beams with lanterns, a concourse under the
+stands (blue + red locker rooms, snack bar, trophy hall, entrance hall, 4 staircases), 2 player tunnels, 4 doors,
+4 floodlight towers, 2 scoreboards (the script shows the score and the time) with FOOTBALL above them, roads + cherry trees.
+
+**A match** (`/opr > Events > Football`): the Owner chooses the players (online, or "everybody on the pitch"), the team
+size (1 - 10) and the time (5, 10, 15, 20, 32, 45, 60 min), then Start.
+- Teams at random: BLUE (blue + white kit, defends north) and RED (red + black kit, defends south); every player is sent to
+  his half. His own armour waits in a hidden locker under the pitch and comes back at the end (also after leaving / a restart),
+  with his game mode and his old place. Adventure mode, no damage, no hunger; the kit can't be dropped.
+- The ball is `smp:football` (looks like the sulfur cube, no AI, can't be hurt / despawn). Hit = kick where you look
+  (sprint = strong, sneak = soft, look up = high), right-click = pass, walking into it = dribble. Every player gets a spear.
+  The ball can never leave the white line (it bounces back).
+- 10 s countdown, kick-off. Goal: title with the scorer (or own goal) + effects, the ball goes to the middle, the players to
+  their halves; 30 s later only the team that conceded may touch it first. The clock stops during that pause.
+- Hitting a player = foul; 3 fouls = 30 s on the bench. Players can't leave the pitch; spectators who walk on it are sent
+  to the stands. Time over: winner / draw, the goal list, stats (goals, matches, wins in `/football`).
+- The Owner can pause / resume, put the ball back in the middle, end now (winner) or stop (no winner).
+- Code: `systems/stadiumdesign.js` (design), `systems/football.js` (build, match, pages, `/football`),
+  `BP/entities/smp_football.json` + `RP/entity/smp_football.entity.json` (the ball).

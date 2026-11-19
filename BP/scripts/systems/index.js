@@ -47,6 +47,7 @@ import "./fasthopper.js";
 import "./chatban.js";     // swear filter: mute 1 hour + staff alert (the filter = extra pack "SMP Chat Guard", needs Beta APIs)
 import "./fastheal.js";     // fast healing, Java style (Admin / Owner: /opr > World > Fast healing)  // hoppers move 20 items at once (DonutSMP style)
 import "./afkhall.js";     // the AFK Hall (Owner: /opr > Building > AFK Hall) - becomes the AFK area
+import "./football.js";    // Football event: the stadium (Owner: /opr > Building / Events > Football), matches, /football
 import "./nv.js";
 import "./newgift.js";
 import "./kits.js";

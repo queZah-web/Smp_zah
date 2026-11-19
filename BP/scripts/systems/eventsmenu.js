@@ -4,7 +4,8 @@ import { world } from "@minecraft/server";
 import { makeOpr as make, set, open, hdr, COLS, NAV, SHORT_ROWS, backBtn, status } from "../smp/ui.js";
 import { showModal, textField, dropdown, confirmOpr as confirm } from "./forms.js";
 import { knownPlayers } from "../data.js";
-import { allow } from "./staffcore.js";
+import { allow, isOwner } from "./staffcore.js";
+import { stadiumHook } from "./spawnbuild.js";
 import { isStaff } from "./opcore.js";
 import { oprMsg, OprForm } from "./oprlang.js";
 import {
@@ -63,6 +64,7 @@ export function hubButtons(f, player, self) {
   set(f, 2 * COLS + 5, hdr(1) + "§d§lParticipants\n§r§7Everybody in the area, or only\n§r§7the players you choose\n§r§eClick to choose an event", ICON.player, { run: () => pickEvent(player, self, "Choose the event", (e) => playersPage(player, e.i, self)) });
   set(f, 2 * COLS + 6, hdr(1) + "§6§lAnnounce an event\n§r§7Tell all the players (chat + title)\n§r§eClick to choose an event", ICON.mail, { run: () => pickEvent(player, self, "Choose the event", (e) => announceForm(player, e.i, self)) });
   set(f, 1 * COLS + 6, hdr(1, on || wait ? "r" : "c") + "§c§lStop an event\n§r§7Ends it and puts every setting\n§r§7back to normal\n§r§eClick to choose an event", ICON.barrier, { run: () => pickEvent(player, self, "Stop which event?", (e) => stopConfirm(player, e, self), (e) => e.st !== "off") });
+  if (isOwner(player)) set(f, 3 * COLS + 2, hdr(1, "g") + "§a§lFootball\n§r§7A match in the stadium: teams,\n§r§7kits, the sulfur cube ball, goals\n§r§eClick to open", "textures/items/slime_ball", { run: () => { try { stadiumHook.page(player, self); } catch (e) { say(player, "§c[Football] " + e); } } });
   set(f, 3 * COLS + 4, hdr(1) + "§7§lGood to know\n§r§7Operators and duel players are never\n§r§7touched by the rules.\n§r§7Stopping an event restores the time,\n§r§7the weather and the game modes.\n§r§7Stop-the-death rules: " + (beforeHurtOk() ? "§aavailable" : "§cnot available here"), ICON.paper, null);
 }
 
