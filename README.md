@@ -172,3 +172,21 @@ limit (3 - 15 min), the winners (first 1 / 3 / 5 / everybody who finishes) and t
 - Over the finish line (alive, not flying) = winner: prize, stats. Time over = the rest is out. No PvP, Adventure, no items.
 - Code: `systems/squiddesign.js`, `systems/squidgame.js`, the doll: `BP/entities/smp_sg_doll.json`, `RP/entity/smp_sg_doll.entity.json`,
   `RP/models/entity/smp_sg_doll.geo.json`, `RP/animations/smp_sg_doll.animation.json`, `RP/animation_controllers/smp_sg_doll.ac.json`.
+
+## Dropper (event) - Building > Dropper, Events > Dropper (Owner), /dropper (players)
+**The tower** (53 x 73 with the lobby, 136 high - build it on normal ground): a white / purple tower with DROPPER on it,
+a 3 x 3 grid of shafts (15 x 15 inside), 7 of them are stages, each with its own style, height, start ledge, obstacles and a
+water pool at the bottom: 1 THE BEGINNING (80, oak + leaves, big openings), 2 GLASS TUNNEL (95, a long glass tunnel),
+3 THE LAVA (100, basalt / magma, sealed lava pools), 4 ROTATION (90, 3 rotating arms around a pillar), 5 THE NETHER (110,
+openings left / right), 6 DEEP OCEAN (100, prismarine + coral, a small hole), 7 THE IMPOSSIBLE (120, a spiral, 3 x 3
+openings, a rotating arm at the top). The openings are placed by the falling speed, so every stage can be done.
+The lobby at the foot (south) with the 7 stage colours and a DROPPER leaderboard. The walls / shell are built with big fills (fast).
+
+**A game**: 2 - 16 players, attempts per stage (3 / 5 / unlimited), no attempts left = back one stage (checkpoint) or wait
+10 s, waiting time 15 / 30 / 60 s, time limit 10 - 30 min, prize (1st full, 2nd half, 3rd a quarter).
+- Lobby countdown, then stage 1. Land in the water = stage clear (water particles, sound, time), 5 s later the next stage.
+  Everyone plays at his own pace. Touching anything on the way down / the floor / lava = a failed attempt (back to the top).
+- The first 3 who finish stage 7 are 1st / 2nd / 3rd (by time); time over = ranked by stage and time.
+- No ender pearls (a message), no items, no water / building / breaking, no PvP, no fall damage.
+- The arms (stage 4 + 7) only turn while somebody plays that stage.
+- Code: `systems/dropperdesign.js` (design, `TallCanvas`, the openings), `systems/dropper.js` (build, game, pages, `/dropper`).

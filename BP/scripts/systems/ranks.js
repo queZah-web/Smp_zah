@@ -46,6 +46,7 @@ export const LISTS = {
   skills: { label: "Skills", title: "SKILLS LEADERBOARD", sub: "Top 10 Skill Masters", foot: "Practice makes perfect!", get: (r) => skillTotal(r.id), fmt: (v) => "§bTotal Lv " + num(v) },
   tntrun: { label: "TNT Run", title: "TNT RUN LEADERBOARD", sub: "Top 10 TNT Run Winners", foot: "Don't stop running!", get: (r) => r.tw, fmt: (v) => "§f" + num(v) + " wins" },   // not in TOP_KEYS (no daily reward): only the board in the TNT Run arena + /tntrun
   squid: { label: "Red Light", title: "RED LIGHT, GREEN LIGHT", sub: "Top 10 Winners", foot: "Don't move!", get: (r) => r.sw, fmt: (v) => "§f" + num(v) + " wins" },   // not in TOP_KEYS: only the board in the arena + /redlight
+  dropper: { label: "Dropper", title: "DROPPER LEADERBOARD", sub: "Top 10 Dropper Winners", foot: "Mind the gap!", get: (r) => r.dr, fmt: (v) => "§f" + num(v) + " wins" },   // not in TOP_KEYS: only the board at the tower + /dropper
   ach: { label: "Achievements", title: "ACHIEVEMENTS LEADERBOARD", sub: "Top 10 Achievers", foot: "Gotta unlock them all!", get: (r) => achTotal(r.id), fmt: (v) => "§6" + num(v) + "/" + ACHIEVEMENTS.length },
 };
 export const TOP_KEYS = ["money", "clan", "duel", "sell", "buy", "play", "kills", "shards", "skills", "ach"];

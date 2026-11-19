@@ -70,7 +70,7 @@ export function allRecords() {
     const pid = id.slice(PFX.length);
     const live = cache.get(pid);
     const s = live ? live.s : readRaw(pid);
-    if (s) out.push({ id: pid, name: s.name, money: s.money, shards: s.shards, kills: s.kills ?? 0, dw: s.dw ?? 0, tw: s.tw ?? 0, sw: s.sw ?? 0, earned: s.earned ?? 0, spent: s.spent ?? 0, play: s.play ?? 0 });
+    if (s) out.push({ id: pid, name: s.name, money: s.money, shards: s.shards, kills: s.kills ?? 0, dw: s.dw ?? 0, tw: s.tw ?? 0, sw: s.sw ?? 0, dr: s.dr ?? 0, earned: s.earned ?? 0, spent: s.spent ?? 0, play: s.play ?? 0 });
   }
   return out;
 }

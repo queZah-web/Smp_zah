@@ -50,6 +50,7 @@ import "./afkhall.js";     // the AFK Hall (Owner: /opr > Building > AFK Hall) -
 import "./football.js";    // Football event: the stadium (Owner: /opr > Building / Events > Football), matches, /football
 import "./tntrun.js";      // TNT Run event: the arena (Owner: /opr > Building / Events > TNT Run), games, /tntrun
 import "./squidgame.js";   // Red Light, Green Light event: the arena + the doll (Owner: /opr > Building / Events > Red Light), /redlight
+import "./dropper.js";     // Dropper event: the tower with 7 stages (Owner: /opr > Building / Events > Dropper), /dropper
 import "./nv.js";
 import "./newgift.js";
 import "./kits.js";
