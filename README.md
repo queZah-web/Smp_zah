@@ -105,3 +105,11 @@ Build: `PACK=chatshield python3 tools/build_chatguard.py <game version>`.
 
 ## Item timer switch
 `/opr > World > Item timer` (Admin / Owner): turns the floating Clear lag countdown above dropped items ON / OFF.
+
+## Shulker Box preview
+Bedrock does not let scripts draw into the inventory tooltip, nor read a shulker box ITEM's contents (the item inventory
+API only covers "Storage Item" items like bundles, from script API 2.5). So: when a player breaks a shulker box, its real
+contents are read from the block and saved on the dropped item (a shulker item can not change, so it stays exact).
+Hover = the game's tooltip lists the contents (lore); hold the box + right-click into the air = chest window with the real
+items (icons, amounts, enchant glint, same slots). Boxes never broken since the update say "not scanned yet".
+Code: `systems/shulkerpeek.js`.

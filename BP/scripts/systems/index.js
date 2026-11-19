@@ -49,5 +49,6 @@ import "./fastheal.js";     // fast healing, Java style (Admin / Owner: /opr > W
 import "./afkhall.js";     // the AFK Hall (Owner: /opr > Building > AFK Hall) - becomes the AFK area
 import "./nv.js";
 import "./newgift.js";
-import "./kits.js";       // /kit: Starter Kit (new players, once) + a random daily kit   // 16 cooked steaks for NEW players only (once)
+import "./kits.js";
+import "./shulkerpeek.js"; // shulker box preview: contents saved when broken (hover lore + right-click-in-air window)       // /kit: Starter Kit (new players, once) + a random daily kit   // 16 cooked steaks for NEW players only (once)
 import "./opcore.js";
