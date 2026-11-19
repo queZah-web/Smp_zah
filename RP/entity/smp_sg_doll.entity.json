@@ -1,0 +1,31 @@
+{
+ "format_version": "1.10.0",
+ "minecraft:client_entity": {
+  "description": {
+   "identifier": "smp:sg_doll",
+   "materials": {
+    "default": "entity_alphatest"
+   },
+   "textures": {
+    "default": "textures/entity/sg_doll"
+   },
+   "geometry": {
+    "default": "geometry.smp_sg_doll"
+   },
+   "scripts": {
+    "scale": "7.0",
+    "animate": [
+     "turn"
+    ]
+   },
+   "animations": {
+    "away": "animation.smp_sg_doll.away",
+    "face": "animation.smp_sg_doll.face",
+    "turn": "controller.animation.smp_sg_doll.turn"
+   },
+   "render_controllers": [
+    "controller.render.smp_sg_doll"
+   ]
+  }
+ }
+}

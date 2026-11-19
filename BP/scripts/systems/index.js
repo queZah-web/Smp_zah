@@ -49,6 +49,7 @@ import "./fastheal.js";     // fast healing, Java style (Admin / Owner: /opr > W
 import "./afkhall.js";     // the AFK Hall (Owner: /opr > Building > AFK Hall) - becomes the AFK area
 import "./football.js";    // Football event: the stadium (Owner: /opr > Building / Events > Football), matches, /football
 import "./tntrun.js";      // TNT Run event: the arena (Owner: /opr > Building / Events > TNT Run), games, /tntrun
+import "./squidgame.js";   // Red Light, Green Light event: the arena + the doll (Owner: /opr > Building / Events > Red Light), /redlight
 import "./nv.js";
 import "./newgift.js";
 import "./kits.js";

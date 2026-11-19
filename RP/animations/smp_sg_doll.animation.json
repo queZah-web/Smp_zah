@@ -1,0 +1,43 @@
+{
+ "format_version": "1.8.0",
+ "animations": {
+  "animation.smp_sg_doll.away": {
+   "loop": true,
+   "bones": {
+    "body": {
+     "rotation": [
+      0,
+      180,
+      0
+     ]
+    },
+    "head": {
+     "rotation": [
+      "math.sin(query.anim_time*90)*3",
+      0,
+      0
+     ]
+    }
+   }
+  },
+  "animation.smp_sg_doll.face": {
+   "loop": true,
+   "bones": {
+    "body": {
+     "rotation": [
+      0,
+      0,
+      0
+     ]
+    },
+    "head": {
+     "rotation": [
+      0,
+      "math.sin(query.anim_time*60)*18",
+      0
+     ]
+    }
+   }
+  }
+ }
+}

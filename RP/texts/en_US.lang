@@ -40,3 +40,4 @@ item.smp:heart=Heart
 item.smp:heart_cursed=Heart of Malevolence
 item.smp:heart_half=Half Heart
 entity.smp:football.name=Football
+entity.smp:sg_doll.name=Doll

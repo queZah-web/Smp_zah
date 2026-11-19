@@ -223,6 +223,7 @@ export function buildingPage(player, back) {
   set(f, 2 * COLS + 4, hdr(1, z ? "g" : "c") + "§a§lSpawn\n§r§7Grand: walled sanctuary, giant tree,\n§r§7Crate Temple, Hall of Legends (TOP)\n§r§7Small: 41 x 41 garden\n§r§7Now: " + (busy ? "§ebeing built" : z ? "§abuilt" : "§fnot built") + "\n§r§eClick to open", "textures/blocks/sapling_oak", { run: () => spawnPage(player, self) });
   set(f, 2 * COLS + 2, hdr(1, "g") + "§d§lAFK Hall\n§r§7The Crimson Hall: red & white,\n§r§7glass dome, chandeliers, seats\n§r§7It becomes the AFK area (/afk)\n§r§eClick to open", "textures/items/clock_item", { run: () => { try { afkHook.page(player, self); } catch (e) { say(player, "§c[AFK] " + e); } } });
   set(f, 2 * COLS + 6, hdr(1, "g") + "§c§lArenas\n§r§7Two colosseums for fighting:\n§r§7Keep Inventory / No Keep\n§r§7You choose the rules of each one\n§r§eClick to open", "textures/items/diamond_sword", { run: () => { try { arenaHook.page(player, self); } catch (e) { say(player, "§c[Arena] " + e); } } });
+  set(f, 3 * COLS + 6, hdr(1, "g") + "§d§lRed Light\n§r§7Red Light, Green Light: a long\n§r§7field, sky walls, a giant doll\n§r§7Games: Events > Red Light\n§r§eClick to open", "textures/items/dye_powder_pink", { run: () => { try { squidHook.page(player, self); } catch (e) { say(player, "§c[Red Light] " + e); } } });
   set(f, 3 * COLS + 2, hdr(1, "g") + "§c§lTNT Run\n§r§7An arena with 4 falling floors\n§r§7(sand / gravel on TNT), seats\n§r§7Games: Events > TNT Run\n§r§eClick to open", "textures/blocks/tnt_side", { run: () => { try { tntHook.page(player, self); } catch (e) { say(player, "§c[TNT Run] " + e); } } });
   set(f, 3 * COLS + 4, hdr(1, "g") + "§a§lStadium\n§r§7A football stadium: pitch, stands,\n§r§7roof, scoreboards, floodlights\n§r§7Matches: Events > Football\n§r§eClick to open", "textures/items/slime_ball", { run: () => { try { stadiumHook.page(player, self); } catch (e) { say(player, "§c[Stadium] " + e); } } });
   backBtn(f, back); status(player, f);
@@ -236,6 +237,8 @@ export const afkHook = { page: () => {} };
 export const stadiumHook = { page: () => {} };
 /** set by tntrun.js (no import loop) */
 export const tntHook = { page: () => {} };
+/** set by squidgame.js (no import loop) */
+export const squidHook = { page: () => {} };
 function spawnPage(player, back) {
   if (!isOwner(player)) return;
   const self = () => spawnPage(player, back), z = getZone();

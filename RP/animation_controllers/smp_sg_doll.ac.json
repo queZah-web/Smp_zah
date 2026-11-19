@@ -1,0 +1,32 @@
+{
+ "format_version": "1.10.0",
+ "animation_controllers": {
+  "controller.animation.smp_sg_doll.turn": {
+   "initial_state": "away",
+   "states": {
+    "away": {
+     "animations": [
+      "away"
+     ],
+     "transitions": [
+      {
+       "face": "query.property('smp:face')"
+      }
+     ],
+     "blend_transition": 0.7
+    },
+    "face": {
+     "animations": [
+      "face"
+     ],
+     "transitions": [
+      {
+       "away": "!query.property('smp:face')"
+      }
+     ],
+     "blend_transition": 0.9
+    }
+   }
+  }
+ }
+}

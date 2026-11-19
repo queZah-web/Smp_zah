@@ -153,3 +153,22 @@ star - the elimination floor below, walls of stone bricks / andesite / quartz pi
 - The last one standing wins: announced (+ 2nd / 3rd), the prize, effects. Wins / losses are saved (`/tntrun`, the board).
   After the game everybody goes back to his place and game mode, and the floors are put back.
 - Code: `systems/tntdesign.js` (design), `systems/tntrun.js` (build, game, pages, `/tntrun`).
+
+## Red Light, Green Light (event) - Building > Red Light, Events > Red Light (Owner), /redlight (players)
+**The arena** (69 x 145, ~25k blocks, land saved for Undo): a sandy 55 x 141 field between walls painted like a blue sky with
+clouds, the start area behind the red START line (south), hay bales / barrels / rocks and pink guards in the middle, the white
+FINISH line, a huge glowing gate with FINISH and 2 big signal lights (north), the GIANT DOLL (`smp:sg_doll`, ~14 blocks high,
+animated: she turns to the players at red with red eyes and looks around, turns away at green) next to a bare tree, 2
+spectator balconies behind glass, a leaderboard hologram.
+
+**A game**: the Owner picks 2 - 30 players, the walking speed (normal / slow / slower / very slow = slowness), the time
+limit (3 - 15 min), the winners (first 1 / 3 / 5 / everybody who finishes) and the prize.
+- 10 s countdown behind the start line, then GREEN / RED at random times. The stage follows the best runner:
+  0-25 %: green 8-12 s / red 3-5 s, 25-50 %: 5-9 / 4-7, 50-75 %: 4-7 / 5-8, 75-100 %: 3-6 / 6-10.
+  A short warning sound comes at a random moment before red.
+- Red light: the movement is watched the whole time: 0.35 s grace, then the place is saved (a jump may land); more than
+  0.25 block (or jumping up) in 2 checks in a row, or 0.9 block at once = OUT. One wrong network position that is corrected
+  at once does not count. OUT = "PLAYER ELIMINATED / name / reason / PLAYERS REMAINING", effects, the balcony.
+- Over the finish line (alive, not flying) = winner: prize, stats. Time over = the rest is out. No PvP, Adventure, no items.
+- Code: `systems/squiddesign.js`, `systems/squidgame.js`, the doll: `BP/entities/smp_sg_doll.json`, `RP/entity/smp_sg_doll.entity.json`,
+  `RP/models/entity/smp_sg_doll.geo.json`, `RP/animations/smp_sg_doll.animation.json`, `RP/animation_controllers/smp_sg_doll.ac.json`.
