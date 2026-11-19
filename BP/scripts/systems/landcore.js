@@ -296,7 +296,7 @@ export function checkSpot(p, size) {
   const lim = claimLimit(p.id);
   if (claimsOf(p.id).length >= lim) return lim > 0 ? "You already own the maximum of " + lim + " protections." : "You are not allowed to own protections.";
   const box = boxAt(size, p.location), d = p.dimension.id;
-  if (zoneOverlaps(d, box)) return "This spot overlaps the server spawn.";
+  if (zoneOverlaps(d, box)) return "This spot overlaps the server spawn or an arena.";
   for (const c of allClaims()) if (c.d === d && overlaps(box, c)) return c.o === p.id ? "This spot overlaps your protection \"" + c.n + "\"." : "This spot overlaps the protected land of " + c.on + ".";
   return null;
 }

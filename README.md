@@ -39,3 +39,16 @@ only plain blocks, leaves never decay, vines never grow, invisible light blocks 
 - **Undo:** the land is saved before building (structures `smp:spawn_backup_*`); Undo puts it back, removes the crates / boards
   it placed and restores the old spawn point.
 - Code: `systems/spawndesign.js` (the designs), `systems/spawnbuild.js` (builder, menu, protection), `systems/spawnzone.js` (area).
+
+## Building > Arenas (Owner only) and /arena (players)
+Two colosseums (89 x 91, ~35k blocks each), built around the Owner, one at a time:
+- **Arena of Valor** (teal + white): Keep Inventory ON, building OFF, ender pearls OFF (defaults).
+- **Blood Pit** (red + blackstone): Keep Inventory OFF, temporary building ON, ender pearls ON (defaults).
+
+Inside: skull gate with a dark crown, 3 tiers of arches, domed turrets, a furnished concourse under the stands (grand lobby,
+armory, rest hall, hall of champions, 8 staircases), 11 rows of seats, a royal box and the round fighting pit.
+- The Owner changes the rules any time: Open / Closed, Keep Inventory, Building (OFF / ON / TEMPORARY 30 s - 10 min),
+  ender pearls, clear placed blocks, teleport, Undo.
+- The rules work in the **pit** only; everywhere else in the arena nobody takes damage. Only the Owner can change the building.
+- Keep Inventory uses the normal API: the drops of a death in the pit are taken off the ground and given back at respawn.
+- Code: `systems/arenadesign.js` (design), `systems/arena.js` (build, rules, menus, protection, `/arena`).

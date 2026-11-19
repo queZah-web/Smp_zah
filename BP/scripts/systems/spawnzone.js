@@ -22,8 +22,13 @@ export function inZoneColumn(dimId, x, y, z, margin = 0) {
   const s = getZone(); if (!s || s.d !== dimId) return false;
   return x >= s.x1 - margin && x <= s.x2 + margin && z >= s.z1 - margin && z <= s.z2 + margin && y >= s.y1 - 2;
 }
-/** box = { x1, y1, z1, x2, y2, z2 } in dimension d overlaps the spawn area */
-export function zoneOverlaps(d, b) {
-  const s = getZone(); if (!s || s.d !== d) return false;
-  return b.x1 <= s.x2 && b.x2 >= s.x1 && b.y1 <= s.y2 && b.y2 >= s.y1 && b.z1 <= s.z2 && b.z2 >= s.z1;
-}
+const hit = (s, d, b) => !!s && s.d === d && b.x1 <= s.x2 && b.x2 >= s.x1 && b.y1 <= s.y2 && b.y2 >= s.y1 && b.z1 <= s.z2 && b.z2 >= s.z1;
+/** other protected builds (the arenas) register a function that returns their boxes */
+const sources = [];
+export function addZoneSource(fn) { sources.push(fn); }
+/** box overlaps one of the other builds (not the spawn) */
+export function otherZoneOverlaps(d, b) { for (const fn of sources) { try { for (const z of fn()) if (hit(z, d, b)) return true; } catch (e) { /* ignore */ } } return false; }
+/** box = { x1, y1, z1, x2, y2, z2 } in dimension d overlaps the spawn area or an arena (used by land protection) */
+export function zoneOverlaps(d, b) { return hit(getZone(), d, b) || otherZoneOverlaps(d, b); }
+/** box overlaps the spawn area */
+export function spawnOverlaps(d, b) { return hit(getZone(), d, b); }

@@ -22,7 +22,7 @@ import { confirmOpr as confirm } from "./forms.js";
 import { isOwner, slog } from "./staffcore.js";
 import { oprMsg } from "./oprlang.js";
 import { pick } from "./arextra.js";
-import { getZone, setZone, clearZone, inZone, inZoneColumn } from "./spawnzone.js";
+import { getZone, setZone, clearZone, inZone, inZoneColumn, otherZoneOverlaps } from "./spawnzone.js";
 import { GRAND, SMALL, grandSpawnGen, smallSpawn, boardSpots } from "./spawndesign.js";
 import { placeCrateAt, removeCrateAt, isCrateAt } from "./crates.js";
 import { addFixedAt, removeFixed } from "./hologram.js";
@@ -38,7 +38,7 @@ const bar = (p, m) => { try { p.onScreenDisplay.setActionBar(m); } catch (e) { /
 // ---------------------------------------------------------------- blocks
 const permCache = new Map();
 /** a block (with states). "a|b" = the first one this game version knows; a state the game does not know is dropped; unknown -> null */
-function perm(id, states) {
+export function perm(id, states) {
   const key = id + JSON.stringify(states ?? {});
   if (permCache.has(key)) return permCache.get(key);
   let p = null;
@@ -56,10 +56,10 @@ function areaBoxes(z) {                                    // at most 4 boxes (o
   const mx = Math.floor((z.x1 + z.x2) / 2), mz = Math.floor((z.z1 + z.z2) / 2);
   return [[z.x1, z.z1, mx, mz], [mx + 1, z.z1, z.x2, mz], [z.x1, mz + 1, mx, z.z2], [mx + 1, mz + 1, z.x2, z.z2]];
 }
-function addAreas(dim, z) {
-  areaBoxes(z).forEach(([a, b, c, d], i) => { try { dim.runCommand(`tickingarea add ${a} ${z.cy} ${b} ${c} ${z.cy} ${d} ${AREA}${i} true`); } catch (e) { /* limit reached / no permission: we wait for the players' view instead */ } });
+export function addAreas(dim, z, prefix = AREA) {
+  areaBoxes(z).forEach(([a, b, c, d], i) => { try { dim.runCommand(`tickingarea add ${a} ${z.cy} ${b} ${c} ${z.cy} ${d} ${prefix}${i} true`); } catch (e) { /* limit reached / no permission: we wait for the players' view instead */ } });
 }
-function removeAreas(dim) { for (let i = 0; i < 4; i++) { try { dim.runCommand(`tickingarea remove ${AREA}${i}`); } catch (e) { /* ignore */ } } }
+export function removeAreas(dim, prefix = AREA) { for (let i = 0; i < 4; i++) { try { dim.runCommand(`tickingarea remove ${prefix}${i}`); } catch (e) { /* ignore */ } } }
 function isLoaded(dim, z) {
   for (let x = z.x1; x <= z.x2 + 15; x += 16) for (let zz = z.z1; zz <= z.z2 + 15; zz += 16) {
     let b; try { b = dim.getBlock({ x: Math.min(x, z.x2), y: z.cy, z: Math.min(zz, z.z2) }); } catch (e) { b = undefined; }
@@ -68,13 +68,13 @@ function isLoaded(dim, z) {
   return true;
 }
 /** generator: waits (max ~60 s) until the whole area is loaded. Returns true / false */
-function* waitLoaded(player, dim, z, what) {
+export function* waitLoaded(player, dim, z, what) {
   const t0 = system.currentTick;
   let last = -1;
   while (!isLoaded(dim, z)) {
     if (system.currentTick - t0 > 1200) return false;
     const s = Math.floor((system.currentTick - t0) / 20);
-    if (s !== last) { last = s; bar(player, "§a[Spawn] §f" + what + " §7loading the area... " + s + "s"); }
+    if (s !== last) { last = s; bar(player, "§a" + what + " §7loading the area... " + s + "s"); }
     const until = system.currentTick + 10; while (system.currentTick < until) yield;
   }
   return true;
@@ -87,7 +87,7 @@ function* buildJob(player, dim, zone, kind) {
   const t0 = Date.now();
   try {
     addAreas(dim, zone);
-    if (!(yield* waitLoaded(player, dim, zone, "Building:"))) { removeAreas(dim); say(player, "§c[Spawn] The area could not be loaded. Stand in the middle and try again."); return; }
+    if (!(yield* waitLoaded(player, dim, zone, "[Spawn] Building:"))) { removeAreas(dim); say(player, "§c[Spawn] The area could not be loaded. Stand in the middle and try again."); return; }
     // 1. save the land (Undo)
     zone.tiles = []; zone.backup = true;
     for (let x = zone.x1; x <= zone.x2; x += TILE) for (let z = zone.z1; z <= zone.z2; z += TILE) {
@@ -161,6 +161,8 @@ export function buildHere(player, kind = "grand") {
   if (busy) return say(player, "§c[Spawn] Something is being built right now. Wait until it is done.");
   if (getZone()) return say(player, "§c[Spawn] A spawn already exists. Undo it first (Building > Spawn > Undo).");
   const K = KINDS[kind]; if (!K) return;
+  { const l0 = player.location, R0 = K.D.R + PAD, b0 = { x1: Math.floor(l0.x) - R0, z1: Math.floor(l0.z) - R0, x2: Math.floor(l0.x) + R0, z2: Math.floor(l0.z) + R0, y1: -999, y2: 999 };
+    if (otherZoneOverlaps(player.dimension.id, b0)) return say(player, "§c[Spawn] Too close to an arena. Move away and try again."); }
   const D = K.D, dim = player.dimension, l = player.location;
   const cx = Math.floor(l.x), cz = Math.floor(l.z), fy = Math.floor(l.y) - 1;
   const hr = dim.heightRange;
@@ -177,7 +179,7 @@ export function buildHere(player, kind = "grand") {
 function* undoJob(player, dim, z) {
   try {
     addAreas(dim, z);
-    if (!(yield* waitLoaded(player, dim, z, "Undo:"))) { removeAreas(dim); say(player, "§c[Spawn] The area could not be loaded. Go there and try again."); return; }
+    if (!(yield* waitLoaded(player, dim, z, "[Spawn] Undo:"))) { removeAreas(dim); say(player, "§c[Spawn] The area could not be loaded. Go there and try again."); return; }
     for (const c of z.crates ?? []) { try { removeCrateAt(z.d, c.x, c.y, c.z); } catch (e) { /* ignore */ } }
     for (const id of z.boards ?? []) { try { removeFixed(id); } catch (e) { /* ignore */ } }
     const tiles = z.tiles ?? (z.backup ? [{ id: "smp:spawn_backup", x: z.x1, y: z.y1, z: z.z1 }] : []);
@@ -219,9 +221,12 @@ export function buildingPage(player, back) {
   const f = make("Operator: Building", SHORT_ROWS); f.self = self; f.glass = true;
   set(f, 0 * COLS + 4, hdr(1, "g") + "§a§lBuilding\n§r§7Ready places that are built for you\n§r§7Only the Owner can use this", "textures/blocks/grass_side_carried", null);
   set(f, 2 * COLS + 4, hdr(1, z ? "g" : "c") + "§a§lSpawn\n§r§7Grand: walled sanctuary, giant tree,\n§r§7Crate Temple, Hall of Legends (TOP)\n§r§7Small: 41 x 41 garden\n§r§7Now: " + (busy ? "§ebeing built" : z ? "§abuilt" : "§fnot built") + "\n§r§eClick to open", "textures/blocks/sapling_oak", { run: () => spawnPage(player, self) });
+  set(f, 2 * COLS + 6, hdr(1, "g") + "§c§lArenas\n§r§7Two colosseums for fighting:\n§r§7Keep Inventory / No Keep\n§r§7You choose the rules of each one\n§r§eClick to open", "textures/items/diamond_sword", { run: () => { try { arenaHook.page(player, self); } catch (e) { say(player, "§c[Arena] " + e); } } });
   backBtn(f, back); status(player, f);
   open(player, f);
 }
+/** set by arena.js (no import loop) */
+export const arenaHook = { page: () => {} };
 function spawnPage(player, back) {
   if (!isOwner(player)) return;
   const self = () => spawnPage(player, back), z = getZone();

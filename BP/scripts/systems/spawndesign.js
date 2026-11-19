@@ -26,7 +26,7 @@ export class Canvas {
     if (i === undefined) { i = this.pal.length; this.pal.push({ id, st, late: !!late }); this.pi.set(key, i); }
     return i;
   }
-  put(x, y, z, id, st, late = false) { if (y < -12 || y > 57 || x < -80 || x > 89 || z < -80 || z > 89) return; this.m.set(Canvas.k(x, y, z), this.p(id, st, late)); }
+  put(x, y, z, id, st, late = false) { if (id == null) { this.del(x, y, z); return; } if (y < -12 || y > 57 || x < -80 || x > 89 || z < -80 || z > 89) return; this.m.set(Canvas.k(x, y, z), this.p(id, st, late)); }
   del(x, y, z) { this.m.delete(Canvas.k(x, y, z)); }
   has(x, y, z) { return this.m.has(Canvas.k(x, y, z)); }
   id(x, y, z) { const i = this.m.get(Canvas.k(x, y, z)); return i === undefined ? null : this.pal[i].id; }
