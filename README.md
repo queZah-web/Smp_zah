@@ -25,11 +25,17 @@ Minecraft Bedrock SMP add-on (made by @Zahraiiq).
 - Prices that the Owner changed in the game (Shop admin) stay as they were set. Reset an item there to get the new price.
 
 ## Building > Spawn (Owner only)
-`/opr` > **Building** > **Spawn** > **Build here**: builds a green garden spawn (41 x 41, about 17 high) around the Owner:
-a gazebo with white pillars and a green copper dome, a fountain, 4 big leafy trees, flowers, hedges, 4 paths with benches,
-lamp posts and leafy arches. Built a little every tick (no lag); only plain blocks (no entities / redstone), leaves never decay,
-invisible light blocks stop mobs from spawning. It becomes the `/spawn` point.
-- **Protection:** only the Owner can break / place / use blocks inside (Admins can't); explosions don't touch it;
-  no lava / water / fire / TNT / pistons close to it; nobody can buy land protection on top of it.
-- **Undo:** the land is saved before building (structure `smp:spawn_backup`); Undo puts it back and restores the old spawn point.
-- Code: `BP/scripts/systems/spawnbuild.js` (design + builder + menu + protection), `systems/spawnzone.js` (area data).
+`/opr` > **Building** > **Spawn**, then pick one (you stand in the middle):
+- **Grand Spawn - "The Ancient Sanctuary" (151 x 151, ~95k blocks)**: mossy walls with buttresses, hanging leaves and glow berries,
+  4 corner towers and 4 gates with gate towers; a giant Tree of Life on an island with a moat and 4 bridges; 4 avenues with lamps and
+  guardian statues; **Crate Temple** (NE, the 3 crates are placed and work), **Hall of Legends** (NW, the 10 TOP boards are placed);
+  a terraced cliff with a waterfall (SE); ruins garden + pergola (SW); gardens and trees everywhere.
+- **Small Spawn** (41 x 41): gazebo, fountain, trees, 4 paths.
+
+No lag: the area is loaded with temporary ticking areas only while building; it is designed and built a little every tick;
+only plain blocks, leaves never decay, vines never grow, invisible light blocks stop mobs. It becomes the `/spawn` point.
+- **Protection:** only the Owner can break / place / use blocks inside (Admins can't); everybody can still open the crates;
+  explosions don't touch it; no lava / water / fire / TNT / pistons close to it; no land protection on top of it.
+- **Undo:** the land is saved before building (structures `smp:spawn_backup_*`); Undo puts it back, removes the crates / boards
+  it placed and restores the old spawn point.
+- Code: `systems/spawndesign.js` (the designs), `systems/spawnbuild.js` (builder, menu, protection), `systems/spawnzone.js` (area).

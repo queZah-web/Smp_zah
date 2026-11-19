@@ -442,6 +442,29 @@ function place(p, typeId) {
   slog(p, "crates", null, "placed " + def.name + " at " + c.x + " " + c.y + " " + c.z);
   p.sendMessage(oprMsg(p, "§a[Crate] " + def.color + def.name + " §aplaced in front of you at §f" + c.x + " " + c.y + " " + c.z + "§a."));
 }
+/** Spawn builder (spawnbuild.js): puts a crate of this type exactly on this block (same as /smp:crate place). Returns the record or null */
+export function placeCrateAt(dim, x, y, z, typeId) {
+  const def = CRATES[typeId]; if (!def) return null;
+  const list = load(); if (!list) return null;
+  const old = crateAt(dim.id, x, y, z); if (old) return old;
+  const b = dim.getBlock({ x, y, z }); if (!b) return null;
+  b.setType(def.block);
+  const c = { id: typeId, d: dim.id, x, y, z };
+  list.push(c); save();
+  spawnHolo(dim, c);
+  return c;
+}
+/** Spawn builder: removes the crate on this block (record, holograms, block). true = there was one */
+export function removeCrateAt(dimId, x, y, z) {
+  const list = load() ?? [];
+  const best = list.find((c) => c.d === dimId && c.x === x && c.y === y && c.z === z);
+  if (!best) return false;
+  crates = list.filter((c) => c !== best); save();
+  try { const dim = world.getDimension(dimId); removeHolo(dim, best); dim.getBlock({ x, y, z })?.setType("minecraft:air"); } catch (e) { /* ignore */ }
+  return true;
+}
+/** a crate stands on this block */
+export const isCrateAt = (dimId, x, y, z) => { try { return !!crateAt(dimId, x, y, z); } catch (e) { return false; } };
 function removeNearest(p) {
   const list = load() ?? []; let best = null, bd = 1e9;
   for (const c of list) {

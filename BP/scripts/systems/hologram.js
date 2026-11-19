@@ -165,6 +165,17 @@ export function addFixed(player, key) {
   try { renderFixed(b); } catch (e) { console.warn("[holo] render failed: " + e); }
   return b;
 }
+/** Spawn builder (spawnbuild.js): a fixed board of list `key` at an exact place. Returns the board, "full" or null */
+export function addFixedAt(dimId, x, y, z, key) {
+  const list = loadFixed();
+  if (!list || !LISTS[key]) return null;
+  if (list.length >= MAX_FIXED) return "full";
+  const b = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5), t: key, d: dimId, x: Math.round(x * 100) / 100, y: Math.round(y * 100) / 100, z: Math.round(z * 100) / 100 };
+  list.push(b);
+  if (!saveFixed()) { list.pop(); return null; }
+  try { renderFixed(b); } catch (e) { console.warn("[holo] render failed: " + e); }
+  return b;
+}
 export function removeFixed(id) {
   const list = loadFixed();
   if (!list) return false;

@@ -1,19 +1,20 @@
 // ===================================================================================================================
-// /opr > Building > Spawn   (OWNER ONLY)
+// /opr > Building   (OWNER ONLY)
 //
-// Builds a green, tidy spawn around the Owner (41 x 41 blocks, about 17 blocks high):
-//   * a garden circle with low azalea hedges, flowers, 4 big leafy trees with hanging lanterns
-//   * a round stone plaza with lights in the floor and 4 paths (benches, lamp posts, leafy arches at the exits)
-//   * in the middle: a white pillar gazebo with a green copper dome, hanging lanterns, glow-berry vines and a fountain
+//   * Grand Spawn  "The Ancient Sanctuary"  151 x 151  (see spawndesign.js): walls, towers, giant tree, moat, avenues,
+//                  Crate Temple (the 3 crates are placed and working), Hall of Legends (10 TOP boards), cliff + waterfall, ruins
+//   * Small Spawn  41 x 41 garden spawn
 //
 // No lag:
-//   * it is built a little every tick (system.runJob), never all at once
-//   * only plain blocks: no entities, no redstone, no hoppers, still water only (closed basin), leaves that never decay
-//     (persistent), glow-berry vines that never grow, invisible light blocks so no mobs spawn in the garden
+//   * the area is loaded with temporary ticking areas only while building (removed afterwards)
+//   * the design is made and built a little every tick (system.runJob), never all at once
+//   * only plain blocks: no redstone, no hoppers, still water (plus one waterfall that settles at once), leaves that never decay,
+//     glow-berry vines that never grow, invisible light blocks so no mobs spawn anywhere in the spawn
 //
-// Undo: before building, the land is saved in a structure (world save) - "Undo" puts it back exactly as it was.
-// Protection: nobody but the Owner can break, place or use blocks inside the spawn (Admins too), explosions don't touch it,
-// and no liquids / fire / TNT / pistons can be used close to it.
+// Undo: before building, the land is saved in structures (world save, 51 x 61 x 51 pieces) - Undo puts it all back,
+//       removes the crates / boards that were placed and gives back the old spawn point.
+// Protection: nobody but the Owner can break, place or use blocks inside (Admins too) - except opening the crates;
+//       explosions don't touch it; no liquids / fire / TNT / pistons close to it; no land protection can be bought on it.
 // ===================================================================================================================
 import { world, system, BlockPermutation, BlockVolume, StructureSaveMode } from "@minecraft/server";
 import { makeOpr as make, set, open, hdr, COLS, SHORT_ROWS, backBtn, status } from "../smp/ui.js";
@@ -22,22 +23,26 @@ import { isOwner, slog } from "./staffcore.js";
 import { oprMsg } from "./oprlang.js";
 import { pick } from "./arextra.js";
 import { getZone, setZone, clearZone, inZone, inZoneColumn } from "./spawnzone.js";
+import { GRAND, SMALL, grandSpawnGen, smallSpawn, boardSpots } from "./spawndesign.js";
+import { placeCrateAt, removeCrateAt, isCrateAt } from "./crates.js";
+import { addFixedAt, removeFixed } from "./hologram.js";
 
-const R = 20;                      // radius of the spawn circle (41 blocks across)
-const PAD = 1;                     // protected border around it
-const UP = 24, DOWN = 4;           // protected / saved height above and below the floor
-const BACKUP = "smp:spawn_backup";
+const PAD = 1;
+const TILE = 51;                   // backup pieces: 51 x (height) x 51
 const SPAWN_KEY = "spawn:v1";      // the /spawn point (spawn.js)
+const AREA = "smp_spawn_";         // temporary ticking areas
+const KINDS = { grand: { D: GRAND, name: "Grand Spawn", size: "151 x 151" }, small: { D: SMALL, name: "Small Spawn", size: "41 x 41" } };
 const say = (p, m) => { try { p.sendMessage(oprMsg(p, m)); } catch (e) { /* ignore */ } };
+const bar = (p, m) => { try { p.onScreenDisplay.setActionBar(m); } catch (e) { /* ignore */ } };
 
 // ---------------------------------------------------------------- blocks
 const permCache = new Map();
-/** a block (with states); a state the game does not know is dropped; an unknown block -> null (skipped) */
+/** a block (with states). "a|b" = the first one this game version knows; a state the game does not know is dropped; unknown -> null */
 function perm(id, states) {
   const key = id + JSON.stringify(states ?? {});
   if (permCache.has(key)) return permCache.get(key);
   let p = null;
-  for (const one of id.split("|")) {                     // "a|b": the first block this game version knows
+  for (const one of id.split("|")) {
     const name = one.startsWith("minecraft:") ? one : "minecraft:" + one;
     try { p = BlockPermutation.resolve(name, states); } catch (e) { try { p = BlockPermutation.resolve(name); } catch (x) { p = null; } }
     if (p) break;
@@ -45,234 +50,166 @@ function perm(id, states) {
   permCache.set(key, p);
   return p;
 }
-const M = (n) => "minecraft:" + n;
-const LEAF = { persistent_bit: true };
-// stairs: the high side looks towards dir  (0 = +x east, 1 = -x west, 2 = +z south, 3 = -z north)
-const dirOf = (vx, vz) => (Math.abs(vx) >= Math.abs(vz) ? (vx > 0 ? 0 : 1) : (vz > 0 ? 2 : 3));
-const rnd = (v) => Math.sign(v) * Math.round(Math.abs(v));
 
-// ---------------------------------------------------------------- the design (relative to the centre: dx, dy, dz; dy 0 = floor)
-export function spawnDesign() {
-  let seed = 20251119;
-  const rng = () => { seed |= 0; seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
-  const cells = new Map();                                   // "x,y,z" -> { id, st, late }
-  const put = (x, y, z, id, st, late = false) => cells.set(x + "," + y + "," + z, { x, y, z, id, st, late });
-  const has = (x, y, z) => cells.has(x + "," + y + "," + z);
-  const pathMinor = (x, z) => (Math.abs(z) <= 2 ? Math.abs(z) : Math.abs(x) <= 2 ? Math.abs(x) : 99);    // distance from the middle line of a path
-  const inCircle = (x, z) => Math.hypot(x, z) <= R + 0.5;
-
-  // floor
-  for (let x = -R; x <= R; x++) for (let z = -R; z <= R; z++) {
-    if (!inCircle(x, z)) continue;
-    const r = Math.hypot(x, z), pm = pathMinor(x, z);
-    let b;
-    if (r < 2.6) b = null;                                                   // fountain water (later)
-    else if (r < 3.6) b = "polished_diorite";                                // fountain rim
-    else if (r < 5.5) b = (Math.abs(r - 4.5) < 0.5 && Math.abs(((Math.atan2(z, x) * 180 / Math.PI) + 382.5) % 45 - 22.5) < 7) ? "verdant_froglight" : (Math.abs(x) + Math.abs(z)) % 2 ? "calcite" : "polished_diorite";
-    else if (r < 7.5) b = rng() < 0.35 ? "mossy_stone_bricks" : "stone_bricks";
-    else if (r < 11.5) {
-      const ang = ((Math.atan2(z, x) * 180 / Math.PI) + 360) % 30;
-      if (Math.abs(r - 9.8) < 0.5) b = ang < 6 ? "verdant_froglight" : "calcite";
-      else { const q = rng(); b = q < 0.12 ? "cracked_deepslate_tiles" : q < 0.25 ? "polished_deepslate" : "deepslate_tiles"; }
-    } else if (pm <= 2) {                                                    // the 4 paths
-      if (pm === 2) b = "polished_andesite";
-      else { const q = rng(); b = q < 0.25 ? "mossy_stone_bricks" : q < 0.35 ? "cracked_stone_bricks" : "stone_bricks"; }
-    } else if (r < 12.5) b = "mossy_stone_bricks";                           // plaza border
-    else b = "grass_block";
-    if (b) put(x, 0, z, b);
+// ---------------------------------------------------------------- area loading (temporary ticking areas)
+function areaBoxes(z) {                                    // at most 4 boxes (one ticking area may hold 100 chunks)
+  const mx = Math.floor((z.x1 + z.x2) / 2), mz = Math.floor((z.z1 + z.z2) / 2);
+  return [[z.x1, z.z1, mx, mz], [mx + 1, z.z1, z.x2, mz], [z.x1, mz + 1, mx, z.z2], [mx + 1, mz + 1, z.x2, z.z2]];
+}
+function addAreas(dim, z) {
+  areaBoxes(z).forEach(([a, b, c, d], i) => { try { dim.runCommand(`tickingarea add ${a} ${z.cy} ${b} ${c} ${z.cy} ${d} ${AREA}${i} true`); } catch (e) { /* limit reached / no permission: we wait for the players' view instead */ } });
+}
+function removeAreas(dim) { for (let i = 0; i < 4; i++) { try { dim.runCommand(`tickingarea remove ${AREA}${i}`); } catch (e) { /* ignore */ } } }
+function isLoaded(dim, z) {
+  for (let x = z.x1; x <= z.x2 + 15; x += 16) for (let zz = z.z1; zz <= z.z2 + 15; zz += 16) {
+    let b; try { b = dim.getBlock({ x: Math.min(x, z.x2), y: z.cy, z: Math.min(zz, z.z2) }); } catch (e) { b = undefined; }
+    if (!b) return false;
   }
-  // fountain: basin, water, lights under the water, the statue in the middle
-  for (let x = -3; x <= 3; x++) for (let z = -3; z <= 3; z++) {
-    const r = Math.hypot(x, z);
-    if (r < 2.6) {
-      put(x, -1, z, Math.abs(x) + Math.abs(z) === 1 ? "sea_lantern" : "prismarine_bricks");
-      if (x || z) put(x, 0, z, "water", { liquid_depth: 0 }, true);
-    } else if (r < 3.6) put(x, 1, z, "smooth_quartz_slab", { "minecraft:vertical_half": "bottom" });
+  return true;
+}
+/** generator: waits (max ~60 s) until the whole area is loaded. Returns true / false */
+function* waitLoaded(player, dim, z, what) {
+  const t0 = system.currentTick;
+  let last = -1;
+  while (!isLoaded(dim, z)) {
+    if (system.currentTick - t0 > 1200) return false;
+    const s = Math.floor((system.currentTick - t0) / 20);
+    if (s !== last) { last = s; bar(player, "§a[Spawn] §f" + what + " §7loading the area... " + s + "s"); }
+    const until = system.currentTick + 10; while (system.currentTick < until) yield;
   }
-  ["chiseled_stone_bricks", "chiseled_stone_bricks", "mossy_stone_bricks", "chiseled_stone_bricks", "sea_lantern", "moss_block"].forEach((b, i) => put(0, i, 0, b));
-  put(0, 6, 0, "flowering_azalea", undefined, true);
-
-  // gazebo: 8 pillars, beam ring, mossy eaves with vines, copper dome, lanterns
-  for (let k = 0; k < 8; k++) {
-    const a = (k * Math.PI) / 4, px = rnd(6.5 * Math.cos(a)), pz = rnd(6.5 * Math.sin(a));
-    put(px, 1, pz, "chiseled_stone_bricks");
-    for (let y = 2; y <= 6; y++) put(px, y, pz, "quartz_pillar", { pillar_axis: "y" });
-    put(px, 7, pz, "chiseled_stone_bricks");
-    const b = a + Math.PI / 8, lx = rnd(6 * Math.cos(b)), lz = rnd(6 * Math.sin(b));
-    put(lx, 7, lz, "waxed_oxidized_copper_lantern|lantern", { hanging: true }, true);
-  }
-  for (let x = -9; x <= 9; x++) for (let z = -9; z <= 9; z++) {
-    const r = Math.hypot(x, z);
-    if (r >= 5.6 && r < 7.6) put(x, 8, z, "stone_bricks");
-    else if (r >= 7.6 && r < 8.5) {
-      put(x, 8, z, "mossy_stone_bricks");
-      put(x, 9, z, rng() < 0.3 ? "azalea_leaves_flowered" : "azalea_leaves", LEAF);
-      if (rng() < 0.4) {                                                     // glow berries hanging from the eaves (never grow)
-        const two = rng() < 0.45;
-        if (two) { put(x, 7, z, "cave_vines_body_with_berries", { growing_plant_age: 25 }, true); put(x, 6, z, "cave_vines_head_with_berries", { growing_plant_age: 25 }, true); }
-        else put(x, 7, z, "cave_vines_head_with_berries", { growing_plant_age: 25 }, true);
-      }
-    }
-  }
-  const RINGS = [7.6, 6.43, 5.26, 4.09, 2.92, 1.75, 0.58, -1];
-  for (let k = 0; k < 7; k++) for (let x = -8; x <= 8; x++) for (let z = -8; z <= 8; z++) {
-    const r = Math.hypot(x, z);
-    if (r >= RINGS[k] || r < RINGS[k + 1]) continue;
-    if (k === 6 || Math.abs(Math.abs(x) - Math.abs(z)) === 0) put(x, 9 + k, z, k === 6 ? "waxed_oxidized_copper" : "waxed_oxidized_cut_copper");
-    else put(x, 9 + k, z, "waxed_oxidized_cut_copper_stairs", { weirdo_direction: dirOf(-x, -z), upside_down_bit: false });
-  }
-  put(0, 16, 0, "end_rod", { facing_direction: 1 }, true);
-  for (let y = 11; y <= 14; y++) put(0, y, 0, "waxed_oxidized_copper_chain|iron_chain|chain", { pillar_axis: "y" }, true);
-  put(0, 10, 0, "waxed_oxidized_copper_lantern|lantern", { hanging: true }, true);
-
-  // low hedge around the plaza (open at the paths)
-  for (let x = -14; x <= 14; x++) for (let z = -14; z <= 14; z++) {
-    const r = Math.hypot(x, z);
-    if (r >= 12.6 && r < 13.4 && pathMinor(x, z) > 3) put(x, 1, z, rng() < 0.25 ? "azalea_leaves_flowered" : "azalea_leaves", LEAF);
-  }
-  // outer hedge (open at the paths)
-  for (let x = -R; x <= R; x++) for (let z = -R; z <= R; z++) {
-    const r = Math.hypot(x, z);
-    if (r >= R - 0.5 && r <= R + 0.5 && pathMinor(x, z) > 2) put(x, 1, z, rng() < 0.2 ? "azalea_leaves_flowered" : "oak_leaves", LEAF);
-  }
-
-  // the 4 paths: lamp posts, benches, leafy arch at the exit  (built for the +x path, then turned 90 degrees 3 times)
-  const turn = (k, x, z) => { for (let i = 0; i < k; i++) [x, z] = [-z, x]; return [x, z]; };
-  const turnDir = (k, d) => { const v = [[1, 0], [-1, 0], [0, 1], [0, -1]][d]; const [a, b] = turn(k, v[0], v[1]); return dirOf(a, b); };
-  for (let k = 0; k < 4; k++) {
-    const P = (x, y, z, id, st, late) => { const [a, b] = turn(k, x, z); put(a, y, b, id, st, late); };
-    for (const s of [-1, 1]) {
-      for (const lx of [13, 18]) { P(lx, 1, 3 * s, "dark_oak_fence"); P(lx, 2, 3 * s, "dark_oak_fence"); P(lx, 3, 3 * s, "lantern", { hanging: false }, true); }
-      for (const bx of [15, 16]) P(bx, 1, 3 * s, "dark_oak_stairs", { weirdo_direction: turnDir(k, s > 0 ? 2 : 3), upside_down_bit: false });
-      for (let y = 1; y <= 4; y++) P(19, y, 3 * s, y === 1 || y === 4 ? "chiseled_stone_bricks" : "mossy_stone_bricks");
-    }
-    for (let z = -3; z <= 3; z++) { P(19, 5, z, z === 0 ? "chiseled_stone_bricks" : "stone_bricks"); P(19, 6, z, rng() < 0.35 ? "azalea_leaves_flowered" : "azalea_leaves", LEAF); }
-    P(19, 4, 0, "lantern", { hanging: true }, true);
-  }
-
-  // 4 big trees (diagonals) with lanterns and vines under the leaves
-  for (const [sx, sz] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) {
-    const tx = 11 * sx, tz = 11 * sz;
-    for (let y = 1; y <= 7; y++) put(tx, y, tz, "dark_oak_log", { pillar_axis: "y" });
-    for (const [ox, oz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) put(tx + ox, 1, tz + oz, "dark_oak_log", { pillar_axis: ox ? "x" : "z" });
-    const low = new Map();
-    for (let x = -4; x <= 4; x++) for (let y = -4; y <= 4; y++) for (let z = -4; z <= 4; z++) {
-      const d = Math.hypot(x, y * 1.15, z);
-      if (d > 3.4 - rng() * 0.7 || (x === 0 && z === 0 && y <= 0)) continue;
-      const q = rng();
-      put(tx + x, 7 + y, tz + z, q < 0.55 ? "oak_leaves" : q < 0.82 ? "azalea_leaves" : "azalea_leaves_flowered", LEAF);
-      const key = x + "," + z; if (!low.has(key) || low.get(key) > 7 + y) low.set(key, 7 + y);
-    }
-    for (const [ox, oz] of [[2, 0], [-2, 0], [0, 2], [0, -2]]) { const y = low.get(ox + "," + oz); if (y && y - 1 >= 3) put(tx + ox, y - 1, tz + oz, "lantern", { hanging: true }, true); }
-    for (const [key, y] of low) {
-      const [x, z] = key.split(",").map(Number);
-      if ((Math.abs(x) === 2 && z === 0) || (Math.abs(z) === 2 && x === 0) || (x === 0 && z === 0) || y - 1 < 3 || rng() > 0.22) continue;
-      put(tx + x, y - 1, tz + z, "cave_vines_head_with_berries", { growing_plant_age: 25 }, true);
-    }
-  }
-
-  // garden: invisible lights (no mobs), then grass and flowers on what is still free
-  const FLOWERS = ["cornflower", "allium", "oxeye_daisy", "lily_of_the_valley", "azure_bluet", "pink_tulip", "white_tulip", "blue_orchid", "dandelion", "poppy"];
-  for (let x = -R; x <= R; x++) for (let z = -R; z <= R; z++) {
-    const g = cells.get(x + ",0," + z); if (!g || g.id !== "grass_block" || has(x, 1, z)) continue;
-    if (((x % 5) + 5) % 5 === 0 && ((z % 5) + 5) % 5 === 0) { put(x, 1, z, "light_block_14", undefined, true); continue; }
-    const q = rng();
-    if (q < 0.28) put(x, 1, z, "short_grass", undefined, true);
-    else if (q < 0.46) put(x, 1, z, FLOWERS[Math.floor(rng() * FLOWERS.length)], undefined, true);
-    else if (q < 0.5) put(x, 1, z, "pink_petals", { growth: 3, "minecraft:cardinal_direction": ["north", "south", "east", "west"][Math.floor(rng() * 4)] }, true);
-    else if (q < 0.525) put(x, 1, z, rng() < 0.5 ? "azalea" : "flowering_azalea", undefined, true);
-  }
-  return [...cells.values()];
+  return true;
 }
 
-// ---------------------------------------------------------------- building (a little every tick)
+// ---------------------------------------------------------------- building
 let busy = false;
-function* buildJob(player, dim, cx, fy, cz, done) {
-  const list = spawnDesign();
-  const total = list.length + (2 * R + 1) * 2;
-  let n = 0, lastPct = -1, fails = 0;
-  const tick = () => { const pct = Math.floor((n / total) * 100); if (pct !== lastPct && pct % 10 === 0) { lastPct = pct; try { player.onScreenDisplay.setActionBar("§a[Spawn] §fBuilding... §e" + pct + "%"); } catch (e) { /* ignore */ } } };
-  const air = perm(M("air")), dirt = perm(M("dirt"));
-  // 1. clear the circle (air above the floor) and fill the ground under it (no holes, no caves under the spawn)
-  for (let x = -R; x <= R; x++) {
-    const h = Math.floor(Math.sqrt(Math.max(0, (R + 0.5) ** 2 - x * x)));
-    try { dim.fillBlocks(new BlockVolume({ x: cx + x, y: fy + 1, z: cz - h }, { x: cx + x, y: fy + 22, z: cz + h }), air); } catch (e) { fails++; }
-    n++; tick(); yield;
-    try { dim.fillBlocks(new BlockVolume({ x: cx + x, y: fy - 3, z: cz - h }, { x: cx + x, y: fy - 1, z: cz + h }), dirt); } catch (e) { fails++; }
-    n++; tick(); yield;
-  }
-  // 2. solid blocks from the bottom up, 3. things that hang / stand on other blocks (top down), water last
-  const solid = list.filter((c) => !c.late).sort((a, b) => a.y - b.y);
-  const late = list.filter((c) => c.late).sort((a, b) => (a.id === "water") - (b.id === "water") || b.y - a.y);
-  let k = 0;
-  for (const c of [...solid, ...late]) {
-    const p = perm(c.id, c.st);
-    if (p) { try { dim.getBlock({ x: cx + c.x, y: fy + c.y, z: cz + c.z })?.setPermutation(p); } catch (e) { fails++; } }
-    n++; if (++k % 24 === 0) { tick(); yield; }
-  }
-  done(fails);
-}
-
-export function buildHere(player) {
-  if (!isOwner(player)) return say(player, "§c[Spawn] Only the Owner can build the spawn.");
-  if (busy) return say(player, "§c[Spawn] A spawn is being built right now. Wait until it is done.");
-  if (getZone()) return say(player, "§c[Spawn] A spawn already exists. Undo it first (Building > Spawn > Undo).");
-  const dim = player.dimension, l = player.location;
-  const cx = Math.floor(l.x), cz = Math.floor(l.z), fy = Math.floor(l.y) - 1;
-  const hr = dim.heightRange;
-  if (fy - DOWN < hr.min || fy + UP >= hr.max) return say(player, "§c[Spawn] Too high or too low here. Stand on normal ground.");
-  for (const [x, z] of [[-R - PAD, -R - PAD], [R + PAD, -R - PAD], [-R - PAD, R + PAD], [R + PAD, R + PAD], [0, 0]]) {
-    let b; try { b = dim.getBlock({ x: cx + x, y: fy, z: cz + z }); } catch (e) { b = undefined; }
-    if (!b) return say(player, "§c[Spawn] The area is not loaded. Stand in the middle of the place and try again.");
-  }
-  const zone = { d: dim.id, x1: cx - R - PAD, y1: fy - DOWN, z1: cz - R - PAD, x2: cx + R + PAD, y2: fy + UP, z2: cz + R + PAD, cx, cy: fy, cz, t: Date.now() };
-  // save the land as it is now (Undo)
-  try {
-    try { world.structureManager.delete(BACKUP); } catch (e) { /* none yet */ }
-    world.structureManager.createFromWorld(BACKUP, dim, { x: zone.x1, y: zone.y1, z: zone.z1 }, { x: zone.x2, y: zone.y2, z: zone.z2 }, { saveMode: StructureSaveMode.World, includeEntities: false, includeBlocks: true });
-    zone.backup = true;
-  } catch (e) { zone.backup = false; console.warn("[spawnbuild] backup failed: " + e); }
-  try { zone.prevSpawn = world.getDynamicProperty(SPAWN_KEY) ?? null; } catch (e) { zone.prevSpawn = null; }
-  try { const s = world.getDefaultSpawnLocation(); zone.prevWorldSpawn = { x: s.x, y: s.y, z: s.z }; } catch (e) { zone.prevWorldSpawn = null; }
-  setZone(zone);                                                           // protected from now on (also while it is being built)
-  busy = true;
+function* buildJob(player, dim, zone, kind) {
+  const { D } = KINDS[kind], R = D.R, cx = zone.cx, fy = zone.cy, cz = zone.cz;
   const t0 = Date.now();
-  say(player, "§a[Spawn] Building the spawn... §7(a few seconds, no lag)" + (zone.backup ? "" : " §c(no backup: Undo will not be possible)"));
-  try { slog(player, "spawnbuild", null, "Spawn built at " + cx + " " + fy + " " + cz); } catch (e) { /* ignore */ }
-  system.runJob(buildJob(player, dim, cx, fy, cz, (fails) => {
-    busy = false;
-    const sp = { x: cx, y: fy + 1, z: cz + 9, d: dim.id };
+  try {
+    addAreas(dim, zone);
+    if (!(yield* waitLoaded(player, dim, zone, "Building:"))) { removeAreas(dim); say(player, "§c[Spawn] The area could not be loaded. Stand in the middle and try again."); return; }
+    // 1. save the land (Undo)
+    zone.tiles = []; zone.backup = true;
+    for (let x = zone.x1; x <= zone.x2; x += TILE) for (let z = zone.z1; z <= zone.z2; z += TILE) {
+      const id = "smp:spawn_backup_" + zone.tiles.length;
+      try {
+        try { world.structureManager.delete(id); } catch (e) { /* none yet */ }
+        world.structureManager.createFromWorld(id, dim, { x, y: zone.y1, z }, { x: Math.min(x + TILE - 1, zone.x2), y: zone.y2, z: Math.min(z + TILE - 1, zone.z2) }, { saveMode: StructureSaveMode.World, includeEntities: false, includeBlocks: true });
+        zone.tiles.push({ id, x, y: zone.y1, z });
+      } catch (e) { zone.backup = false; console.warn("[spawnbuild] backup failed: " + e); }
+      bar(player, "§a[Spawn] §fSaving the land for Undo... §e" + zone.tiles.length);
+      yield;
+    }
+    setZone(zone);                                                       // protected from now on
+    // 2. the design
+    bar(player, "§a[Spawn] §fDesigning...");
+    let canvas;
+    if (kind === "grand") { const g = grandSpawnGen(); let r; while (!(r = g.next()).done) yield; canvas = r.value; }
+    else canvas = smallSpawn();
+    yield;
+    const og = canvas.orderedGen(); let r; while (!(r = og.next()).done) yield;
+    const buckets = r.value, pal = canvas.pal.map((p) => perm(p.id, p.st));
+    const total = canvas.size + (2 * R + 1) * 2;
+    let n = 0, fails = 0, lastPct = -1;
+    const tick = () => { const pct = Math.floor((n / total) * 100); if (pct !== lastPct) { lastPct = pct; bar(player, "§a[Spawn] §fBuilding " + KINDS[kind].name + "... §e" + pct + "%"); } };
+    // 3. clear the area (air above the floor) and fill the ground under it
+    const air = perm("air"), dirt = perm("dirt"), round = kind === "small";
+    for (let x = -R; x <= R; x++) {
+      const h = round ? Math.floor(Math.sqrt(Math.max(0, (R + 0.5) ** 2 - x * x))) : R;
+      try { dim.fillBlocks(new BlockVolume({ x: cx + x, y: fy + 1, z: cz - h }, { x: cx + x, y: fy + D.UP - 2, z: cz + h }), air); } catch (e) { fails++; }
+      n++; tick(); yield;
+      try { dim.fillBlocks(new BlockVolume({ x: cx + x, y: fy - 4, z: cz - h }, { x: cx + x, y: fy - 1, z: cz + h }), dirt); } catch (e) { fails++; }
+      n++; tick(); yield;
+    }
+    // 4. every block (solid bottom-up, then hanging / standing things top-down, water last)
+    let k = 0;
+    for (const b of buckets) for (let i = 0; i < b.length; i += 4) {
+      const p = pal[b[i + 3]];
+      if (p) { try { dim.getBlock({ x: cx + b[i], y: fy + b[i + 1], z: cz + b[i + 2] })?.setPermutation(p); } catch (e) { fails++; } }
+      n++; if (++k % 40 === 0) { tick(); yield; }
+    }
+    // 5. crates + TOP boards (grand)
+    zone.crates = []; zone.boards = [];
+    for (const c of D.crates ?? []) {
+      try { const rec = placeCrateAt(dim, cx + c.x, fy + c.y, cz + c.z, c.type); if (rec) zone.crates.push({ x: rec.x, y: rec.y, z: rec.z }); } catch (e) { console.warn("[spawnbuild] crate: " + e); }
+    }
+    let full = false;
+    if (kind === "grand") for (const s of boardSpots()) {
+      try { const b = addFixedAt(dim.id, cx + s.x, fy + s.y, cz + s.z, s.key); if (b === "full") full = true; else if (b) zone.boards.push(b.id); } catch (e) { console.warn("[spawnbuild] board: " + e); }
+      yield;
+    }
+    // 6. spawn point
+    const sp = { x: cx + D.spawn.x, y: fy + D.spawn.y, z: cz + D.spawn.z, d: dim.id };
     try { world.setDynamicProperty(SPAWN_KEY, JSON.stringify(sp)); } catch (e) { /* ignore */ }
     if (dim.id === "minecraft:overworld") { try { world.setDefaultSpawnLocation({ x: sp.x, y: sp.y, z: sp.z }); } catch (e) { /* ignore */ } try { world.gameRules.spawnRadius = 0; } catch (e) { /* ignore */ } }
-    try { player.onScreenDisplay.setActionBar("§a[Spawn] §fDone!"); } catch (e) { /* ignore */ }
-    say(player, "§a[Spawn] The spawn is ready! §7(" + Math.round((Date.now() - t0) / 100) / 10 + " s" + (fails ? ", " + fails + " blocks skipped" : "") + ") §aIt is now the /spawn point. Only you can change it.");
+    setZone(zone);
+    removeAreas(dim);
+    bar(player, "§a[Spawn] §fDone!");
+    say(player, "§a[Spawn] " + KINDS[kind].name + " is ready! §7(" + Math.round((Date.now() - t0) / 1000) + " s" + (fails ? ", " + fails + " blocks skipped" : "") + ") §aIt is now the /spawn point. Only you can change it.");
+    if (kind === "grand") say(player, "§a[Spawn] §f" + zone.crates.length + " §acrates and §f" + zone.boards.length + " §aTOP boards placed." + (full ? " §c(Some boards were not placed: the limit of fixed boards is full - remove old ones in Operator > Holograms.)" : ""));
+    if (!zone.backup) say(player, "§c[Spawn] (Part of the backup failed: Undo can not put everything back.)");
     try { player.playSound("random.levelup"); } catch (e) { /* ignore */ }
-  }));
+  } catch (e) {
+    console.warn("[spawnbuild] " + e);
+    say(player, "§c[Spawn] Building stopped: " + e);
+    removeAreas(dim);
+  } finally { busy = false; }
 }
 
+export function buildHere(player, kind = "grand") {
+  if (!isOwner(player)) return say(player, "§c[Spawn] Only the Owner can build the spawn.");
+  if (busy) return say(player, "§c[Spawn] Something is being built right now. Wait until it is done.");
+  if (getZone()) return say(player, "§c[Spawn] A spawn already exists. Undo it first (Building > Spawn > Undo).");
+  const K = KINDS[kind]; if (!K) return;
+  const D = K.D, dim = player.dimension, l = player.location;
+  const cx = Math.floor(l.x), cz = Math.floor(l.z), fy = Math.floor(l.y) - 1;
+  const hr = dim.heightRange;
+  if (fy - D.DOWN < hr.min || fy + D.UP >= hr.max) return say(player, "§c[Spawn] Too high or too low here. Stand on normal ground.");
+  const zone = { kind, d: dim.id, x1: cx - D.R - PAD, y1: fy - D.DOWN, z1: cz - D.R - PAD, x2: cx + D.R + PAD, y2: fy + D.UP, z2: cz + D.R + PAD, cx, cy: fy, cz, t: Date.now() };
+  try { zone.prevSpawn = world.getDynamicProperty(SPAWN_KEY) ?? null; } catch (e) { zone.prevSpawn = null; }
+  try { const s = world.getDefaultSpawnLocation(); zone.prevWorldSpawn = { x: s.x, y: s.y, z: s.z }; } catch (e) { zone.prevWorldSpawn = null; }
+  busy = true;
+  say(player, "§a[Spawn] Building the " + K.name + " (" + K.size + ")... §7Stay here until it says it is ready (no lag).");
+  try { slog(player, "spawnbuild", null, K.name + " built at " + cx + " " + fy + " " + cz); } catch (e) { /* ignore */ }
+  system.runJob(buildJob(player, dim, zone, kind));
+}
+
+function* undoJob(player, dim, z) {
+  try {
+    addAreas(dim, z);
+    if (!(yield* waitLoaded(player, dim, z, "Undo:"))) { removeAreas(dim); say(player, "§c[Spawn] The area could not be loaded. Go there and try again."); return; }
+    for (const c of z.crates ?? []) { try { removeCrateAt(z.d, c.x, c.y, c.z); } catch (e) { /* ignore */ } }
+    for (const id of z.boards ?? []) { try { removeFixed(id); } catch (e) { /* ignore */ } }
+    const tiles = z.tiles ?? (z.backup ? [{ id: "smp:spawn_backup", x: z.x1, y: z.y1, z: z.z1 }] : []);
+    let ok = 0;
+    for (const t of tiles) {
+      try { world.structureManager.place(t.id, dim, { x: t.x, y: t.y, z: t.z }); ok++; } catch (e) { console.warn("[spawnbuild] undo: " + e); }
+      try { world.structureManager.delete(t.id); } catch (e) { /* ignore */ }
+      bar(player, "§a[Spawn] §fUndo... §e" + ok + "/" + tiles.length);
+      yield;
+    }
+    const until = system.currentTick + 5; while (system.currentTick < until) yield;
+    try { for (const it of dim.getEntities({ type: "minecraft:item" })) { const l = it.location; if (inZone(z.d, Math.floor(l.x), Math.floor(l.y), Math.floor(l.z))) it.remove(); } } catch (e) { /* ignore */ }
+    try { world.setDynamicProperty(SPAWN_KEY, typeof z.prevSpawn === "string" ? z.prevSpawn : undefined); } catch (e) { /* ignore */ }
+    if (z.prevWorldSpawn) { try { world.setDefaultSpawnLocation(z.prevWorldSpawn); } catch (e) { /* ignore */ } }
+    clearZone();
+    removeAreas(dim);
+    try { slog(player, "spawnbuild", null, "Spawn removed (undo)"); } catch (e) { /* ignore */ }
+    say(player, tiles.length && ok === tiles.length ? "§a[Spawn] Undone: the land is back as it was, the old spawn point is back." : "§e[Spawn] Protection removed and the old spawn point is back (the backup was not complete, some blocks stay).");
+  } finally { busy = false; }
+}
 export function undoSpawn(player) {
   if (!isOwner(player)) return say(player, "§c[Spawn] Only the Owner can do this.");
   if (busy) return say(player, "§c[Spawn] Wait until the spawn is built.");
   const z = getZone(); if (!z) return say(player, "§c[Spawn] There is no built spawn.");
   let dim; try { dim = world.getDimension(z.d); } catch (e) { return say(player, "§c[Spawn] Dimension not found."); }
-  if (z.backup) {
-    try { world.structureManager.place(BACKUP, dim, { x: z.x1, y: z.y1, z: z.z1 }); }
-    catch (e) { return say(player, "§c[Spawn] Could not put the land back (go there so the area is loaded): " + e); }
-    try { world.structureManager.delete(BACKUP); } catch (e) { /* ignore */ }
-    system.runTimeout(() => {                                                   // items that dropped while the blocks changed
-      try { for (const it of dim.getEntities({ type: "minecraft:item" })) { const l = it.location; if (inZone(z.d, Math.floor(l.x), Math.floor(l.y), Math.floor(l.z))) it.remove(); } } catch (e) { /* ignore */ }
-    }, 5);
-  }
-  try { world.setDynamicProperty(SPAWN_KEY, typeof z.prevSpawn === "string" ? z.prevSpawn : undefined); } catch (e) { /* ignore */ }
-  if (z.prevWorldSpawn) { try { world.setDefaultSpawnLocation(z.prevWorldSpawn); } catch (e) { /* ignore */ } }
-  clearZone();
-  try { slog(player, "spawnbuild", null, "Spawn removed (undo)"); } catch (e) { /* ignore */ }
-  say(player, z.backup ? "§a[Spawn] Undone: the land is back as it was, the old spawn point is back." : "§e[Spawn] Protection removed and the old spawn point is back (there was no backup, the blocks stay).");
+  busy = true;
+  system.runJob(undoJob(player, dim, z));
 }
 
-function goThere(player) {
+function goTo(player, rel) {
   const z = getZone(); if (!z) return say(player, "§c[Spawn] There is no built spawn.");
-  try { player.teleport({ x: z.cx + 0.5, y: z.cy + 1, z: z.cz + 9.5 }, { dimension: world.getDimension(z.d) }); } catch (e) { say(player, "§c[Spawn] Teleport failed."); }
+  try { player.teleport({ x: z.cx + rel.x + 0.5, y: z.cy + rel.y, z: z.cz + rel.z + 0.5 }, { dimension: world.getDimension(z.d) }); } catch (e) { say(player, "§c[Spawn] Teleport failed."); }
 }
 
 // ---------------------------------------------------------------- menu pages (Owner only)
@@ -281,7 +218,7 @@ export function buildingPage(player, back) {
   const self = () => buildingPage(player, back), z = getZone();
   const f = make("Operator: Building", SHORT_ROWS); f.self = self; f.glass = true;
   set(f, 0 * COLS + 4, hdr(1, "g") + "§a§lBuilding\n§r§7Ready places that are built for you\n§r§7Only the Owner can use this", "textures/blocks/grass_side_carried", null);
-  set(f, 2 * COLS + 4, hdr(1, z ? "g" : "c") + "§a§lSpawn\n§r§7Green garden spawn with a gazebo,\n§r§7fountain, trees and 4 paths\n§r§7Size: 41 x 41 (no lag)\n§r§7Now: " + (busy ? "§ebeing built" : z ? "§abuilt" : "§fnot built") + "\n§r§eClick to open", "textures/blocks/sapling_oak", { run: () => spawnPage(player, self) });
+  set(f, 2 * COLS + 4, hdr(1, z ? "g" : "c") + "§a§lSpawn\n§r§7Grand: walled sanctuary, giant tree,\n§r§7Crate Temple, Hall of Legends (TOP)\n§r§7Small: 41 x 41 garden\n§r§7Now: " + (busy ? "§ebeing built" : z ? "§abuilt" : "§fnot built") + "\n§r§eClick to open", "textures/blocks/sapling_oak", { run: () => spawnPage(player, self) });
   backBtn(f, back); status(player, f);
   open(player, f);
 }
@@ -290,17 +227,22 @@ function spawnPage(player, back) {
   const self = () => spawnPage(player, back), z = getZone();
   const f = make("Building: Spawn", SHORT_ROWS); f.self = self; f.glass = true;
   set(f, 0 * COLS + 4, hdr(1, z ? "g" : "c") + "§a§lSpawn\n§r§7Built around you: you stand in the middle\n§r§7Only the Owner can break / build / use\n§r§7blocks there (Admins too can't)" + (z ? "\n§r§7Place: §f" + z.cx + " " + z.cy + " " + z.cz : ""), "textures/blocks/sapling_oak", null);
+  const here = () => ["§7Middle: §f" + Math.floor(player.location.x) + " " + Math.floor(player.location.y) + " " + Math.floor(player.location.z)];
   if (!z) {
-    set(f, 2 * COLS + 4, hdr(1, "g") + "§a§lBuild here\n§r§7Middle = where you stand\n§r§7The land is saved first (Undo)\n§r§eClick to build", "textures/ui/shop/ic_confirm", { run: () => confirm(player, "Build the spawn here?", ["§7Middle: §f" + Math.floor(player.location.x) + " " + Math.floor(player.location.y) + " " + Math.floor(player.location.z), "§7Everything in 41 x 41 blocks around you", "§7is replaced (Undo puts it back)."], () => buildHere(player), self) });
+    set(f, 2 * COLS + 3, hdr(1, "g") + "§2§lGrand Spawn\n§r§7The Ancient Sanctuary: 151 x 151\n§r§7Walls, towers, giant tree of life,\n§r§7Crate Temple (3 crates placed),\n§r§7Hall of Legends (10 TOP boards),\n§r§7waterfall, ruins, gardens\n§r§7The land is saved first (Undo)\n§r§eClick to build", "textures/ui/shop/ic_confirm", { run: () => confirm(player, "Build the Grand Spawn here?", [...here(), "§7Everything in 151 x 151 blocks around you", "§7is replaced (Undo puts it back).", "§7Takes about a minute. No lag."], () => buildHere(player, "grand"), self) });
+    set(f, 2 * COLS + 5, hdr(1, "c") + "§a§lSmall Spawn\n§r§7Green garden spawn: 41 x 41\n§r§7Gazebo, fountain, trees, 4 paths\n§r§eClick to build", "textures/blocks/sapling_oak", { run: () => confirm(player, "Build the Small Spawn here?", [...here(), "§7Everything in 41 x 41 blocks around you", "§7is replaced (Undo puts it back)."], () => buildHere(player, "small"), self) });
   } else {
-    set(f, 2 * COLS + 2, hdr(1, "g") + "§b§lTeleport\n§r§7Go to the spawn\n§r§eClick to go", "textures/items/ender_pearl", { run: () => goThere(player) });
+    const D = KINDS[z.kind ?? "small"].D;
+    set(f, 2 * COLS + 2, hdr(1, "g") + "§b§lTeleport\n§r§7Go to the spawn\n§r§eClick to go", "textures/items/ender_pearl", { run: () => goTo(player, D.spawn) });
+    if (D.places?.crates) set(f, 2 * COLS + 3, hdr(1, "g") + "§d§lCrate Temple\n§r§7Go to the crates\n§r§eClick to go", "textures/ui/shop/i3d_barrel", { run: () => goTo(player, D.places.crates) });
+    if (D.places?.top) set(f, 2 * COLS + 5, hdr(1, "g") + "§6§lHall of Legends\n§r§7Go to the TOP boards\n§r§eClick to go", "textures/items/gold_ingot", { run: () => goTo(player, D.places.top) });
     set(f, 2 * COLS + 6, hdr(1, "r") + "§c§lUndo\n§r§7Remove the spawn: the land comes\n§r§7back as it was before\n§r§eClick to undo", "textures/ui/shop/ic_cancel", { run: () => confirm(player, "Remove the spawn?", ["§7The land comes back as it was.", "§7The old spawn point comes back."], () => undoSpawn(player), self) });
   }
   backBtn(f, back); status(player, f);
   open(player, f);
 }
 
-// ---------------------------------------------------------------- protection: only the Owner
+// ---------------------------------------------------------------- protection: only the Owner (players may still open the crates)
 const told = new Map();
 function deny(p) {
   system.run(() => {
@@ -327,7 +269,9 @@ safe("place", () => { const s = world.beforeEvents.playerPlaceBlock; if (!s) ret
 }); });
 safe("interact", () => world.beforeEvents.playerInteractWithBlock.subscribe((ev) => {
   if (!getZone() || free(ev.player)) return;
-  const b = ev.block, d = b.dimension.id, f = FACE[String(ev.blockFace)] ?? [0, 0, 0];
+  const b = ev.block, d = b.dimension.id;
+  if (isCrateAt(d, b.x, b.y, b.z)) return;                                       // crates: everybody may open them
+  const f = FACE[String(ev.blockFace)] ?? [0, 0, 0];
   const px = b.x + f[0], py = b.y + f[1], pz = b.z + f[2];
   let hit = inZone(d, b.x, b.y, b.z) || inZone(d, px, py, pz);
   if (!hit) {
