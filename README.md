@@ -14,7 +14,7 @@ Minecraft Bedrock SMP add-on (made by @Zahraiiq).
   If the game refuses a patch, the normal function is used.
 - `BP/scripts/systems/invwatch.js`: inventories are read again only when they **changed** (game event), with a timed full
   check as a safety net. Used by the sell-price lore, special tools, Hearts and the bundle ban.
-- Needs `@minecraft/server` 2.1.0 (Minecraft 1.21.100+). Without the inventory event, everything works like before.
+- Uses `@minecraft/server` 2.0.0 (Minecraft 1.21.90+, same as before). The inventory event (2.1.0+) is used only when the game has it; without it the inventories are scanned like before.
 
 ## Prices
 - `python3 tools/reprice.py`: makes all shop prices from `tools/shop_data.original.js` (the old prices) and writes
