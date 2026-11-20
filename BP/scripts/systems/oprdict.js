@@ -1,6 +1,18 @@
 // Arabic texts of the Operator menu (/opr) and everything inside it. Key = the English text exactly as the code writes it (pieces of a line), value = Arabic.
 // Used only by oprlang.js for players whose language is Arabic. A text that is not here simply stays English (nothing breaks).
 export const PART = {
+"Dropper: slow falling": "الدروبر: السقوط البطيء",
+"Slow falling": "السقوط البطيء",
+"The players fall slowly in the": "اللاعبين ينزلون ببطء بالمراحل",
+"stages you choose (easier)": "اللي تختارها (أسهل)",
+"Click a stage to switch it": "اضغط مرحلة حتى تشغلها أو تطفيها",
+"(it works at once, also in a game)": "(يشتغل فوراً، حتى أثناء اللعبة)",
+"Slow falling:": "السقوط البطيء:",
+"All stages": "كل المراحل",
+"Slow falling everywhere": "سقوط بطيء بكل المراحل",
+"No stage": "ولا مرحلة",
+"Normal falling everywhere": "سقوط عادي بكل المراحل",
+"ALL stages": "كل المراحل",
 "Event: Color Rush": "فعالية: تحدي الألوان",
 "Color Rush": "تحدي الألوان",
 "A colour is called: run onto it!": "يطلع اسم لون: اركض عليه!",

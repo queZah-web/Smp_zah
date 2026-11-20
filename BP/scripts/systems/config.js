@@ -23,14 +23,14 @@ export const MAGNET_RANGE = 6;                     // Magnet: dropped items with
 export const MINING_MAX_HOURS = 6;                 // most time a player can hold at once (per tool)
 // time is sold in 3 packs: 30 minutes (price) | 1 hour (p60) | 6 hours (p360)   - all in $, real time
 export const MINING_PASS = {
-  timber: { name: "Timber",          price: 1899, p60: 3799,  p360: 20799 },
-  a3:     { name: "Area Mining 3x3", price: 4999, p60: 9999,  p360: 54999 },
-  a5:     { name: "Area Mining 5x5", price: 7999, p60: 15999, p360: 87999 },
-  chest:  { name: "Chest Sell",      price: 3999, p60: 7999,  p360: 43999 },   // axe: breaking a chest sells everything inside (the chest stays)
-  t40:    { name: "Timber x2 (40 logs)", price: 3798, p60: 7598, p360: 41598 },   // exactly double the Timber prices: one hit cuts up to TIMBER_MAX2 logs
+  timber: { name: "Timber",          price: 899,  p60: 1699, p360: 8999 },
+  a3:     { name: "Area Mining 3x3", price: 1999, p60: 3799, p360: 19999 },
+  a5:     { name: "Area Mining 5x5", price: 3499, p60: 6499, p360: 34999 },
+  chest:  { name: "Chest Sell",      price: 1499, p60: 2799, p360: 14999 },   // axe: breaking a chest sells everything inside (the chest stays)
+  t40:    { name: "Timber x2 (40 logs)", price: 1798, p60: 3398, p360: 17998 },   // exactly double the Timber prices: one hit cuts up to TIMBER_MAX2 logs
   // Magnet + Auto-Smelt: ONE pack only (30 minutes) and at most 30 minutes held at once  (packs = minutes that can be bought, maxMin = most minutes held)
   magnet: { name: "Magnet",          price: 0,    packs: [30], maxMin: 30 },     // FREE now (not sold any more, kept only so old data still loads) - dropped items gather under you and follow you (MAGNET_RANGE blocks)
-  smelt:  { name: "Auto-Smelt",      price: 5999, packs: [30], maxMin: 30 },     // ores drop ingots instead of raw ore (iron / gold / copper / ancient debris)
+  smelt:  { name: "Auto-Smelt",      price: 2499, packs: [30], maxMin: 30 },     // ores drop ingots instead of raw ore (iron / gold / copper / ancient debris)
 };
 
 // ---- Area Mining trench: pickaxe looking DOWN or UP breaks a row of 3 (or 5) blocks left/right of the block under the crosshair
@@ -38,7 +38,7 @@ export const MINING_PASS = {
 export const AREA_DEPTH = { 3: 3, 5: 5 };
 
 // ---- Night Vision (/nv): paid time (real time, also runs while offline) ----
-export const NV = { price: 1999, p60: 3999, p360: 21999, maxHours: 12, giftHours: 2 };   // $ for 30 min | 1 hour | 6 hours | most hours a player can hold | free hours for NEW players only
+export const NV = { price: 799, p60: 1499, p360: 7999, maxHours: 12, giftHours: 2 };   // $ for 30 min | 1 hour | 6 hours | most hours a player can hold | free hours for NEW players only
 
 // ---- RTP (overworld only) ----
 export const RTP = { min: 300, max: 8000 };        // distance from 0,0

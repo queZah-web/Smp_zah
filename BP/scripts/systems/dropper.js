@@ -57,7 +57,10 @@ const abs = (a, l) => ({ x: a.cx + l.x + 0.5, y: a.cy + l.y, z: a.cz + l.z + 0.5
 export const dropperAt = (d, x, y, z) => { const a = tower(); return a && a.d === d && x >= a.x1 && x <= a.x2 && y >= a.y1 && y <= a.y2 && z >= a.z1 && z <= a.z2 ? a : null; };
 const inTower = (p) => { const l = p.location; return !!dropperAt(p.dimension.id, Math.floor(l.x), Math.floor(l.y), Math.floor(l.z)); };
 let cfg = null;
-const conf = () => (cfg ??= { att: 3, back: 1, wait: 30, min: 15, prize: 5000, roster: [], ...readJson(CFG_KEY, {}) });
+const conf = () => (cfg ??= { att: 3, back: 1, wait: 30, min: 15, prize: 5000, roster: [], slow: [], ...readJson(CFG_KEY, {}) });
+/** slow falling in this stage (0 .. 6)? the Owner chooses the stages (also during a game) */
+const slowIn = (n) => (conf().slow ?? []).includes(n);
+const SLOW_MAX = 3600;                                       // a fall with slow falling may take up to 3 minutes
 const saveCfg = () => writeJson(CFG_KEY, conf());
 
 // ---------------------------------------------------------------- building (fills first, then the single blocks)
@@ -180,7 +183,7 @@ const toAll = (fn) => { for (const p of world.getAllPlayers()) { if (!inTower(p)
 function restorePlayer(p, rec) {
   try { if (rec.gm) p.setGameMode(rec.gm); } catch (e) { /* ignore */ }
   try { if (rec.back) p.teleport({ x: rec.back.x, y: rec.back.y, z: rec.back.z }, { dimension: world.getDimension(rec.back.d) }); } catch (e) { /* ignore */ }
-  for (const fx of ["resistance", "weakness"]) { try { p.removeEffect(fx); } catch (e) { /* ignore */ } }
+  for (const fx of ["resistance", "weakness", "slow_falling"]) { try { p.removeEffect(fx); } catch (e) { /* ignore */ } }
 }
 const pend = () => readJson(PEND_KEY, {});
 function restoreOrKeep(id, rec) {
@@ -332,7 +335,7 @@ system.runInterval(() => {
       let lava = false; try { const b = p.dimension.getBlock({ x: Math.floor(l.x), y: Math.floor(l.y), z: Math.floor(l.z) }); lava = !!b && /lava$/.test(b.typeId); } catch (e) { /* ignore */ }
       if (lava) { fail(a, id, "lava"); continue; }
       if (ground && !water) { fail(a, id, "hit"); continue; }
-      if (t - r.t0 > DROP_MAX) { fail(a, id, "time"); continue; }
+      if (t - r.t0 > (slowIn(r.st) ? SLOW_MAX : DROP_MAX)) { fail(a, id, "time"); continue; }
     }
     if (inUse.has(3) || inUse.has(6)) { if (t % ROTOR_EVERY === 0) turnRotors(a, inUse); }
   } catch (e) { console.warn("[dropper] tick: " + e); }
@@ -347,7 +350,9 @@ system.runInterval(() => {
     if (G.phase === "wait") { bar(p, "§d§lDROPPER §r§7| §e" + pick(p, "Starting in ", "تبدأ بعد ") + Math.max(0, Math.ceil((G.until - t) / 20)) + "s"); continue; }
     if (G.phase !== "run") continue;
     const st = Math.min(r.st, N - 1);
-    bar(p, r.state === "done" ? "§a§l" + pick(p, "FINISHED", "خلصت") + " §r§7| §f" + fmt(r.total) : stName(p, st) + " §r§7| " + (G.att ? "§f" + pick(p, "Attempts", "المحاولات") + ": §e" + r.att + "/" + G.att + " §7| " : "") + "§b" + fmt(Math.max(0, G.endAt - t)));
+    const slow = (r.state === "ledge" || r.state === "fall") && slowIn(st);
+    try { if (slow) { p.addEffect("slow_falling", 30, { amplifier: 0, showParticles: false }); r.slowed = 1; } else if (r.slowed) { p.removeEffect("slow_falling"); r.slowed = 0; } } catch (e) { /* ignore */ }
+    bar(p, r.state === "done" ? "§a§l" + pick(p, "FINISHED", "خلصت") + " §r§7| §f" + fmt(r.total) : stName(p, st) + (slowIn(st) ? " §r§b(" + pick(p, "slow falling", "سقوط بطيء") + ")" : "") + " §r§7| " + (G.att ? "§f" + pick(p, "Attempts", "المحاولات") + ": §e" + r.att + "/" + G.att + " §7| " : "") + "§b" + fmt(Math.max(0, G.endAt - t)));
   }
 }, 10);
 // no ender pearls (and no other items)
@@ -403,16 +408,37 @@ export function dropperPage(player, back) {
     set(f, 1 * COLS + 5, hdr(Math.min(99, c.wait)) + "§f§lWaiting time\n§r§7In the lobby: §e" + c.wait + " s\n§r§eClick to change", "textures/items/clock_item", { run: () => { c.wait = WAITS[(WAITS.indexOf(c.wait) + 1) % WAITS.length]; saveCfg(); self(); } });
     set(f, 1 * COLS + 6, hdr(Math.min(99, c.min)) + "§f§lTime limit\n§r§7Now: §e" + c.min + " minutes\n§r§eClick to change", "textures/items/clock_item", { run: () => { c.min = TIMES[(TIMES.indexOf(c.min) + 1) % TIMES.length]; saveCfg(); self(); } });
     set(f, 1 * COLS + 8, hdr(1, c.prize ? "g" : "c") + "§f§lPrize\n§r§71st: §a" + money(c.prize) + "\n§r§72nd: §a" + money(Math.floor(c.prize / 2)) + "\n§r§73rd: §a" + money(Math.floor(c.prize / 4)) + "\n§r§eClick to change", "textures/items/gold_ingot", { run: () => { c.prize = PRIZES[(PRIZES.indexOf(c.prize) + 1) % PRIZES.length]; saveCfg(); self(); } });
+    slowBtn(f, player, self, 3 * COLS + 4);
     set(f, 2 * COLS + 4, hdr(1, n >= 2 ? "g" : "r") + "§a§lStart the game\n§r§7" + Math.min(n, MAX_PLAYERS) + " players, lobby " + c.wait + " s\n§r§eClick to start", "textures/ui/shop/ic_confirm", { run: () => { const r = startDropper(player); if (r.err) say(player, "§c[Dropper] " + r.err); else self(); } });
     set(f, 2 * COLS + 2, hdr(1, "g") + "§b§lTeleport\n§r§7To the lobby", "textures/items/ender_pearl", { run: () => { try { player.teleport(abs(a, DROP.lobby), { dimension: dimOf(a), facingLocation: abs(a, { x: 0, y: 20, z: 0 }) }); } catch (e) { /* ignore */ } } });
     set(f, 2 * COLS + 6, hdr(1, "r") + "§c§lUndo the tower\n§r§7The land comes back as it was\n§r§eClick to undo", "textures/ui/shop/ic_cancel", { run: () => confirm(player, "Remove the Dropper tower?", ["§7The land comes back as it was."], () => undoDropper(player), self) });
   } else {
     const rows = Object.values(G.pl).map((r) => "§f" + r.n + " §7- " + (r.state === "done" ? "§aFINISHED" : "stage " + (Math.min(r.st, N - 1) + 1))).slice(0, 10).join("\n§r");
     set(f, 1 * COLS + 4, hdr(Math.max(1, Object.keys(G.pl).length), "g") + "§f§lPlayers\n§r" + rows, "textures/ui/shop/ic_player", null);
+    slowBtn(f, player, self, 2 * COLS + 3);
     set(f, 2 * COLS + 5, hdr(1) + "§6§lEnd the game now\n§r§7Shows the ranking", "textures/ui/shop/ic_trophy", { run: () => { if (G && G.phase === "run") endGame(); self(); } });
     set(f, 2 * COLS + 6, hdr(1, "r") + "§c§lStop the game\n§r§7No winner, everybody goes back", "textures/ui/shop/ic_cancel", { run: () => confirm(player, "Stop the game?", ["§7Nobody wins; everybody goes back."], () => stopDropper(), self) });
   }
   backBtn(f, back); status(player, f);
+  open(player, f);
+}
+// ---- slow falling: the Owner picks the stages (1 - 7, all or none) - to make the hard stages easier
+const slowText = () => { const s = (conf().slow ?? []).slice().sort((a, b) => a - b); return !s.length ? "OFF" : s.length === N ? "ALL stages" : "stage " + s.map((n) => n + 1).join(", "); };
+function slowBtn(f, player, back, slot) {
+  set(f, slot, hdr(Math.max(1, (conf().slow ?? []).length), (conf().slow ?? []).length ? "g" : "c") + "§b§lSlow falling\n§r§7Now: §e" + slowText() + "\n§r§7The players fall slowly in the\n§r§7stages you choose (easier)\n§r§eClick to choose", "textures/items/feather", { run: () => slowPage(player, back) });
+}
+function slowPage(player, back) {
+  if (!owner(player)) return;
+  const self = () => slowPage(player, back), c = conf(); c.slow ??= [];
+  const f = makeOpr("Dropper: slow falling", SHORT_ROWS); f.self = self; f.glass = true;
+  set(f, 0 * COLS + 4, hdr(1, c.slow.length ? "g" : "c") + "§b§lSlow falling\n§r§7Now: §e" + slowText() + "\n§r§7Click a stage to switch it\n§r§7(it works at once, also in a game)", "textures/items/feather", null);
+  DROP.stages.forEach((st, n) => {
+    const on = c.slow.includes(n);
+    set(f, 1 * COLS + 1 + n, hdr(n + 1, on ? "g" : "r") + st.col + "§l" + (n + 1) + " " + st.name + "\n§r§7" + st.h + " high\n§r§7Slow falling: " + (on ? "§aON" : "§cOFF") + "\n§r§eClick to switch", on ? "textures/items/feather" : "textures/blocks/barrier", { run: () => { c.slow = on ? c.slow.filter((x) => x !== n) : [...c.slow, n]; saveCfg(); self(); } });
+  });
+  set(f, 3 * COLS + 3, hdr(1, "g") + "§a§lAll stages\n§r§7Slow falling everywhere", "textures/items/feather", { run: () => { c.slow = DROP.stages.map((_, n) => n); saveCfg(); self(); } });
+  set(f, 3 * COLS + 5, hdr(1, "r") + "§c§lNo stage\n§r§7Normal falling everywhere", "textures/blocks/barrier", { run: () => { c.slow = []; saveCfg(); self(); } });
+  backBtn(f, back);
   open(player, f);
 }
 function rosterPage(player, back, page = 0) {

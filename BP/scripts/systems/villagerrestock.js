@@ -1,5 +1,6 @@
 // ===================================================================================================================
 // VILLAGER RESTOCK - the trades of a villager come back 20 minutes after a player traded with him
+//   (+ at the end: a villager spawn egg gives a villager WITHOUT a job)
 //
 //   * a player opens the trades of a villager (right-click) -> that villager gets a restock time: now + 20 min
 //     (saved ON the villager: it keeps counting while nobody is there, after a restart, when the player leaves the
@@ -99,3 +100,38 @@ system.runInterval(() => {
     }
   }
 }, 20);
+
+// ===================================================================================================================
+// VILLAGER SPAWN EGG -> a villager WITHOUT a job (the player gives him the job he wants: he takes the first free job block)
+//   The game gives an egg villager a random job.  When a player uses a villager egg on a block, the villager that appears
+//   there (within 3 ticks, 3 blocks) is replaced at once by a jobless adult villager (the game's own "become unskilled" spawn).
+// ===================================================================================================================
+const eggUses = [];                                   // { d, x, y, z, t }
+try {
+  world.beforeEvents.playerInteractWithBlock.subscribe((ev) => {
+    try {
+      if (ev.itemStack?.typeId !== "minecraft:villager_spawn_egg") return;
+      const b = ev.block;
+      if (/mob_spawner|smp:spawner/.test(b.typeId)) return;                  // an egg used on a spawner is not a villager spawn
+      eggUses.push({ d: b.dimension.id, x: b.x + 0.5, y: b.y + 1, z: b.z + 0.5, t: system.currentTick });
+      if (eggUses.length > 30) eggUses.shift();
+    } catch (e) { /* ignore */ }
+  });
+  world.afterEvents.entitySpawn.subscribe(({ entity }) => {
+    try {
+      if (!eggUses.length || entity.typeId !== VILLAGER) return;
+      const l = entity.location, d = entity.dimension.id, now = system.currentTick;
+      const k = eggUses.findIndex((u) => u.d === d && now - u.t <= 3 && Math.abs(u.x - l.x) < 3 && Math.abs(u.y - l.y) < 3 && Math.abs(u.z - l.z) < 3);
+      if (k < 0) return;
+      eggUses.splice(k, 1);
+      const dim = entity.dimension, at = { x: l.x, y: l.y, z: l.z };
+      let rot = 0; try { rot = entity.getRotation().y; } catch (e) { rot = 0; }
+      const name = entity.nameTag;
+      entity.remove();
+      let v = null;
+      try { v = dim.spawnEntity(VILLAGER + "<minecraft:become_unskilled>", at); } catch (e) { v = null; }
+      if (!v) { try { dim.runCommand(`summon ${VILLAGER} ${at.x.toFixed(2)} ${at.y.toFixed(2)} ${at.z.toFixed(2)} ${rot.toFixed(0)} 0 minecraft:become_unskilled`); } catch (e) { /* ignore */ } }
+      else { try { if (name) v.nameTag = name; v.setRotation({ x: 0, y: rot }); } catch (e) { /* ignore */ } }
+    } catch (e) { console.warn("[restock] egg: " + e); }
+  });
+} catch (e) { console.warn("[restock] egg setup: " + e); }

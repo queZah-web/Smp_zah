@@ -57,12 +57,14 @@ system.runInterval(() => {
 }, 40);
 
 // ---------------------------------------------------------------- moving items
+const BUNDLE = /(^|:|_)bundle$/;
 const inv = (b) => { try { return b.getComponent("minecraft:inventory")?.container ?? null; } catch (e) { return null; } };
 /** moves up to n items of ONE stack from container `from` (only the slots in `slots`, or all) into `to` (only `toSlot`, or anywhere). Returns how many moved. */
 function move(from, to, n, slots, toSlot) {
   const list = slots ?? [...Array(from.size).keys()];
   for (const i of list) {
     const s = from.getItem(i); if (!s) continue;
+    if (BUNDLE.test(s.typeId)) { from.setItem(i, undefined); continue; }   // bundles are banned (duplication): a hopper deletes them, never moves them
     const want = Math.min(n, s.amount);
     let moved = 0;
     if (toSlot === undefined) {
@@ -87,6 +89,7 @@ function runHopper(dim, x, y, z) {
   const perm = b.permutation;
   if (perm.getState("toggle_bit")) return true;                            // locked by redstone
   const me = inv(b); if (!me) return true;
+  for (let i = 0; i < me.size; i++) { try { const s = me.getItem(i); if (s && BUNDLE.test(s.typeId)) me.setItem(i, undefined); } catch (e) { /* ignore */ } }
   const N = FAST_HOPPER.amount;
   // push
   const f = FACE[Number(perm.getState("facing_direction") ?? 0)] ?? FACE[0];

@@ -1,7 +1,8 @@
 // BUNDLES ARE BANNED (they were used to duplicate items).  Every bundle - the plain one and every coloured one - is taken away from a player as soon as he has it:
 //   * the inventory (36 slots), the off hand and the item on the mouse cursor are checked every half second;
 //   * a bundle that is thrown on the ground is removed the moment it appears;
-//   * using a bundle is cancelled;  the shop no longer sells it (shop_data.js).
+//   * using a bundle is cancelled;  the shop no longer sells it (shop_data.js);
+//   * a container a player opens loses every bundle inside;  hoppers never move a bundle (fasthopper.js deletes it).
 // The bundle is DELETED together with everything inside it.  The player is told, and the staff log gets a line (at most one per player per minute).
 // Everything is wrapped in try/catch: a problem here can never stop the other systems.
 import { world, system, EquipmentSlot } from "@minecraft/server";
@@ -9,7 +10,7 @@ import { invWatch } from "./invwatch.js";
 import { pick } from "./arextra.js";
 import { slog } from "./staffcore.js";
 
-const isBundle = (typeId) => { try { return /(^|:|_)bundle$/.test(String(typeId)); } catch (e) { return false; } };   // minecraft:bundle, minecraft:red_bundle ...
+export const isBundle = (typeId) => { try { return /(^|:|_)bundle$/.test(String(typeId)); } catch (e) { return false; } };   // minecraft:bundle, minecraft:red_bundle ...
 const told = new Map(), logged = new Map();       // player id -> last time (ms)
 
 function warn(p, n) {
@@ -58,6 +59,15 @@ try {
       ev.cancel = true;
       const p = ev.source;
       system.run(() => sweep(p));
+    } catch (e) { /* ignore */ }
+  });
+  // a container a player opens (chest, barrel, shulker box, hopper, dropper ...): every bundle inside is deleted
+  world.afterEvents.playerInteractWithBlock.subscribe(({ player, block }) => {
+    try {
+      const c = block.getComponent("minecraft:inventory")?.container; if (!c) return;
+      let n = 0;
+      for (let i = 0; i < c.size; i++) { const s = c.getItem(i); if (s && isBundle(s.typeId)) { c.setItem(i, undefined); n++; } }
+      if (n) warn(player, n);
     } catch (e) { /* ignore */ }
   });
   world.afterEvents.playerLeave.subscribe(({ playerId }) => { told.delete(playerId); logged.delete(playerId); });

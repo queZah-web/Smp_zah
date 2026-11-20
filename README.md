@@ -240,3 +240,15 @@ under 1 s), how the other blocks vanish (at once / in waves 0.5 s / 1 s), prize.
   A timer "⟳ 14:52" shows above the villager only while a player is within 5 blocks; a real name stays (timer under it).
   The game does not tell scripts when a trade is used up, so the 20 minutes start at the first trade.
   Code: `systems/villagerrestock.js`.
+
+## v35 changes
+- Villager spawn egg: the villager that comes out has NO job (an adult unskilled villager): he takes the job of the first
+  free job block the player puts near him (systems/villagerrestock.js, end of the file).
+- Dropper: **Slow falling** (Events > Dropper > Slow falling): the Owner picks the stages (any of 1 - 7, all or none, also
+  during a game); in those stages the players fall slowly (more time to steer), a fall may then take up to 3 minutes.
+- Bundles: also deleted from every container a player opens (chest, barrel, shulker box, hopper ...) and hoppers never move
+  a bundle (they delete it) - so they can't be used to duplicate items. (Inventory, ground, use, shop: as before.)
+- Cheaper: Night Vision $799 / $1,499 / $7,999 (30 min / 1 h / 6 h, was $1,999 / $3,999 / $21,999).
+  /mining (30 min / 1 h / 6 h): Timber 899 / 1,699 / 8,999, Timber x2 1,798 / 3,398 / 17,998, Area 3x3 1,999 / 3,799 / 19,999,
+  Area 5x5 3,499 / 6,499 / 34,999, Chest Sell 1,499 / 2,799 / 14,999, Auto-Smelt 2,499 (30 min).
+  Prices an admin had set in the game stay as they were (Set prices > reset = the new prices).
