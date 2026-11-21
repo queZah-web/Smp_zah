@@ -682,7 +682,7 @@ function transferPage(player, back, page = 0) {
 
 // ================================================================ SCOREBOARD NAME (the Owner; an Admin only when the Owner allowed "Scoreboard name" in Role permissions)
 //   The name is the title of the side-panel scoreboard (hud.js). Every action checks the permission again.
-const HUD_ORIGINAL = "§c§lS§6§lM§e§lP";
+const HUD_ORIGINAL = "§r§f\uE100\uE101\uE102\uE103\uE104\uE105\uE106 \uE107\uE108\uE109\uE10A§r";   // 『Zyther Smp』 (green letters, RP/font/glyph_E1.png)
 export function hudNamePage(player, back) {
   if (!allow(player, "hudname")) return back();
   const self = () => hudNamePage(player, back);

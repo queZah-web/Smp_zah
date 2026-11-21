@@ -323,5 +323,5 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
     windows, the gable with a spire and a golden cross; the roof dark on the left, white on the right
   * inside: columns (black / white), pews, red carpet, altar with candles, organ wall, chandeliers, side chapels
 - The spawn is now 112 blocks high (UP) for the towers and the sky. A Celestial spawn built before: Undo it and build again.
-- The SMP Menu (dashboard) title is now 『Zyther Smp』 in green bold letters (custom font: `RP/font/glyph_E1.png`,
+- The side panel (scoreboard) title and the SMP Menu title are now 『Zyther Smp』 in green bold letters (custom font: `RP/font/glyph_E1.png`,
   characters U+E100 - U+E10A).
