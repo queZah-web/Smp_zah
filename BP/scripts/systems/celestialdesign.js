@@ -1,5 +1,6 @@
 // =====================================================================================================================
 // THE CELESTIAL SANCTUARY - the third spawn (pure data, no game calls: can be tested / previewed outside the game)
+//   (271 x 271 now: + a boulevard around the ring, the NETHER GATE (south) and 4 BUTTERFLY LANTERN portals - see 10b)
 //
 //   201 x 201 (radius 100), up to ~64 high.  A white & dark-slate sanctuary in a big round garden:
 //     * THE RING: 7 tiers of white seats all around (like an amphitheatre), on them a gothic COLONNADE of 64 tall pillars
@@ -20,12 +21,12 @@
 // The big flat parts are boxes (fills: built with one call each).  Everything else is listed block by block.
 // =====================================================================================================================
 
-/** compact block store for a 221 x 221 area. x / z: -110..110, y: -12..79 */
+/** compact block store for a 281 x 281 area. x / z: -140..140, y: -12..79 */
 export class BigCanvas {
   constructor() { this.m = new Map(); this.pal = []; this.pi = new Map(); this.fills = []; }
-  static k(x, y, z) { return ((x + 110) * 92 + (y + 12)) * 221 + (z + 110); }
+  static k(x, y, z) { return ((x + 140) * 92 + (y + 12)) * 281 + (z + 140); }
   p(id, st, late) { const key = id + "#" + (st ? JSON.stringify(st) : "") + "#" + (late ? 1 : 0); let i = this.pi.get(key); if (i === undefined) { i = this.pal.length; this.pal.push({ id, st, late: !!late }); this.pi.set(key, i); } return i; }
-  put(x, y, z, id, st, late = false) { if (id == null) { this.del(x, y, z); return; } if (y < -12 || y > 79 || x < -110 || x > 110 || z < -110 || z > 110) return; this.m.set(BigCanvas.k(x, y, z), this.p(id, st, late)); }
+  put(x, y, z, id, st, late = false) { if (id == null) { this.del(x, y, z); return; } if (y < -12 || y > 79 || x < -140 || x > 140 || z < -140 || z > 140) return; this.m.set(BigCanvas.k(x, y, z), this.p(id, st, late)); }
   del(x, y, z) { this.m.delete(BigCanvas.k(x, y, z)); }
   has(x, y, z) { return this.m.has(BigCanvas.k(x, y, z)); }
   id(x, y, z) { const i = this.m.get(BigCanvas.k(x, y, z)); return i === undefined ? null : this.pal[i].id; }
@@ -34,7 +35,7 @@ export class BigCanvas {
   *orderedGen() {
     const pal = this.pal, buckets = new Map(); let n = 0;
     for (const [k, i] of this.m) {
-      const z = (k % 221) - 110, r = Math.floor(k / 221), y = (r % 92) - 12, x = Math.floor(r / 92) - 110;
+      const z = (k % 281) - 140, r = Math.floor(k / 281), y = (r % 92) - 12, x = Math.floor(r / 92) - 140;
       const p = pal[i], rank = p.id === "water" ? 2 : p.late ? 1 : 0;
       const key = rank * 1000 + (rank === 1 ? 91 - (y + 12) : y + 12);
       let b = buckets.get(key); if (!b) buckets.set(key, (b = []));
@@ -47,7 +48,9 @@ export class BigCanvas {
 }
 
 export const CELESTIAL = {
-  R: 100, UP: 66, DOWN: 6, spawn: { x: 0, y: 1, z: 15 },
+  R: 135, UP: 66, DOWN: 6, spawn: { x: 0, y: 1, z: 15 },
+  // the Nether portals (relative boxes of portal blocks) - the script sends a player who walks in to a RANDOM place in the Nether
+  portals: [],
   crates: [{ type: "rare", x: 41, y: 2, z: -44 }, { type: "legendary", x: 45, y: 2, z: -46 }, { type: "epic", x: 49, y: 2, z: -44 }],
   hall: { x: -45, z: -42 },
   boards: ["money", "kills", "duel", "play", "clan", "sell", "buy", "shards", "skills", "ach"],
@@ -92,7 +95,7 @@ export function* celestialGen() {
   const flowers = ["cornflower", "allium", "oxeye_daisy", "lily_of_the_valley", "azure_bluet", "pink_tulip", "white_tulip", "blue_orchid", "poppy", "dandelion"];
 
   // ================================================================ 1. the ground (fills) + the paths, the plaza
-  C.fill(-100, 0, -100, 0, 0, 100, "grass_block"); C.fill(1, 0, -100, 100, 0, 100, "grass_block");
+  C.fill(-135, 0, -135, -16, 0, 135, "grass_block"); C.fill(-15, 0, -135, 104, 0, 135, "grass_block"); C.fill(105, 0, -135, 135, 0, 135, "grass_block");
   for (let x = -100; x <= 100; x++) for (let z = -100; z <= 100; z++) {
     const r = Math.hypot(x, z); if (r > 100.5) continue;
     const ax = Math.abs(x), az = Math.abs(z);
@@ -400,6 +403,135 @@ export function* celestialGen() {
   }
   yield;
 
+  // ================================================================ 10b. outside the ring: the BOULEVARD (r 104 - 108), avenues, the NETHER GATE (south), 4 BUTTERFLY LANTERNS
+  for (let x = -135; x <= 135; x++) for (let z = -135; z <= 135; z++) {
+    const r = Math.hypot(x, z); if (r < 99 || r > 135) continue;
+    const ang = Math.atan2(z, x), ax = Math.abs(x), az = Math.abs(z);
+    let b = null;
+    if (r >= 103.5 && r <= 108.5) b = r < 104.5 || r > 107.5 ? "polished_deepslate" : (Math.round(ang * 60) % 2 ? "calcite" : "smooth_quartz");      // the boulevard
+    else if ((ax <= 3 && z > 0) || (az <= 3 && ax > 0) || (ax <= 3 && z < -100)) b = ax === 3 || az === 3 ? "polished_deepslate" : ((x + z + 200) % 4 === 0 ? "calcite" : "smooth_quartz");   // the avenues out of the gates
+    else if (Math.abs(ax - az) <= 2 && r < 116) b = Math.abs(ax - az) === 2 ? "polished_deepslate" : "calcite";                    // the diagonal paths to the lanterns
+    if (b) put(x, 0, z, b);
+  }
+  for (let k = 0; k < 36; k++) {                                                                // lamp posts along the boulevard
+    const a = (k / 36) * Math.PI * 2 + 0.04, x = Math.round(Math.cos(a) * 109.5), z = Math.round(Math.sin(a) * 109.5);
+    if (Math.abs(x) <= 6 || Math.abs(z) <= 6 || Math.abs(Math.abs(x) - Math.abs(z)) <= 4) continue;
+    for (let y = 1; y <= 6; y++) put(x, y, z, y === 6 ? "soul_lantern" : y === 1 ? "polished_deepslate" : "polished_deepslate_wall", y === 6 ? { hanging: false } : undefined, y === 6);
+    put(x + Math.sign(x), 1, z, flowers[k % flowers.length], undefined, true);
+  }
+  const portalBox = (x1, y1, z1, x2, y2, z2, axis, pad) => {
+    for (let x = x1; x <= x2; x++) for (let y = y1; y <= y2; y++) for (let z = z1; z <= z2; z++) if (C.id(x, y, z) === "portal") { /* already */ }
+    D.portals.push({ x1, y1, z1, x2, y2, z2, axis, pad });
+  };
+  // ---- THE NETHER GATE (picture 1): stone wings fanned out, a pointed arch, a purple mosaic, a real portal inside
+  { D.portals.length = 0;
+    const gz = 124, PW = 5, PH = 15;                                   // the portal opening: |x| <= 5 (11 wide), y 2 .. 16 + a pointed top
+    const inPortal = (x, y) => { if (Math.abs(x) > PW) return false; if (y < 2) return false; const top = PH + 1 + Math.round(4 * Math.sqrt(Math.max(0, 1 - (Math.abs(x) / (PW + 0.5)) ** 2))); return y <= Math.min(top, PH + 5) && y <= PH + 1 + (PW - Math.abs(x)); };
+    // the plaza in front (purple mosaic floor), stairs up
+    for (let x = -16; x <= 16; x++) for (let z = 104; z <= 123; z++) { const r = Math.hypot(x, (z - 116) * 1.2); if (r > 16) continue; put(x, 0, z, r < 4 ? "amethyst_block" : Math.round(r) % 3 === 0 ? "purpur_block" : (x + z) % 2 ? "polished_diorite" : "calcite", Math.round(r) % 3 === 0 && r >= 4 ? { pillar_axis: "y" } : undefined); }
+    for (let x = -9; x <= 9; x++) { put(x, 1, 122, "smooth_quartz"); stair(x, 1, 121, "quartz_stairs", 0, 1); }
+    // the portal + its obsidian frame + the purple lattice around it
+    for (let x = -PW - 3; x <= PW + 3; x++) for (let y = 1; y <= PH + 12; y++) {
+      const inside = inPortal(x, y);
+      if (inside) { put(x, y, gz, "portal", { portal_axis: "x" }); continue; }
+      const nb = inPortal(x - 1, y) || inPortal(x + 1, y) || inPortal(x, y - 1) || inPortal(x, y + 1);
+      if (nb) { put(x, y, gz, (x + y) % 5 === 0 ? "crying_obsidian" : "obsidian"); continue; }
+      const nb2 = [[-2, 0], [2, 0], [0, 2], [-1, 1], [1, 1], [1, -1], [-1, -1]].some(([dx, dy]) => inPortal(x + dx, y + dy));
+      if (nb2) put(x, y, gz, (x + y) % 2 ? "purple_stained_glass" : "amethyst_block");
+    }
+    portalBox(-PW, 2, gz, PW, PH + 5, gz, "x", { x: 0, y: 1, z: 117 });
+    // the arch: two white pillars with purple stripes, a pointed stone arch, a crown with a purple diamond
+    for (const sx of [-1, 1]) for (let y = 1; y <= 22; y++) for (let dx = 0; dx <= 1; dx++) for (let dz = -1; dz <= 1; dz++) {
+      const x = sx * (PW + 3 + dx), z = gz + dz;
+      put(x, y, z, dz === 0 && dx === 0 && y % 4 === 2 ? "purpur_pillar" : y % 6 === 0 ? "chiseled_quartz_block" : dx === 1 ? "calcite" : "quartz_pillar", dz === 0 && dx === 0 && y % 4 === 2 ? { pillar_axis: "y" } : (y % 6 === 0 || dx === 1) ? undefined : { pillar_axis: "y" });
+    }
+    for (let x = -PW - 4; x <= PW + 4; x++) for (let y = 20; y <= 30; y++) {
+      const ax = Math.abs(x), top = 30 - Math.floor(ax * 0.9), bot = PH + 6 + Math.max(0, 4 - ax);
+      if (y < bot || y > top) continue;
+      if (C.id(x, y, gz) === "portal") continue;
+      for (const dz of [-1, 0, 1]) put(x, y, gz + dz, y === top ? "polished_deepslate" : (x + y) % 3 === 0 ? "chiseled_quartz_block" : "smooth_quartz");
+    }
+    for (const [dx, dy] of [[0, 0], [1, -1], [-1, -1], [0, -2], [1, 1], [-1, 1], [0, 2], [0, -1], [0, 1], [1, 0], [-1, 0]]) put(dx, 26 + dy, gz - 2, Math.abs(dx) + Math.abs(dy) <= 1 ? "amethyst_block" : "purple_stained_glass");
+    put(0, 32, gz, "end_rod", { facing_direction: 1 }, true); put(0, 31, gz, "gold_block");
+    // the WINGS: 8 curved stone spikes on each side, fanning out like feathers, with moss and glow lichen
+    const WING = ["calcite", "polished_diorite", "smooth_quartz", "diorite", "stone_bricks", "polished_andesite"];
+    for (const sx of [-1, 1]) for (let f = 0; f < 8; f++) {
+      const baseA = (100 - f * 13) * Math.PI / 180, len = 14 + f * 1.6 - (f > 5 ? (f - 5) * 3 : 0), w0 = 3.2 - f * 0.15;
+      for (let t = 0; t <= len; t += 0.5) {
+        const k = t / len, bend = 0.55 * k * k, a = baseA - bend * (f < 4 ? 1 : 0.6);
+        const cxw = sx * (PW + 5 + Math.cos(a) * t * 1.15), cyw = 3 + Math.sin(a) * t * 1.25 + f * 0.6, wd = Math.max(0.6, w0 * (1 - k * 0.85));
+        for (let dx = -Math.ceil(wd); dx <= Math.ceil(wd); dx++) for (let dy = -Math.ceil(wd); dy <= Math.ceil(wd); dy++) {
+          if (Math.hypot(dx, dy) > wd) continue;
+          const x = Math.round(cxw + dx), y = Math.round(cyw + dy); if (y < 1 || y > 44) continue;
+          for (let dz = -1; dz <= (k < 0.5 ? 1 : 0); dz++) { const z = gz + 1 + dz + Math.round(k * 2); if (C.id(x, y, z) === "portal") continue; put(x, y, z, WING[(x * 3 + y * 7 + f + 100) % WING.length]); }
+        }
+      }
+    }
+    for (let k = 0; k < 60; k++) {                                       // moss + vines + glow lichen on the wings and the base
+      const x = Math.round((rng() - 0.5) * 60), y = 1 + Math.floor(rng() * 20), z = gz + 1 + Math.floor(rng() * 3);
+      if (C.has(x, y, z) && !C.has(x, y, z - 1) && C.id(x, y, z) !== "portal") { if (rng() < 0.5) put(x, y, z - 1, "glow_lichen", { multi_face_direction_bits: 16 }, true); else put(x, y, z - 1, "vine", { vine_direction_bits: 1 }, true); }
+    }
+    for (let x = -26; x <= 26; x++) for (let z = gz - 3; z <= gz + 5; z++) {                  // rocks at the foot
+      const r = Math.hypot(x * 0.6, z - gz - 1); if (r > 4.5 || Math.abs(x) < PW + 4) continue;
+      for (let y = 1; y <= Math.round(3 - r * 0.5); y++) put(x, y, z, (x + z + y) % 4 === 0 ? "mossy_stone_bricks" : (x + y) % 3 ? "stone_bricks" : "tuff_bricks");
+    }
+    for (const sx of [-1, 1]) for (let k = 0; k < 4; k++) { const x = sx * (8 + k * 3), z = 106 + k; for (let y = 1; y <= 4; y++) put(x, y, z, y === 4 ? "amethyst_cluster" : "purpur_pillar", y === 4 ? { "minecraft:block_face": "up" } : { pillar_axis: "y" }, y === 4); }
+  }
+  // ---- 4 BUTTERFLY LANTERNS (picture 2): a cream lantern with purple glass, a portal inside, a giant butterfly on top
+  const WINGMAP = [
+    "......KKK....", ".....KLLLK...", "....KLLBBLK..", "...KLLBBBBLK.", "..KLLBBWBBBLK", ".KLLBBBBBBLLK", "KLLBBBBBBLLK.", "KLBBBBBLLLK..", "KLLLLLLKKK...",
+    "KPPPPPPK.....", "KMPPPPPPK....", "KMMPWPPPPK...", "KMMMPPPPPK...", ".KMMMRRPPK...", "..KMMRRRK....", "...KKMMK.....", ".....KK......",
+  ];
+  const WC = { K: "black_concrete", L: "light_blue_concrete", B: "blue_concrete", W: "white_concrete", P: "purple_concrete", M: "magenta_concrete", R: "pink_concrete" };
+  const WG = { L: "light_blue_stained_glass", B: "blue_stained_glass", P: "purple_stained_glass", M: "magenta_stained_glass", R: "pink_stained_glass" };
+  for (const [sx, sz] of [[1, 1], [-1, 1], [1, -1], [-1, -1]]) {
+    const lx = sx * 84, lz = sz * 84, toward = [-sx, -sz];                              // the front looks at the spawn (portal on the side facing the middle along z)
+    const fz = -sz;                                                                    // the portal face: the side towards the spawn (z)
+    // the plaza + steps
+    for (let x = -9; x <= 9; x++) for (let z = -9; z <= 9; z++) { const r = Math.hypot(x, z); if (r > 9.3) continue; put(lx + x, 0, lz + z, r < 6 ? ((x + z) % 2 ? "smooth_sandstone" : "cut_sandstone") : Math.round(r) === 7 ? "purpur_block" : "calcite", Math.round(r) === 7 && r >= 6 ? { pillar_axis: "y" } : undefined); }
+    // the legs + the base frame (y 1 .. 3), floor at y 3
+    for (const [cx, cz] of [[-4, -4], [4, -4], [-4, 4], [4, 4]]) { for (let y = 1; y <= 3; y++) put(lx + cx, y, lz + cz, y === 1 ? "smooth_sandstone_stairs" : "smooth_sandstone", y === 1 ? { weirdo_direction: dirOf(-cx, -cz), upside_down_bit: true } : undefined); }
+    for (let x = -4; x <= 4; x++) for (let z = -4; z <= 4; z++) put(lx + x, 3, lz + z, Math.abs(x) === 4 || Math.abs(z) === 4 ? "cut_sandstone" : "purpur_block", Math.abs(x) === 4 || Math.abs(z) === 4 ? undefined : { pillar_axis: "y" });
+    for (let x = -2; x <= 2; x++) for (let k = 0; k < 4; k++) {                 // the steps up to the portal (it starts at y 5)
+      const z = lz + fz * (5 + k), top = 4 - k;
+      for (let y = 1; y < top; y++) put(lx + x, y, z, "cut_sandstone");
+      put(lx + x, top, z, "smooth_sandstone_stairs", { weirdo_direction: dirOf(0, -fz), upside_down_bit: false });
+    }
+    // the body: corner posts, purple glass walls, the portal on the front face
+    for (let x = -4; x <= 4; x++) for (let z = -4; z <= 4; z++) for (let y = 4; y <= 15; y++) {
+      const edgeX = Math.abs(x) === 4, edgeZ = Math.abs(z) === 4; if (!edgeX && !edgeZ) continue;
+      const corner = edgeX && edgeZ, front = z === fz * 4 && !corner;
+      let b = corner ? "smooth_sandstone" : y === 4 || y === 15 ? "cut_sandstone" : y === 14 ? (x + z) % 2 ? "magenta_stained_glass" : "cut_sandstone" : "purple_stained_glass";
+      if (front) { b = Math.abs(x) <= 2 && y >= 5 && y <= 12 ? "portal" : Math.abs(x) === 3 || y === 4 || y === 13 ? "obsidian" : b; }
+      put(lx + x, y, lz + z, b, b === "portal" ? { portal_axis: "x" } : undefined);
+    }
+    for (let x = -3; x <= 3; x++) for (let z = -3; z <= 3; z++) for (let y = 4; y <= 14; y++) if (!(Math.abs(x) <= 2 && z === fz * 4)) { if (y === 4) put(lx + x, y, lz + z, "amethyst_block"); }
+    hang(lx, 14, lz, 3, "soul_lantern");
+    portalBox(lx - 2, 5, lz + fz * 4, lx + 2, 12, lz + fz * 4, "x", { x: lx, y: 1, z: lz + fz * 10 });
+    // the roof: a cornice with green trim, a tiered top, a pole
+    for (let x = -5; x <= 5; x++) for (let z = -5; z <= 5; z++) { const e = Math.abs(x) === 5 || Math.abs(z) === 5; put(lx + x, 16, lz + z, e ? "smooth_sandstone_slab" : "cut_sandstone", e ? { "minecraft:vertical_half": "bottom" } : undefined); if (!e && (Math.abs(x) === 4 || Math.abs(z) === 4) && (x + z) % 2 === 0) put(lx + x, 17, lz + z, "waxed_oxidized_cut_copper|prismarine_bricks"); }
+    for (let k = 0; k < 4; k++) for (let x = -4 + k; x <= 4 - k; x++) for (let z = -4 + k; z <= 4 - k; z++) { if (Math.abs(x) === 4 - k || Math.abs(z) === 4 - k) stair(lx + x, 17 + k, lz + z, "smooth_sandstone_stairs", Math.abs(x) >= Math.abs(z) ? -Math.sign(x) || 1 : 0, Math.abs(z) > Math.abs(x) ? -Math.sign(z) : 0); }
+    for (let y = 21; y <= 23; y++) put(lx, y, lz, "smooth_sandstone_wall|sandstone_wall");
+    for (const [cx, cz] of [[-5, -5], [5, -5], [-5, 5], [5, 5]]) put(lx + cx, 15, lz + cz, "end_rod", { facing_direction: 0 }, true);
+    // the BUTTERFLY on top (a V of two wings, the body in the middle), looking along z
+    const by = 24;
+    WINGMAP.forEach((row, rr) => {
+      for (let u = 0; u < row.length; u++) {
+        const ch = row[u]; if (ch === ".") continue;
+        for (const side of [-1, 1]) {
+          const x = lx + side * (u + 1), y = by + (WINGMAP.length - 1 - rr), z = lz + Math.round(u * 0.45) * -fz;
+          put(x, y, z, WC[ch]);
+          if (WG[ch] && (u + rr) % 3 === 0) put(x, y, z + fz, WG[ch]);
+        }
+      }
+    });
+    for (let y = by + 2; y <= by + 13; y++) { put(lx, y, lz, y >= by + 12 ? "black_concrete" : "brown_concrete"); put(lx, y, lz - fz, y >= by + 12 ? "black_concrete" : "brown_terracotta"); }
+    put(lx - 1, by + 15, lz + fz, "black_concrete"); put(lx + 1, by + 15, lz + fz, "black_concrete"); put(lx - 2, by + 16, lz + 2 * fz, "black_concrete"); put(lx + 2, by + 16, lz + 2 * fz, "black_concrete");
+    // flowers + crystals around the plaza
+    for (let k = 0; k < 12; k++) { const a = (k / 12) * Math.PI * 2, x = Math.round(Math.cos(a) * 8), z = Math.round(Math.sin(a) * 8); if (C.has(lx + x, 1, lz + z)) continue; put(lx + x, 1, lz + z, k % 3 === 0 ? "amethyst_cluster" : ["allium", "lilac", "pink_tulip"][k % 3], k % 3 === 0 ? { "minecraft:block_face": "up" } : k % 3 === 1 ? { upper_block_bit: false } : undefined, true); if (k % 3 === 1) put(lx + x, 2, lz + z, "lilac", { upper_block_bit: true }, true); }
+  }
+  yield;
+
   // ================================================================ 11. the outer garden: big trees, bushes, flowers (between the ring and the edge, and inside the ring)
   const busy = (x, z) => {
     if (C.id(x, 0, z) !== null) return true;                                                   // the trunk stands on grass
@@ -407,17 +539,18 @@ export function* celestialGen() {
     return false;
   };
   let trees = 0;
-  for (let k = 0; k < 1200 && trees < 80; k++) {
-    const a = rng() * Math.PI * 2, r = rng() < 0.5 ? 95.5 + rng() * 2.5 : 54 + rng() * 22, x = Math.round(Math.cos(a) * r), z = Math.round(Math.sin(a) * r);
-    if (Math.hypot(x, z) > 97) continue;
+  for (let k = 0; k < 2400 && trees < 140; k++) {
+    const t3 = rng(), a = rng() * Math.PI * 2, r = t3 < 0.3 ? 95.5 + rng() * 2.5 : t3 < 0.55 ? 54 + rng() * 22 : 112 + rng() * 20, x = Math.round(Math.cos(a) * r), z = Math.round(Math.sin(a) * r);
+    if (Math.hypot(x, z) > 132 || (Math.hypot(x, z) > 97 && Math.hypot(x, z) < 112)) continue;
+    if (Math.hypot(Math.abs(x) - 84, Math.abs(z) - 84) < 16 || (Math.abs(x) < 38 && z > 98)) continue;     // keep the lanterns + the Nether gate free
     if (r < 80 && (Math.abs(x) <= 8 || Math.abs(z) <= 8)) continue;
     if (busy(x, z)) continue;
     tree(x, z, 6 + Math.floor(rng() * 4), 4 + Math.floor(rng() * 2), rng() < 0.2 ? "azalea_leaves" : rng() < 0.15 ? "cherry_leaves" : "oak_leaves", rng() < 0.15 ? "cherry_log" : rng() < 0.4 ? "dark_oak_log" : "oak_log");
     trees++;
   }
-  for (let k = 0; k < 900; k++) {                                                                   // bushes + flowers on the free grass
-    const x = Math.round((rng() - 0.5) * 196), z = Math.round((rng() - 0.5) * 196), r = Math.hypot(x, z);
-    if (r > 98 || (r > 79 && r < 95) || C.has(x, 1, z) || (C.id(x, 0, z) ?? "grass_block") !== "grass_block") continue;
+  for (let k = 0; k < 2200; k++) {                                                                  // bushes + flowers on the free grass
+    const x = Math.round((rng() - 0.5) * 266), z = Math.round((rng() - 0.5) * 266), r = Math.hypot(x, z);
+    if (r > 133 || (r > 79 && r < 95) || C.has(x, 1, z) || (C.id(x, 0, z) ?? "grass_block") !== "grass_block") continue;
     const t = rng();
     if (t < 0.12) { put(x, 1, z, "azalea_leaves", LEAF); if (rng() < 0.5) put(x, 2, z, "azalea_leaves_flowered|azalea_leaves", LEAF); }
     else if (t < 0.55) put(x, 1, z, flowers[Math.floor(rng() * flowers.length)], undefined, true);
@@ -426,8 +559,8 @@ export function* celestialGen() {
   yield;
 
   // ================================================================ 12. light everywhere (invisible light blocks: no mobs)
-  for (let x = -98; x <= 98; x += 7) for (let z = -98; z <= 98; z += 7) {
-    if (Math.hypot(x, z) > 99) continue;
+  for (let x = -133; x <= 133; x += 7) for (let z = -133; z <= 133; z += 7) {
+    if (Math.hypot(x, z) > 134) continue;
     let y = 1; while (y < 30 && C.has(x, y, z)) y++;
     if (y < 30) light(x, y, z);
   }

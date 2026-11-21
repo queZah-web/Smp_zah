@@ -1,6 +1,10 @@
 // Arabic texts of the Operator menu (/opr) and everything inside it. Key = the English text exactly as the code writes it (pieces of a line), value = Arabic.
 // Used only by oprlang.js for players whose language is Arabic. A text that is not here simply stays English (nothing breaks).
 export const PART = {
+"271 x 271: a white gothic ring with": "271 × 271: حلقة قوطية بيضاء بـ",
+"garden, Moonlit garden, pergolas,": "وحديقة القمر، والعرائش،",
+"a Nether Gate + 4 Butterfly portals": "بوابة نذر + 4 بوابات فراشة",
+"Everything in 271 x 271 blocks around you": "كل شيء في 271 × 271 بلوك حولك",
 "Celestial Sanctuary": "الملاذ السماوي",
 "Build the Celestial Sanctuary here?": "تبني الملاذ السماوي هنا؟",
 "Everything in 201 x 201 blocks around you": "كل شيء في 201 × 201 بلوك حولك",

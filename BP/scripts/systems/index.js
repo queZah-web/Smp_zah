@@ -54,6 +54,7 @@ import "./dropper.js";     // Dropper event: the tower with 7 stages (Owner: /op
 import "./pillars.js";     // Pillars of Fortune event: 16 pillars in the sky (Owner: /opr > Building / Events > Pillars), /pillars
 import "./colorrush.js";   // Color Rush event: the colour floor hall (Owner: /opr > Building / Events > Color Rush), /colors
 import "./villagerrestock.js"; // villager trades come back 20 min after trading (timer above the villager within 5 blocks)
+import "./netherportal.js";  // portals inside the built spawn -> a random safe place in the Nether
 import "./nv.js";
 import "./newgift.js";
 import "./kits.js";

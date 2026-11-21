@@ -34,7 +34,7 @@ const PAD = 1;
 const TILE = 51;                   // backup pieces: 51 x (height) x 51
 const SPAWN_KEY = "spawn:v1";      // the /spawn point (spawn.js)
 const AREA = "smp_spawn_";         // temporary ticking areas
-const KINDS = { grand: { D: GRAND, name: "Grand Spawn", size: "151 x 151" }, small: { D: SMALL, name: "Small Spawn", size: "41 x 41" }, celestial: { D: CELESTIAL, name: "Celestial Sanctuary", size: "201 x 201" } };
+const KINDS = { grand: { D: GRAND, name: "Grand Spawn", size: "151 x 151" }, small: { D: SMALL, name: "Small Spawn", size: "41 x 41" }, celestial: { D: CELESTIAL, name: "Celestial Sanctuary", size: "271 x 271" } };
 const say = (p, m) => { try { p.sendMessage(oprMsg(p, m)); } catch (e) { /* ignore */ } };
 const bar = (p, m) => { try { p.onScreenDisplay.setActionBar(m); } catch (e) { /* ignore */ } };
 
@@ -268,7 +268,7 @@ function spawnPage(player, back) {
   const here = () => ["§7Middle: §f" + Math.floor(player.location.x) + " " + Math.floor(player.location.y) + " " + Math.floor(player.location.z)];
   if (!z) {
     set(f, 2 * COLS + 3, hdr(1, "g") + "§2§lGrand Spawn\n§r§7The Ancient Sanctuary: 151 x 151\n§r§7Walls, towers, giant tree of life,\n§r§7Crate Temple (3 crates placed),\n§r§7Hall of Legends (10 TOP boards),\n§r§7waterfall, ruins, gardens\n§r§7The land is saved first (Undo)\n§r§eClick to build", "textures/ui/shop/ic_confirm", { run: () => confirm(player, "Build the Grand Spawn here?", [...here(), "§7Everything in 151 x 151 blocks around you", "§7is replaced (Undo puts it back).", "§7Takes about a minute. No lag."], () => buildHere(player, "grand"), self) });
-    set(f, 2 * COLS + 4, hdr(1, "g") + "§f§lCelestial Sanctuary\n§r§7201 x 201: a white gothic ring with\n§r§764 pillars + seats, a cathedral with\n§r§7twin towers, a fountain plaza, Crate\n§r§7Pavilion, Hall of Legends (TOP), a\n§r§7furnished Library & Café, Wisteria tree\n§r§7garden, Moonlit garden, pergolas\n§r§eClick to build", "textures/blocks/quartz_block_chiseled", { run: () => confirm(player, "Build the Celestial Sanctuary here?", [...here(), "§7Everything in 201 x 201 blocks around you", "§7is replaced (Undo puts it back).", "§7Takes a few minutes. No lag."], () => buildHere(player, "celestial"), self) });
+    set(f, 2 * COLS + 4, hdr(1, "g") + "§f§lCelestial Sanctuary\n§r§7271 x 271: a white gothic ring with\n§r§764 pillars + seats, a cathedral with\n§r§7twin towers, a fountain plaza, Crate\n§r§7Pavilion, Hall of Legends (TOP), a\n§r§7furnished Library & Café, Wisteria tree\n§r§7garden, Moonlit garden, pergolas,\n§r§7a Nether Gate + 4 Butterfly portals\n§r§eClick to build", "textures/blocks/quartz_block_chiseled", { run: () => confirm(player, "Build the Celestial Sanctuary here?", [...here(), "§7Everything in 271 x 271 blocks around you", "§7is replaced (Undo puts it back).", "§7Takes a few minutes. No lag."], () => buildHere(player, "celestial"), self) });
     set(f, 2 * COLS + 5, hdr(1, "c") + "§a§lSmall Spawn\n§r§7Green garden spawn: 41 x 41\n§r§7Gazebo, fountain, trees, 4 paths\n§r§eClick to build", "textures/blocks/sapling_oak", { run: () => confirm(player, "Build the Small Spawn here?", [...here(), "§7Everything in 41 x 41 blocks around you", "§7is replaced (Undo puts it back)."], () => buildHere(player, "small"), self) });
   } else {
     const D = KINDS[z.kind ?? "small"].D;

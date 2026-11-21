@@ -285,3 +285,15 @@ A third spawn (only one spawn can exist: Undo the old one first). ~98k blocks + 
 - **Spawn rules** (Building > Spawn > Spawn rules, Owner only, for every spawn type): No building / breaking (Owner only),
   No PvP, No damage, No fire (players + mobs, fire aspect), No monsters, No explosions, No hunger - each ON / OFF.
 Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js` (builder, fills, rules).
+
+## Celestial Sanctuary v2 (271 x 271): Nether Gate + Butterfly Lantern portals
+- The spawn is bigger (radius 135): a BOULEVARD around the ring (r 104 - 108) with lamp posts, avenues out of the gates,
+  diagonal paths, ~140 trees. (A Celestial spawn built before: Undo it and build it again to get the new parts.)
+- The NETHER GATE (south, at the end of the south avenue): a purple mosaic plaza, a real nether portal (11 wide, pointed top)
+  in an obsidian frame with a purple lattice, white pillars with purpur stripes, a pointed arch with a purple diamond, and two
+  huge stone WINGS (8 curved feathers each side) with vines and glow lichen, rocks at the foot.
+- 4 BUTTERFLY LANTERNS (the diagonals, r ~119): a cream lantern on legs with purple glass walls, steps up to a real portal on
+  the side facing the spawn, a tiered roof, and a giant pixel BUTTERFLY (blue + purple + pink wings in a V) on top.
+- Every portal INSIDE the built spawn sends a player to a RANDOM safe place in the Nether (300 - 3,000 blocks out, a new place
+  every time, solid ground, no lava next to the feet): the game's own portal never takes him (he is put back one step at once,
+  the portal swirl plays while the place is loaded). Code: `systems/netherportal.js`; design: `celestialdesign.js` part 10b.
