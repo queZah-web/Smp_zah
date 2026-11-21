@@ -1,0 +1,33 @@
+{
+ "format_version": "1.8.0",
+ "render_controllers": {
+  "controller.render.smp_butterfly": {
+   "arrays": {
+    "textures": {
+     "Array.skins": [
+      "Texture.v0",
+      "Texture.v1",
+      "Texture.v2"
+     ]
+    }
+   },
+   "geometry": "Geometry.default",
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ],
+   "textures": [
+    "Array.skins[query.property('smp:color')]"
+   ],
+   "part_visibility": [
+    {
+     "*": true
+    },
+    {
+     "lantern": "query.property('smp:lantern')"
+    }
+   ]
+  }
+ }
+}

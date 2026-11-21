@@ -1,0 +1,31 @@
+{
+ "format_version": "1.10.0",
+ "minecraft:client_entity": {
+  "description": {
+   "identifier": "smp:butterfly",
+   "materials": {
+    "default": "entity_alphatest"
+   },
+   "textures": {
+    "v0": "textures/entity/butterfly_0",
+    "v1": "textures/entity/butterfly_1",
+    "v2": "textures/entity/butterfly_2"
+   },
+   "geometry": {
+    "default": "geometry.smp_butterfly"
+   },
+   "scripts": {
+    "scale": "4.0",
+    "animate": [
+     "fly"
+    ]
+   },
+   "animations": {
+    "fly": "animation.smp_butterfly.fly"
+   },
+   "render_controllers": [
+    "controller.render.smp_butterfly"
+   ]
+  }
+ }
+}

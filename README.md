@@ -297,3 +297,17 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
 - Every portal INSIDE the built spawn sends a player to a RANDOM safe place in the Nether (300 - 3,000 blocks out, a new place
   every time, solid ground, no lava next to the feet): the game's own portal never takes him (he is put back one step at once,
   the portal swirl plays while the place is loaded). Code: `systems/netherportal.js`; design: `celestialdesign.js` part 10b.
+
+## Celestial Sanctuary v3: flying butterflies, garden pieces, natural ground
+- FLYING BUTTERFLIES (`systems/butterflies.js`, entity `smp:butterfly` + model/animation in the RP): 12 big butterflies
+  (purple-blue, pink-orange, teal-green; some carry a glowing lantern) fly wide circles in the sky around the spawn - radius
+  45 - 125 blocks, 28 - 62 blocks high, some each way, drifting in/out and up/down. They can't be hit, pushed or killed, they
+  are not monsters, one that is gone comes back by itself, Undo removes them. They move only while a player is near (no lag).
+  Owner: Building > Spawn > Butterflies ON/OFF and "New butterflies" (new random paths). The lanterns' block butterflies are
+  replaced by an amethyst crystal top with soul lanterns.
+- 8 GARDEN PIECES at the edge of the spawn (r 121, between the gates/lanterns), from the pictures: pond with a terracotta
+  bridge + pergola (x2), mushroom pond (x2), rocky pond with trees + gazebo, stone grotto with hanging leaves + chain lanterns,
+  picnic island with log lantern posts, bamboo and a blanket (x2). (`celestialdesign.js` part 10c)
+- NATURAL GROUND: outside the plaza/ring/roads the land is no longer flat: gentle hills (0 - 3 blocks), moss / coarse dirt /
+  podzol patches, ~70 mossy boulders; trees, bushes and flowers sit on the hills. (part 10d)
+- A Celestial spawn built before: Undo it and build it again to get the new parts.

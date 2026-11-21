@@ -27,6 +27,7 @@ import { pick } from "./arextra.js";
 import { getZone, setZone, clearZone, inZone, inZoneColumn, otherZoneOverlaps } from "./spawnzone.js";
 import { GRAND, SMALL, grandSpawnGen, smallSpawn, boardSpots } from "./spawndesign.js";
 import { CELESTIAL, celestialGen, celestialBoards } from "./celestialdesign.js";
+import { butterfliesOn, setButterflies, newButterflies, removeButterflies } from "./butterflies.js";
 import { placeCrateAt, removeCrateAt, isCrateAt } from "./crates.js";
 import { addFixedAt, removeFixed } from "./hologram.js";
 
@@ -204,6 +205,7 @@ function* undoJob(player, dim, z) {
     try { world.setDynamicProperty(SPAWN_KEY, typeof z.prevSpawn === "string" ? z.prevSpawn : undefined); } catch (e) { /* ignore */ }
     if (z.prevWorldSpawn) { try { world.setDefaultSpawnLocation(z.prevWorldSpawn); } catch (e) { /* ignore */ } }
     clearZone();
+    removeButterflies();
     removeAreas(dim);
     try { slog(player, "spawnbuild", null, "Spawn removed (undo)"); } catch (e) { /* ignore */ }
     say(player, tiles.length && ok === tiles.length ? "§a[Spawn] Undone: the land is back as it was, the old spawn point is back." : "§e[Spawn] Protection removed and the old spawn point is back (the backup was not complete, some blocks stay).");
@@ -276,6 +278,11 @@ function spawnPage(player, back) {
     if (D.places?.crates) set(f, 2 * COLS + 3, hdr(1, "g") + "§d§lCrate Temple\n§r§7Go to the crates\n§r§eClick to go", "textures/ui/shop/i3d_barrel", { run: () => goTo(player, D.places.crates) });
     if (D.places?.top) set(f, 2 * COLS + 5, hdr(1, "g") + "§6§lHall of Legends\n§r§7Go to the TOP boards\n§r§eClick to go", "textures/items/gold_ingot", { run: () => goTo(player, D.places.top) });
     set(f, 2 * COLS + 6, hdr(1, "r") + "§c§lUndo\n§r§7Remove the spawn: the land comes\n§r§7back as it was before\n§r§eClick to undo", "textures/ui/shop/ic_cancel", { run: () => confirm(player, "Remove the spawn?", ["§7The land comes back as it was.", "§7The old spawn point comes back."], () => undoSpawn(player), self) });
+  }
+  if (z && z.kind === "celestial") {
+    const on = butterfliesOn();
+    set(f, 3 * COLS + 2, hdr(1, on ? "g" : "r") + "§d§lButterflies: " + (on ? "§aON" : "§cOFF") + "\n§r§712 big butterflies fly in the sky\n§r§7around the spawn (some with lanterns)\n§r§eClick to turn " + (on ? "off" : "on"), "textures/items/dye_powder_purple|textures/items/amethyst_shard", { run: () => { setButterflies(!on); self(); } });
+    if (on) set(f, 3 * COLS + 6, hdr(1, "c") + "§d§lNew butterflies\n§r§7New random paths and heights\n§r§7(they come back in a few seconds)\n§r§eClick", "textures/items/amethyst_shard", { run: () => { newButterflies(); say(player, "§d[Spawn] New butterflies are on their way."); self(); } });
   }
   set(f, 3 * COLS + 4, hdr(1, "g") + "§6§lSpawn rules\n§r§7No breaking, no PvP, no damage,\n§r§7no fire, no monsters, no explosions,\n§r§7no hunger - switch each one\n§r§eClick to open", "textures/ui/shop/ic_shield", { run: () => rulesPage(player, self) });
   backBtn(f, back); status(player, f);

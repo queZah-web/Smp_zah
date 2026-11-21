@@ -55,6 +55,7 @@ import "./pillars.js";     // Pillars of Fortune event: 16 pillars in the sky (O
 import "./colorrush.js";   // Color Rush event: the colour floor hall (Owner: /opr > Building / Events > Color Rush), /colors
 import "./villagerrestock.js"; // villager trades come back 20 min after trading (timer above the villager within 5 blocks)
 import "./netherportal.js";  // portals inside the built spawn -> a random safe place in the Nether
+import "./butterflies.js";   // the butterflies flying in the sky around the Celestial Sanctuary
 import "./nv.js";
 import "./newgift.js";
 import "./kits.js";

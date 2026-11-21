@@ -1,6 +1,15 @@
 // Arabic texts of the Operator menu (/opr) and everything inside it. Key = the English text exactly as the code writes it (pieces of a line), value = Arabic.
 // Used only by oprlang.js for players whose language is Arabic. A text that is not here simply stays English (nothing breaks).
 export const PART = {
+"Butterflies: ": "الفراشات: ",
+"12 big butterflies fly in the sky": "12 فراشة كبيرة تطير بالسماء",
+"around the spawn (some with lanterns)": "حول السباون (بعضهن يحملن فوانيس)",
+"Click to turn off": "اضغط حتى تطفيها",
+"Click to turn on": "اضغط حتى تشغلها",
+"New butterflies": "فراشات جديدة",
+"New random paths and heights": "طرق وارتفاعات عشوائية جديدة",
+"(they come back in a few seconds)": "(يرجعن خلال كم ثانية)",
+"[Spawn] New butterflies are on their way.": "[السباون] فراشات جديدة جايات بالطريق.",
 "271 x 271: a white gothic ring with": "271 × 271: حلقة قوطية بيضاء بـ",
 "garden, Moonlit garden, pergolas,": "وحديقة القمر، والعرائش،",
 "a Nether Gate + 4 Butterfly portals": "بوابة نذر + 4 بوابات فراشة",

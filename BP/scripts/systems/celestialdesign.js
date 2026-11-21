@@ -477,7 +477,7 @@ export function* celestialGen() {
     }
     for (const sx of [-1, 1]) for (let k = 0; k < 4; k++) { const x = sx * (8 + k * 3), z = 106 + k; for (let y = 1; y <= 4; y++) put(x, y, z, y === 4 ? "amethyst_cluster" : "purpur_pillar", y === 4 ? { "minecraft:block_face": "up" } : { pillar_axis: "y" }, y === 4); }
   }
-  // ---- 4 BUTTERFLY LANTERNS (picture 2): a cream lantern with purple glass, a portal inside, a giant butterfly on top
+  // ---- 4 BUTTERFLY LANTERNS (picture 2): a cream lantern with purple glass, a portal inside, a crystal on top
   const WINGMAP = [
     "......KKK....", ".....KLLLK...", "....KLLBBLK..", "...KLLBBBBLK.", "..KLLBBWBBBLK", ".KLLBBBBBBLLK", "KLLBBBBBBLLK.", "KLBBBBBLLLK..", "KLLLLLLKKK...",
     "KPPPPPPK.....", "KMPPPPPPK....", "KMMPWPPPPK...", "KMMMPPPPPK...", ".KMMMRRPPK...", "..KMMRRRK....", "...KKMMK.....", ".....KK......",
@@ -513,29 +513,152 @@ export function* celestialGen() {
     for (let k = 0; k < 4; k++) for (let x = -4 + k; x <= 4 - k; x++) for (let z = -4 + k; z <= 4 - k; z++) { if (Math.abs(x) === 4 - k || Math.abs(z) === 4 - k) stair(lx + x, 17 + k, lz + z, "smooth_sandstone_stairs", Math.abs(x) >= Math.abs(z) ? -Math.sign(x) || 1 : 0, Math.abs(z) > Math.abs(x) ? -Math.sign(z) : 0); }
     for (let y = 21; y <= 23; y++) put(lx, y, lz, "smooth_sandstone_wall|sandstone_wall");
     for (const [cx, cz] of [[-5, -5], [5, -5], [-5, 5], [5, 5]]) put(lx + cx, 15, lz + cz, "end_rod", { facing_direction: 0 }, true);
-    // the BUTTERFLY on top (a V of two wings, the body in the middle), looking along z
-    const by = 24;
-    WINGMAP.forEach((row, rr) => {
-      for (let u = 0; u < row.length; u++) {
-        const ch = row[u]; if (ch === ".") continue;
-        for (const side of [-1, 1]) {
-          const x = lx + side * (u + 1), y = by + (WINGMAP.length - 1 - rr), z = lz + Math.round(u * 0.45) * -fz;
-          put(x, y, z, WC[ch]);
-          if (WG[ch] && (u + rr) % 3 === 0) put(x, y, z + fz, WG[ch]);
-        }
-      }
-    });
-    for (let y = by + 2; y <= by + 13; y++) { put(lx, y, lz, y >= by + 12 ? "black_concrete" : "brown_concrete"); put(lx, y, lz - fz, y >= by + 12 ? "black_concrete" : "brown_terracotta"); }
-    put(lx - 1, by + 15, lz + fz, "black_concrete"); put(lx + 1, by + 15, lz + fz, "black_concrete"); put(lx - 2, by + 16, lz + 2 * fz, "black_concrete"); put(lx + 2, by + 16, lz + 2 * fz, "black_concrete");
+    // the top: a purple crystal finial with a soul lantern (the butterflies fly in the sky now - butterflies.js)
+    put(lx, 24, lz, "amethyst_block"); put(lx, 25, lz, "amethyst_cluster", { "minecraft:block_face": "up" }, true);
+    for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) put(lx + dx, 23, lz + dz, "soul_lantern", { hanging: false }, true);
     // flowers + crystals around the plaza
     for (let k = 0; k < 12; k++) { const a = (k / 12) * Math.PI * 2, x = Math.round(Math.cos(a) * 8), z = Math.round(Math.sin(a) * 8); if (C.has(lx + x, 1, lz + z)) continue; put(lx + x, 1, lz + z, k % 3 === 0 ? "amethyst_cluster" : ["allium", "lilac", "pink_tulip"][k % 3], k % 3 === 0 ? { "minecraft:block_face": "up" } : k % 3 === 1 ? { upper_block_bit: false } : undefined, true); if (k % 3 === 1) put(lx + x, 2, lz + z, "lilac", { upper_block_bit: true }, true); }
   }
   yield;
 
+  // ================================================================ 10c. GARDEN PIECES from the pictures, around the outer garden (r ~121)
+  const W = (x, z) => { put(x, -1, z, "mud"); put(x, 0, z, "water"); };
+  const edgeStone = (x, z) => put(x, 0, z, ["cobblestone", "andesite", "stone", "mossy_cobblestone", "tuff"][Math.abs(x * 7 + z * 3) % 5]);
+  const lampPost = (x, z, h = 2, wood = "spruce_fence") => { for (let y = 1; y <= h; y++) put(x, y, z, wood); put(x, h + 1, z, "lantern", { hanging: false }, true); };
+  const leafBush = (x, y, z, n = 1) => { for (let k = 0; k < n; k++) put(x, y + k, z, k ? "azalea_leaves_flowered|azalea_leaves" : "oak_leaves", LEAF); };
+  // 1) the pond with a terracotta bridge and a little pergola (picture 1)
+  function pondBridge(cx, cz) {
+    for (let x = -7; x <= 7; x++) for (let z = -5; z <= 5; z++) {
+      const e = Math.abs(x) === 7 || Math.abs(z) === 5;
+      if (e) edgeStone(cx + x, cz + z); else { W(cx + x, cz + z); if ((x * 5 + z * 3 + 50) % 7 === 0) put(cx + x, 1, cz + z, "waterlily", undefined, true); }
+    }
+    for (let x = -3; x <= 3; x++) {                                                      // the bridge across (along z), up 2 in the middle
+      const h = 3 - Math.max(1, Math.abs(x));
+      for (let z = -6; z <= 6; z++) {
+        const side = Math.abs(z) >= 1 && Math.abs(z) <= 1 ? false : false;
+        if (Math.abs(z) <= 1) { for (let y = 1; y <= h; y++) put(cx + x, y, cz + z, y === h ? "cut_sandstone" : "hardened_clay"); if (h === 0) put(cx + x, 0, cz + z, "cut_sandstone"); }
+        else if (Math.abs(z) === 2) { for (let y = 1; y <= h + 1; y++) put(cx + x, y, cz + z, "hardened_clay"); }
+        void side;
+      }
+    }
+    for (const sx of [-1, 1]) for (let k = 4; k <= 6; k++) for (let z = -1; z <= 1; z++) { const x = sx * k; if (k === 4) stair(cx + x, 1, cz + z, "smooth_sandstone_stairs", -sx, 0); else put(cx + x, 0, cz + z, "cut_sandstone"); }
+    for (const [x, z] of [[-4, -2], [4, -2], [-4, 2], [4, 2]]) lampPost(cx + x, cz + z, 1, "hardened_clay");
+    for (let x = -11; x <= -8; x++) for (let z = -2; z <= 2; z++) { put(cx + x, 0, cz + z, "spruce_planks"); if ((x === -11 || x === -8) && Math.abs(z) === 2) for (let y = 1; y <= 3; y++) put(cx + x, y, cz + z, "spruce_log", { pillar_axis: "y" }); }
+    for (let x = -12; x <= -7; x++) for (let z = -3; z <= 3; z++) put(cx + x, 4, cz + z, (x + z) % 2 ? "spruce_slab" : "spruce_planks", (x + z) % 2 ? { "minecraft:vertical_half": "bottom" } : undefined);
+    chair(cx - 10, 1, cz, 1, 0, "spruce"); pot(cx - 9, 1, cz - 1); leafBush(cx - 12, 1, cz + 3, 2);
+    for (const [x, z] of [[-6, -4], [-6, 4], [6, 4], [5, -4]]) { for (let y = 1; y <= 3; y++) put(cx + x, y, cz + z, "bamboo|sugar_cane", undefined, true); }
+    for (const [x, z, f] of [[-8, 4, "lilac"], [8, -3, "peony"], [8, 3, "allium"], [-8, -4, "pink_tulip"]]) { put(cx + x, 1, cz + z, f, f === "lilac" || f === "peony" ? { upper_block_bit: false } : undefined, true); if (f === "lilac" || f === "peony") put(cx + x, 2, cz + z, f, { upper_block_bit: true }, true); }
+  }
+  // 2) the medium pond: seagrass, lily pads, a gravel path, red + blue mushrooms, bushes, a small tree (picture 2)
+  function mediumPond(cx, cz) {
+    for (let x = -8; x <= 8; x++) for (let z = -7; z <= 7; z++) {
+      const d = Math.hypot(x * 0.95, z * 1.1) + Math.sin(x * 0.9 + z * 0.7) * 0.8;
+      if (d < 5.5) { W(cx + x, cz + z); if ((x + z * 3 + 40) % 4 === 0) put(cx + x, 0, cz + z, "seagrass", { sea_grass_type: "default" }); if ((x * 3 + z + 40) % 6 === 0) put(cx + x, 1, cz + z, "waterlily", undefined, true); }
+      else if (d < 6.6) put(cx + x, 0, cz + z, (x + z) % 3 ? "gravel" : "cobblestone");
+      else if (d < 8.5 && (x * 7 + z * 5 + 99) % 5 === 0) leafBush(cx + x, 1, cz + z, 1 + ((x + z + 40) % 2));
+    }
+    for (const [x, z, cap] of [[-6, -5, "red_mushroom_block"], [6, -4, "brown_mushroom_block|red_mushroom_block"], [-5, 6, "red_mushroom_block"], [7, 5, "warped_wart_block"]]) {
+      put(cx + x, 1, cz + z, "mushroom_stem", { huge_mushroom_bits: 15 });
+      for (let dx = -1; dx <= 0; dx++) for (let dz = -1; dz <= 0; dz++) put(cx + x + dx, 2, cz + z + dz, cap, cap === "warped_wart_block" ? undefined : { huge_mushroom_bits: 14 });
+    }
+    tree(cx - 7, cz + 1, 5, 3, "oak_leaves", "dark_oak_log");
+    for (const [x, z] of [[-3, 7], [2, -7], [7, 1], [-8, -3]]) put(cx + x, 1, cz + z, ["red_tulip", "poppy", "oxeye_daisy", "red_tulip"][(x + 9) % 4], undefined, true);
+  }
+  // 3) the rocky pond with two trees and a wooden gazebo (picture 3)
+  function rockPond(cx, cz) {
+    for (let x = -9; x <= 9; x++) for (let z = -8; z <= 8; z++) {
+      const d = Math.hypot(x, z * 1.15);
+      if (d < 4.5) W(cx + x, cz + z);
+      else if (d < 9) { const h = d < 6 ? 1 : Math.min(3, 1 + Math.floor((d - 6) * 0.8)); if (z > 4 && Math.abs(x) < 3) continue; for (let y = 1; y <= h; y++) put(cx + x, y, cz + z, (x * 3 + z + y) % 4 === 0 ? "mossy_cobblestone" : (x + y) % 3 ? "stone" : "andesite"); if ((x + z) % 4 === 0) put(cx + x, h + 1, cz + z, d < 7 ? "short_grass|tallgrass" : "moss_carpet", undefined, true); }
+    }
+    for (let z = 5; z <= 8; z++) for (let x = -2; x <= 2; x++) { const h = z - 5; for (let y = 1; y <= h; y++) put(cx + x, y, cz + z, "stone_bricks"); if (z > 5) stair(cx + x, h + 1 > 3 ? 3 : h, cz + z, "stone_brick_stairs", 0, 1); }
+    tree(cx - 6, cz - 5, 8, 4, "oak_leaves", "oak_log", 3); tree(cx + 6, cz - 4, 7, 4, "azalea_leaves", "dark_oak_log", 3);
+    for (let x = 4; x <= 7; x++) for (let z = 1; z <= 4; z++) { put(cx + x, 2, cz + z, "oak_planks"); if ((x === 4 || x === 7) && (z === 1 || z === 4)) for (let y = 3; y <= 5; y++) put(cx + x, y, cz + z, "oak_fence"); }
+    for (let x = 3; x <= 8; x++) for (let z = 0; z <= 5; z++) put(cx + x, 6, cz + z, (x + z) % 2 ? "oak_slab" : "oak_planks", (x + z) % 2 ? { "minecraft:vertical_half": "bottom" } : undefined);
+    put(cx + 6, 3, cz + 3, "barrel", { facing_direction: 1, open_bit: false }); chair(cx + 5, 3, cz + 2, 0, 1, "oak"); hang(cx + 5, 5, cz + 2, 0);
+    for (const [x, z] of [[-3, -6], [3, -6], [-7, 2]]) put(cx + x, 4, cz + z, "amethyst_cluster", { "minecraft:block_face": "up" }, true);
+  }
+  // 4) the grotto: a stone-brick wall with ledges, hanging leaves, chains with lanterns, a small pond, barrels (picture 4)
+  function grotto(cx, cz) {
+    for (let x = -8; x <= 8; x++) for (let z = -6; z <= -3; z++) for (let y = 1; y <= 6; y++) {
+      const back = z === -6, arch = Math.abs(x) <= 3 && y <= 4 && z > -6;
+      if (arch) continue;
+      if (back || y >= 5 || Math.abs(x) >= 6) put(cx + x, y, cz + z, y === 6 ? "stone_brick_slab" : (x + y + z) % 5 === 0 ? "cracked_stone_bricks" : (x * 3 + y) % 4 === 0 ? "mossy_stone_bricks" : "stone_bricks", y === 6 ? { "minecraft:vertical_half": "bottom" } : undefined);
+    }
+    for (let x = -8; x <= 8; x++) { put(cx + x, 5, cz - 2, "stone_brick_slab", { "minecraft:vertical_half": "top" }); if ((x + 20) % 3 !== 0) for (let y = 4; y >= 3 - ((x + 20) % 2); y--) put(cx + x, y, cz - 2, "oak_leaves", LEAF, true); for (let y = 7; y <= 7; y++) put(cx + x, y, cz - 5, "oak_leaves", LEAF); }
+    for (const x of [-5, 5]) hang(cx + x, 4, cz - 1, 1);
+    for (let x = -3; x <= 3; x++) for (let z = -5; z <= -1; z++) { if (z <= -4 && Math.abs(x) <= 2) { put(cx + x, 0, cz + z, (x + z) % 2 ? "grass_block" : "moss_block"); continue; } if (z >= -3) W(cx + x, cz + z); }
+    put(cx - 1, 1, cz - 5, "rooted_dirt|dirt"); put(cx - 1, 2, cz - 5, "grass_block"); put(cx, 1, cz - 5, "grass_block"); put(cx + 1, 1, cz - 5, "flowering_azalea|azalea", undefined, true);
+    for (const x of [-2, 2]) for (let y = 1; y <= 4; y++) put(cx + x, y, cz - 4, "vine", { vine_direction_bits: 4 }, true);
+    for (let x = -6; x <= 6; x++) { put(cx + x, 0, cz, Math.abs(x) <= 3 ? "smooth_stone" : "stone_bricks"); if (Math.abs(x) >= 4) stair(cx + x, 1, cz, "stone_brick_stairs", 0, -1); }
+    for (const [x, z] of [[-7, 1], [7, 1]]) { put(cx + x, 1, cz + z, "barrel", { facing_direction: 1, open_bit: false }); put(cx + x, 1, cz + z + 1, "spruce_slab", { "minecraft:vertical_half": "bottom" }); }
+    for (const [x, z] of [[-2, 3], [2, 4], [0, 6], [-4, 5]]) put(cx + x, 0, cz + z, "cobblestone");
+    for (const [x, z] of [[-6, -1], [6, -1], [-5, 2], [5, 3]]) put(cx + x, 1, cz + z, "fern", undefined, true);
+  }
+  // 5) the picnic island: a grass island in a water ring, log posts with lanterns, bamboo, a picnic blanket, benches, a bridge (picture 5)
+  function picnic(cx, cz) {
+    for (let x = -10; x <= 10; x++) for (let z = -10; z <= 10; z++) {
+      const d = Math.max(Math.abs(x), Math.abs(z)) + Math.sin(x * 0.8) * 0.4;
+      if (d <= 6.5) { put(cx + x, 0, cz + z, "dirt"); put(cx + x, 1, cz + z, (x + z) % 7 === 0 ? "moss_block" : "grass_block"); }
+      else if (d <= 8.5) { W(cx + x, cz + z); if ((x * 3 + z * 5 + 60) % 9 === 0) put(cx + x, 0, cz + z, "seagrass", { sea_grass_type: "default" }); }
+      else if (d <= 10) { put(cx + x, 0, cz + z, "mossy_stone_bricks"); if ((x + z + 40) % 3 !== 0) put(cx + x, 1, cz + z, (x + z) % 2 ? "mossy_stone_bricks" : "stone_bricks"); if ((x * 5 + z + 60) % 7 === 0) put(cx + x, 2, cz + z, "mossy_cobblestone_wall|cobblestone_wall"); }
+    }
+    for (const [x, z] of [[-6, -6], [6, -6], [-6, 6], [6, 6], [-6, 0], [6, 0]]) { for (let y = 2; y <= 3; y++) put(cx + x, y, cz + z, "oak_log", { pillar_axis: "y" }); put(cx + x, 4, cz + z, "lantern", { hanging: false }, true); }
+    for (const [x, z] of [[-5, -3], [5, 4], [-4, 5], [4, -5]]) for (let y = 2; y <= 5; y++) put(cx + x, y, cz + z, "bamboo|sugar_cane", undefined, true);
+    for (let x = -2; x <= 2; x++) for (let z = -1; z <= 2; z++) put(cx + x, 2, cz + z, (x + z) % 2 ? "pink_carpet" : "white_carpet", undefined, true);
+    chair(cx, 2, cz - 3, 0, 1, "spruce"); chair(cx - 1, 2, cz - 3, 0, 1, "spruce"); table(cx + 3, 2, cz - 2, "spruce"); pot(cx - 3, 2, cz + 3); put(cx + 3, 2, cz + 3, "cake", undefined, true);
+    for (const [x, z] of [[-4, -2], [4, 2]]) { put(cx + x, 2, cz + z, "spruce_fence"); put(cx + x, 2, cz + z + 1, "spruce_fence"); }
+    for (let z = 7; z <= 11; z++) for (let x = -1; x <= 1; x++) put(cx + x, 1, cz + z, (z % 2) ? "spruce_planks" : "spruce_slab", (z % 2) ? undefined : { "minecraft:vertical_half": "top" });
+    for (const x of [-2, 2]) for (const z of [7, 11]) { put(cx + x, 1, cz + z, "oak_log", { pillar_axis: "y" }); put(cx + x, 2, cz + z, "lantern", { hanging: false }, true); }
+    tree(cx + 1, cz + 1, 5, 3, "azalea_leaves", "oak_log", 2);
+  }
+  { const spots = [22, 68, 112, 158, 202, 248, 292, 338], kinds = [pondBridge, mediumPond, rockPond, grotto, picnic, mediumPond, pondBridge, picnic];
+    spots.forEach((deg, i) => { const a = (deg * Math.PI) / 180, cx = Math.round(Math.cos(a) * 121), cz = Math.round(Math.sin(a) * 121); kinds[i](cx, cz); });
+  }
+  yield;
+
+  // ================================================================ 10d. the NATURAL GROUND: gentle hills and dips, patches of moss / coarse dirt / podzol, rocks
+  // (only on free grass, never on paths or buildings; the hills fade to flat 4 blocks before anything that was built)
+  const H = new Map(), hk = (x, z) => x * 1000 + z;
+  const heightAt = (x, z) => H.get(hk(x, z)) ?? 0;
+  { const N = 135, dist = new Map();
+    for (let x = -N; x <= N; x++) for (let z = -N; z <= N; z++) {
+      const r = Math.hypot(x, z); let blocked = r > 133 || (r > 79 && r < 100) || r < 22 || C.id(x, 0, z) !== null;
+      if (!blocked) for (let y = 1; y <= 3; y++) if (C.has(x, y, z)) { blocked = true; break; }
+      dist.set(hk(x, z), blocked ? 0 : 9);
+    }
+    for (let pass = 0; pass < 4; pass++) for (let x = -N + 1; x < N; x++) for (let z = -N + 1; z < N; z++) {
+      const k = hk(x, z), v = dist.get(k); if (v === 0) continue;
+      const m = Math.min(dist.get(hk(x + 1, z)), dist.get(hk(x - 1, z)), dist.get(hk(x, z + 1)), dist.get(hk(x, z - 1))) + 1;
+      if (m < v) dist.set(k, m);
+    }
+    yield;
+    for (let x = -N; x <= N; x++) for (let z = -N; z <= N; z++) {
+      const dd = dist.get(hk(x, z)); if (!dd) continue;
+      const n = Math.sin(x * 0.07 + 1.3) * Math.cos(z * 0.06 - 0.7) + 0.5 * Math.sin((x + z) * 0.11) + 0.35 * Math.cos(x * 0.19 - z * 0.13);
+      const h = Math.max(0, Math.min(3, Math.round((n + 0.35) * 1.7 * Math.min(1, (dd - 1) / 3))));
+      const p2 = Math.sin(x * 0.23 + z * 0.17) + Math.cos(z * 0.21 - x * 0.09);
+      const top = p2 > 1.35 ? "moss_block" : p2 < -1.45 ? "coarse_dirt" : p2 > 1.15 ? "podzol" : "grass_block";
+      if (h > 0) { put(x, 0, z, "dirt"); for (let y = 1; y <= h; y++) put(x, y, z, y === h ? top : "dirt"); H.set(hk(x, z), h); }
+      else if (top !== "grass_block") put(x, 0, z, top);
+    }
+    yield;
+    for (let k = 0; k < 70; k++) {                                                                 // mossy boulders
+      const x = Math.round((rng() - 0.5) * 260), z = Math.round((rng() - 0.5) * 260);
+      if ((dist.get(hk(x, z)) ?? 0) < 4) continue;
+      const y0 = heightAt(x, z) + 1, sz = 1 + Math.floor(rng() * 2);
+      for (let dx = -sz; dx <= sz; dx++) for (let dz = -sz; dz <= sz; dz++) for (let dy = 0; dy <= sz; dy++) {
+        if (Math.hypot(dx, dz, dy * 1.4) > sz + 0.4 || rng() < 0.15) continue;
+        put(x + dx, y0 + dy - 1, z + dz, ["mossy_cobblestone", "andesite", "stone", "cobblestone", "tuff"][Math.floor(rng() * 5)]);
+      }
+    }
+  }
+  yield;
+
   // ================================================================ 11. the outer garden: big trees, bushes, flowers (between the ring and the edge, and inside the ring)
   const busy = (x, z) => {
-    if (C.id(x, 0, z) !== null) return true;                                                   // the trunk stands on grass
-    for (let dx = -3; dx <= 3; dx++) for (let dz = -3; dz <= 3; dz++) for (let y = 1; y <= 9; y++) if (C.has(x + dx, y, z + dz)) return true;
+    if (C.id(x, 0, z) !== null && !H.has(hk(x, z))) return true;                                // the trunk stands on grass (or a hill)
+    for (let dx = -3; dx <= 3; dx++) for (let dz = -3; dz <= 3; dz++) for (let y = 1 + heightAt(x + dx, z + dz); y <= 12; y++) if (C.has(x + dx, y, z + dz)) return true;
     return false;
   };
   let trees = 0;
@@ -543,18 +666,20 @@ export function* celestialGen() {
     const t3 = rng(), a = rng() * Math.PI * 2, r = t3 < 0.3 ? 95.5 + rng() * 2.5 : t3 < 0.55 ? 54 + rng() * 22 : 112 + rng() * 20, x = Math.round(Math.cos(a) * r), z = Math.round(Math.sin(a) * r);
     if (Math.hypot(x, z) > 132 || (Math.hypot(x, z) > 97 && Math.hypot(x, z) < 112)) continue;
     if (Math.hypot(Math.abs(x) - 84, Math.abs(z) - 84) < 16 || (Math.abs(x) < 38 && z > 98)) continue;     // keep the lanterns + the Nether gate free
+    if ([22, 68, 112, 158, 202, 248, 292, 338].some((deg) => Math.hypot(x - Math.cos((deg * Math.PI) / 180) * 121, z - Math.sin((deg * Math.PI) / 180) * 121) < 17)) continue;   // and the garden pieces
     if (r < 80 && (Math.abs(x) <= 8 || Math.abs(z) <= 8)) continue;
     if (busy(x, z)) continue;
-    tree(x, z, 6 + Math.floor(rng() * 4), 4 + Math.floor(rng() * 2), rng() < 0.2 ? "azalea_leaves" : rng() < 0.15 ? "cherry_leaves" : "oak_leaves", rng() < 0.15 ? "cherry_log" : rng() < 0.4 ? "dark_oak_log" : "oak_log");
+    tree(x, z, 6 + Math.floor(rng() * 4), 4 + Math.floor(rng() * 2), rng() < 0.2 ? "azalea_leaves" : rng() < 0.15 ? "cherry_leaves" : "oak_leaves", rng() < 0.15 ? "cherry_log" : rng() < 0.4 ? "dark_oak_log" : "oak_log", 1 + heightAt(x, z));
     trees++;
   }
-  for (let k = 0; k < 2200; k++) {                                                                  // bushes + flowers on the free grass
+  for (let k = 0; k < 3200; k++) {                                                                  // bushes + flowers + grass on the free ground
     const x = Math.round((rng() - 0.5) * 266), z = Math.round((rng() - 0.5) * 266), r = Math.hypot(x, z);
-    if (r > 133 || (r > 79 && r < 95) || C.has(x, 1, z) || (C.id(x, 0, z) ?? "grass_block") !== "grass_block") continue;
+    const gy = heightAt(x, z), y1 = gy + 1;
+    if (r > 133 || (r > 79 && r < 95) || C.has(x, y1, z) || (gy === 0 && (C.id(x, 0, z) ?? "grass_block") !== "grass_block") || (gy > 0 && C.id(x, gy, z) !== "grass_block")) continue;
     const t = rng();
-    if (t < 0.12) { put(x, 1, z, "azalea_leaves", LEAF); if (rng() < 0.5) put(x, 2, z, "azalea_leaves_flowered|azalea_leaves", LEAF); }
-    else if (t < 0.55) put(x, 1, z, flowers[Math.floor(rng() * flowers.length)], undefined, true);
-    else put(x, 1, z, rng() < 0.5 ? "short_grass|tallgrass" : "fern", undefined, true);
+    if (t < 0.12) { put(x, y1, z, "azalea_leaves", LEAF); if (rng() < 0.5) put(x, y1 + 1, z, "azalea_leaves_flowered|azalea_leaves", LEAF); }
+    else if (t < 0.55) put(x, y1, z, flowers[Math.floor(rng() * flowers.length)], undefined, true);
+    else put(x, y1, z, rng() < 0.5 ? "short_grass|tallgrass" : "fern", undefined, true);
   }
   yield;
 
