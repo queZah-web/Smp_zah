@@ -299,15 +299,29 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
   the portal swirl plays while the place is loaded). Code: `systems/netherportal.js`; design: `celestialdesign.js` part 10b.
 
 ## Celestial Sanctuary v3: flying butterflies, garden pieces, natural ground
-- FLYING BUTTERFLIES (`systems/butterflies.js`, entity `smp:butterfly` + model/animation in the RP): 12 big butterflies
-  (purple-blue, pink-orange, teal-green; some carry a glowing lantern) fly wide circles in the sky around the spawn - radius
-  45 - 125 blocks, 28 - 62 blocks high, some each way, drifting in/out and up/down. They can't be hit, pushed or killed, they
-  are not monsters, one that is gone comes back by itself, Undo removes them. They move only while a player is near (no lag).
-  Owner: Building > Spawn > Butterflies ON/OFF and "New butterflies" (new random paths). The lanterns' block butterflies are
-  replaced by an amethyst crystal top with soul lanterns.
 - 8 GARDEN PIECES at the edge of the spawn (r 121, between the gates/lanterns), from the pictures: pond with a terracotta
   bridge + pergola (x2), mushroom pond (x2), rocky pond with trees + gazebo, stone grotto with hanging leaves + chain lanterns,
   picnic island with log lantern posts, bamboo and a blanket (x2). (`celestialdesign.js` part 10c)
 - NATURAL GROUND: outside the plaza/ring/roads the land is no longer flat: gentle hills (0 - 3 blocks), moss / coarse dirt /
   podzol patches, ~70 mossy boulders; trees, bushes and flowers sit on the hills. (part 10d)
 - A Celestial spawn built before: Undo it and build it again to get the new parts.
+
+## Celestial Sanctuary v4: built butterflies, the server name, the black & white twin cathedral (`celestialextra.js`)
+- The moving butterflies (entities) are gone. Now the butterflies are BUILT of blocks (like the picture): two pairs of pixel
+  wings opened in a V (blue fore wings, pink / purple hind wings, black outline, white spots), a brown body, antennae, some
+  with a little lantern. One sits on top of each of the 4 Butterfly Lanterns, and 12 big ones float in the sky around and
+  above the spawn at different heights (56 - 102 blocks) and places, each looking a different way.
+- The server name 『ZYTHER SMP』 in big green block letters (glowing top row, gold brackets, emerald stars) on a floating
+  board with a white / gold frame above the south avenue (y 22 - 70): it reads right from the plaza AND from the Nether Gate
+  side.
+- THE TWIN CATHEDRAL (instead of the old one), like the picture - the LEFT half black, the RIGHT half white:
+  * the black bell tower (15 x 15, 78 high + pinnacles to ~94): lancet window strips, a light checkered band, a rose with a
+    red eye, a crown of spiky pinnacles with copper tops
+  * the white tower: white walls with grey shadows, mossy feet, a great purple window, an octagon crown with a grey diamond
+    lattice and purple gems, a forest of thin white spires (up to ~110)
+  * the front between them: a great open portal with stepped arches, a gallery, a rose window (copper / white ring), side
+    windows, the gable with a spire and a golden cross; the roof dark on the left, white on the right
+  * inside: columns (black / white), pews, red carpet, altar with candles, organ wall, chandeliers, side chapels
+- The spawn is now 112 blocks high (UP) for the towers and the sky. A Celestial spawn built before: Undo it and build again.
+- The SMP Menu (dashboard) title is now 『Zyther Smp』 in green bold letters (custom font: `RP/font/glyph_E1.png`,
+  characters U+E100 - U+E10A).

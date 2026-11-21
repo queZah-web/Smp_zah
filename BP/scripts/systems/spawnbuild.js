@@ -27,7 +27,6 @@ import { pick } from "./arextra.js";
 import { getZone, setZone, clearZone, inZone, inZoneColumn, otherZoneOverlaps } from "./spawnzone.js";
 import { GRAND, SMALL, grandSpawnGen, smallSpawn, boardSpots } from "./spawndesign.js";
 import { CELESTIAL, celestialGen, celestialBoards } from "./celestialdesign.js";
-import { butterfliesOn, setButterflies, newButterflies, removeButterflies } from "./butterflies.js";
 import { placeCrateAt, removeCrateAt, isCrateAt } from "./crates.js";
 import { addFixedAt, removeFixed } from "./hologram.js";
 
@@ -205,7 +204,6 @@ function* undoJob(player, dim, z) {
     try { world.setDynamicProperty(SPAWN_KEY, typeof z.prevSpawn === "string" ? z.prevSpawn : undefined); } catch (e) { /* ignore */ }
     if (z.prevWorldSpawn) { try { world.setDefaultSpawnLocation(z.prevWorldSpawn); } catch (e) { /* ignore */ } }
     clearZone();
-    removeButterflies();
     removeAreas(dim);
     try { slog(player, "spawnbuild", null, "Spawn removed (undo)"); } catch (e) { /* ignore */ }
     say(player, tiles.length && ok === tiles.length ? "§a[Spawn] Undone: the land is back as it was, the old spawn point is back." : "§e[Spawn] Protection removed and the old spawn point is back (the backup was not complete, some blocks stay).");
@@ -270,7 +268,7 @@ function spawnPage(player, back) {
   const here = () => ["§7Middle: §f" + Math.floor(player.location.x) + " " + Math.floor(player.location.y) + " " + Math.floor(player.location.z)];
   if (!z) {
     set(f, 2 * COLS + 3, hdr(1, "g") + "§2§lGrand Spawn\n§r§7The Ancient Sanctuary: 151 x 151\n§r§7Walls, towers, giant tree of life,\n§r§7Crate Temple (3 crates placed),\n§r§7Hall of Legends (10 TOP boards),\n§r§7waterfall, ruins, gardens\n§r§7The land is saved first (Undo)\n§r§eClick to build", "textures/ui/shop/ic_confirm", { run: () => confirm(player, "Build the Grand Spawn here?", [...here(), "§7Everything in 151 x 151 blocks around you", "§7is replaced (Undo puts it back).", "§7Takes about a minute. No lag."], () => buildHere(player, "grand"), self) });
-    set(f, 2 * COLS + 4, hdr(1, "g") + "§f§lCelestial Sanctuary\n§r§7271 x 271: a white gothic ring with\n§r§764 pillars + seats, a cathedral with\n§r§7twin towers, a fountain plaza, Crate\n§r§7Pavilion, Hall of Legends (TOP), a\n§r§7furnished Library & Café, Wisteria tree\n§r§7garden, Moonlit garden, pergolas,\n§r§7a Nether Gate + 4 Butterfly portals\n§r§eClick to build", "textures/blocks/quartz_block_chiseled", { run: () => confirm(player, "Build the Celestial Sanctuary here?", [...here(), "§7Everything in 271 x 271 blocks around you", "§7is replaced (Undo puts it back).", "§7Takes a few minutes. No lag."], () => buildHere(player, "celestial"), self) });
+    set(f, 2 * COLS + 4, hdr(1, "g") + "§f§lCelestial Sanctuary\n§r§7271 x 271: a white gothic ring with\n§r§764 pillars + seats, a cathedral with\n§r§7twin towers, a fountain plaza, Crate\n§r§7Pavilion, Hall of Legends (TOP), a\n§r§7furnished Library & Café, Wisteria tree\n§r§7garden, Moonlit garden, pergolas,\n§r§7a Nether Gate + 4 Butterfly portals,\n§r§7a black & white twin cathedral\n§r§eClick to build", "textures/blocks/quartz_block_chiseled", { run: () => confirm(player, "Build the Celestial Sanctuary here?", [...here(), "§7Everything in 271 x 271 blocks around you", "§7is replaced (Undo puts it back).", "§7Takes a few minutes. No lag."], () => buildHere(player, "celestial"), self) });
     set(f, 2 * COLS + 5, hdr(1, "c") + "§a§lSmall Spawn\n§r§7Green garden spawn: 41 x 41\n§r§7Gazebo, fountain, trees, 4 paths\n§r§eClick to build", "textures/blocks/sapling_oak", { run: () => confirm(player, "Build the Small Spawn here?", [...here(), "§7Everything in 41 x 41 blocks around you", "§7is replaced (Undo puts it back)."], () => buildHere(player, "small"), self) });
   } else {
     const D = KINDS[z.kind ?? "small"].D;
@@ -278,11 +276,6 @@ function spawnPage(player, back) {
     if (D.places?.crates) set(f, 2 * COLS + 3, hdr(1, "g") + "§d§lCrate Temple\n§r§7Go to the crates\n§r§eClick to go", "textures/ui/shop/i3d_barrel", { run: () => goTo(player, D.places.crates) });
     if (D.places?.top) set(f, 2 * COLS + 5, hdr(1, "g") + "§6§lHall of Legends\n§r§7Go to the TOP boards\n§r§eClick to go", "textures/items/gold_ingot", { run: () => goTo(player, D.places.top) });
     set(f, 2 * COLS + 6, hdr(1, "r") + "§c§lUndo\n§r§7Remove the spawn: the land comes\n§r§7back as it was before\n§r§eClick to undo", "textures/ui/shop/ic_cancel", { run: () => confirm(player, "Remove the spawn?", ["§7The land comes back as it was.", "§7The old spawn point comes back."], () => undoSpawn(player), self) });
-  }
-  if (z && z.kind === "celestial") {
-    const on = butterfliesOn();
-    set(f, 3 * COLS + 2, hdr(1, on ? "g" : "r") + "§d§lButterflies: " + (on ? "§aON" : "§cOFF") + "\n§r§712 big butterflies fly in the sky\n§r§7around the spawn (some with lanterns)\n§r§eClick to turn " + (on ? "off" : "on"), "textures/items/dye_powder_purple|textures/items/amethyst_shard", { run: () => { setButterflies(!on); self(); } });
-    if (on) set(f, 3 * COLS + 6, hdr(1, "c") + "§d§lNew butterflies\n§r§7New random paths and heights\n§r§7(they come back in a few seconds)\n§r§eClick", "textures/items/amethyst_shard", { run: () => { newButterflies(); say(player, "§d[Spawn] New butterflies are on their way."); self(); } });
   }
   set(f, 3 * COLS + 4, hdr(1, "g") + "§6§lSpawn rules\n§r§7No breaking, no PvP, no damage,\n§r§7no fire, no monsters, no explosions,\n§r§7no hunger - switch each one\n§r§eClick to open", "textures/ui/shop/ic_shield", { run: () => rulesPage(player, self) });
   backBtn(f, back); status(player, f);

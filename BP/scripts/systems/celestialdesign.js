@@ -1,6 +1,7 @@
 // =====================================================================================================================
 // THE CELESTIAL SANCTUARY - the third spawn (pure data, no game calls: can be tested / previewed outside the game)
 //   (271 x 271 now: + a boulevard around the ring, the NETHER GATE (south) and 4 BUTTERFLY LANTERN portals - see 10b)
+//   (v4: the black & white TWIN CATHEDRAL, built butterflies in the sky, the server name board - see celestialextra.js, 10e)
 //
 //   201 x 201 (radius 100), up to ~64 high.  A white & dark-slate sanctuary in a big round garden:
 //     * THE RING: 7 tiers of white seats all around (like an amphitheatre), on them a gothic COLONNADE of 64 tall pillars
@@ -21,12 +22,14 @@
 // The big flat parts are boxes (fills: built with one call each).  Everything else is listed block by block.
 // =====================================================================================================================
 
-/** compact block store for a 281 x 281 area. x / z: -140..140, y: -12..79 */
+import { butterfly, nameSign, cathedral } from "./celestialextra.js";
+
+/** compact block store for a 281 x 281 area. x / z: -140..140, y: -12..119 */
 export class BigCanvas {
   constructor() { this.m = new Map(); this.pal = []; this.pi = new Map(); this.fills = []; }
-  static k(x, y, z) { return ((x + 140) * 92 + (y + 12)) * 281 + (z + 140); }
+  static k(x, y, z) { return ((x + 140) * 132 + (y + 12)) * 281 + (z + 140); }
   p(id, st, late) { const key = id + "#" + (st ? JSON.stringify(st) : "") + "#" + (late ? 1 : 0); let i = this.pi.get(key); if (i === undefined) { i = this.pal.length; this.pal.push({ id, st, late: !!late }); this.pi.set(key, i); } return i; }
-  put(x, y, z, id, st, late = false) { if (id == null) { this.del(x, y, z); return; } if (y < -12 || y > 79 || x < -140 || x > 140 || z < -140 || z > 140) return; this.m.set(BigCanvas.k(x, y, z), this.p(id, st, late)); }
+  put(x, y, z, id, st, late = false) { if (id == null) { this.del(x, y, z); return; } if (y < -12 || y > 119 || x < -140 || x > 140 || z < -140 || z > 140) return; this.m.set(BigCanvas.k(x, y, z), this.p(id, st, late)); }
   del(x, y, z) { this.m.delete(BigCanvas.k(x, y, z)); }
   has(x, y, z) { return this.m.has(BigCanvas.k(x, y, z)); }
   id(x, y, z) { const i = this.m.get(BigCanvas.k(x, y, z)); return i === undefined ? null : this.pal[i].id; }
@@ -35,9 +38,9 @@ export class BigCanvas {
   *orderedGen() {
     const pal = this.pal, buckets = new Map(); let n = 0;
     for (const [k, i] of this.m) {
-      const z = (k % 281) - 140, r = Math.floor(k / 281), y = (r % 92) - 12, x = Math.floor(r / 92) - 140;
+      const z = (k % 281) - 140, r = Math.floor(k / 281), y = (r % 132) - 12, x = Math.floor(r / 132) - 140;
       const p = pal[i], rank = p.id === "water" ? 2 : p.late ? 1 : 0;
-      const key = rank * 1000 + (rank === 1 ? 91 - (y + 12) : y + 12);
+      const key = rank * 1000 + (rank === 1 ? 131 - (y + 12) : y + 12);
       let b = buckets.get(key); if (!b) buckets.set(key, (b = []));
       b.push(x, y, z, i);
       if (++n % 4000 === 0) yield;
@@ -48,7 +51,7 @@ export class BigCanvas {
 }
 
 export const CELESTIAL = {
-  R: 135, UP: 66, DOWN: 6, spawn: { x: 0, y: 1, z: 15 },
+  R: 135, UP: 112, DOWN: 6, spawn: { x: 0, y: 1, z: 15 },
   // the Nether portals (relative boxes of portal blocks) - the script sends a player who walks in to a RANDOM place in the Nether
   portals: [],
   crates: [{ type: "rare", x: 41, y: 2, z: -44 }, { type: "legendary", x: 45, y: 2, z: -46 }, { type: "epic", x: 49, y: 2, z: -44 }],
@@ -150,74 +153,8 @@ export function* celestialGen() {
   }
   yield;
 
-  // ================================================================ 3. THE CATHEDRAL (north): hall z -70..-30, x -20..20, twin towers at the front
-  const CX1 = -20, CX2 = 20, CZ1 = -72, CZ2 = -30, WALL_TOP = 22;
-  C.fill(CX1, 0, CZ1, CX2, 0, CZ2, "polished_deepslate");
-  for (let x = CX1 + 1; x < CX2; x++) for (let z = CZ1 + 1; z < CZ2; z++) put(x, 0, z, (x + z) % 2 ? "smooth_quartz" : "polished_diorite");
-  for (let x = CX1; x <= CX2; x++) for (let z = CZ1; z <= CZ2; z++) {
-    const edge = x === CX1 || x === CX2 || z === CZ1 || z === CZ2; if (!edge) continue;
-    const side = x === CX1 || x === CX2, along = side ? z : x;
-    for (let y = 1; y <= WALL_TOP; y++) {
-      let b = (along + 100) % 6 === 0 || (side && (z === CZ1 || z === CZ2)) ? "quartz_pillar" : y % 7 === 0 ? "chiseled_quartz_block" : "smooth_quartz";
-      const win = (along + 100) % 6 >= 2 && (along + 100) % 6 <= 4 && y >= 4 && y <= 17;
-      if (win && !(z === CZ2 && Math.abs(x) <= 4)) b = GLASS[(y + along * 3 + 100) % GLASS.length];
-      if (y === WALL_TOP) b = "polished_deepslate";
-      if (z === CZ2 && Math.abs(x) <= 3 && y <= 10) b = null;                                                // the great door
-      if (z === CZ2 && Math.abs(x) <= 3 && y > 10 && y <= 12) b = y === 11 ? "chiseled_quartz_block" : "polished_deepslate";
-      if (b) put(x, y, z, b, b === "quartz_pillar" ? { pillar_axis: "y" } : undefined);
-    }
-  }
-  // the rose window above the door
-  for (let dx = -5; dx <= 5; dx++) for (let dy = -5; dy <= 5; dy++) { const d = Math.hypot(dx, dy); if (d > 5.3) continue; put(dx, 17 + dy, CZ2, d > 4.4 ? "polished_deepslate" : d < 1.2 ? "sea_lantern" : GLASS[(Math.round(Math.atan2(dy, dx) * 4) + 8) % GLASS.length]); }
-  // the roof: a steep dark roof along z (stairs), with a ridge
-  for (let k = 0; k <= 21; k++) for (let z = CZ1 - 1; z <= CZ2 + 1; z++) {
-    const y = WALL_TOP + 1 + k; if (k > 20) break;
-    for (const s of [-1, 1]) { const x = s * (21 - k); if (Math.abs(x) < 1) continue; stair(x, y, z, "deepslate_tile_stairs", -s, 0); if (k > 0) put(x + s, y, z, "deepslate_tiles"); }
-  }
-  for (let z = CZ1 - 1; z <= CZ2 + 1; z++) { put(0, WALL_TOP + 21, z, "polished_deepslate"); put(0, WALL_TOP + 22, z, z % 4 === 0 ? "end_rod" : "polished_deepslate_wall", z % 4 === 0 ? { facing_direction: 1 } : undefined, z % 4 === 0); put(1, WALL_TOP + 21, z, "deepslate_tiles"); put(-1, WALL_TOP + 21, z, "deepslate_tiles"); }
-  for (let x = -20; x <= 20; x++) for (const z of [CZ1, CZ2]) for (let y = WALL_TOP + 1; y <= WALL_TOP + 21 - Math.abs(x); y++) if (!(z === CZ2 && Math.abs(x) <= 5 && y <= 22)) put(x, y, z, Math.abs(x) % 4 === 0 ? "quartz_pillar" : (y + x) % 5 === 0 ? GLASS[Math.abs(x) % GLASS.length] : "smooth_quartz", Math.abs(x) % 4 === 0 ? { pillar_axis: "y" } : undefined);
-  yield;
-  // the twin towers (9 x 9) at the front corners, 46 high + spires
-  for (const sx of [-1, 1]) {
-    const tx = sx * 21, tz = -31;
-    for (let dx = -4; dx <= 4; dx++) for (let dz = -4; dz <= 4; dz++) {
-      const edge = Math.abs(dx) === 4 || Math.abs(dz) === 4, corner = Math.abs(dx) === 4 && Math.abs(dz) === 4;
-      if (!edge) continue;
-      for (let y = 1; y <= 46; y++) {
-        let b = corner ? "polished_deepslate" : y % 8 === 0 ? "deepslate_tiles" : "smooth_quartz";
-        if (!corner && Math.abs(dx) <= 1 && Math.abs(dz) === 4 && y % 8 >= 2 && y % 8 <= 6) b = GLASS[(y + dx + 9) % GLASS.length];
-        if (!corner && Math.abs(dz) <= 1 && Math.abs(dx) === 4 && y % 8 >= 2 && y % 8 <= 6) b = GLASS[(y + dz + 4) % GLASS.length];
-        if (dz === 4 && sx * dx < 0 && Math.abs(dx) <= 1 && y <= 4 && false) b = null;
-        put(tx + dx, y, tz + dz, b);
-      }
-    }
-    for (let y = 8; y <= 46; y += 8) for (let dx = -3; dx <= 3; dx++) for (let dz = -3; dz <= 3; dz++) put(tx + dx, y, tz + dz, "smooth_quartz");   // floors inside
-    for (let k = 0; k <= 5; k++) for (let dx = -5 + k; dx <= 5 - k; dx++) for (let dz = -5 + k; dz <= 5 - k; dz++) {     // the spire
-      const edge = Math.abs(dx) === 5 - k || Math.abs(dz) === 5 - k; if (!edge && k < 5) continue;
-      put(tx + dx, 47 + k * 2, tz + dz, k % 2 ? "deepslate_tiles" : "polished_deepslate"); put(tx + dx, 48 + k * 2, tz + dz, "polished_deepslate");
-    }
-    for (let y = 59; y <= 63; y++) put(tx, y, tz, y === 63 ? "lightning_rod" : y === 62 ? "gold_block" : "polished_deepslate_wall", y === 63 ? { facing_direction: 1 } : undefined, y === 63);
-    for (const [cx, cz] of [[-4, -4], [4, -4], [-4, 4], [4, 4]]) for (let y = 47; y <= 52; y++) put(tx + cx, y, tz + cz, y === 52 ? "end_rod" : "polished_deepslate_wall", y === 52 ? { facing_direction: 1 } : undefined, y === 52);
-  }
-  // the cathedral inside: columns, pews, a red carpet, the altar, the organ wall, chandeliers, side chapels
-  for (let z = CZ2 - 4; z >= CZ1 + 4; z -= 6) for (const sx of [-1, 1]) {
-    for (let y = 1; y <= 20; y++) put(sx * 11, y, z, y === 1 || y === 20 ? "chiseled_quartz_block" : "quartz_pillar", y === 1 || y === 20 ? undefined : { pillar_axis: "y" });
-    put(sx * 11 - sx, 8, z, "lantern", { hanging: false }, true);
-  }
-  for (let z = CZ2 - 1; z >= CZ1 + 9; z--) for (let x = -2; x <= 2; x++) put(x, 1, z, Math.abs(x) === 2 ? "yellow_carpet" : "red_carpet", undefined, true);
-  for (let z = CZ2 - 6; z >= CZ1 + 12; z -= 3) for (const sx of [-1, 1]) for (let a = 4; a <= 9; a++) { chair(sx * a, 1, z, 0, -1, "dark_oak"); if (a === 4 || a === 9) put(sx * a, 2, z, "dark_oak_fence"); }
-  for (let x = -8; x <= 8; x++) for (let z = CZ1 + 1; z <= CZ1 + 8; z++) put(x, 1, z, z === CZ1 + 8 ? "quartz_stairs" : "smooth_quartz", z === CZ1 + 8 ? { weirdo_direction: 3, upside_down_bit: false } : undefined);
-  for (let x = -2; x <= 2; x++) { put(x, 2, CZ1 + 4, "gold_block"); put(x, 3, CZ1 + 4, "white_carpet", undefined, true); }
-  candle(-2, 4, CZ1 + 4, 3, "white_candle"); candle(2, 4, CZ1 + 4, 3, "white_candle"); candle(0, 4, CZ1 + 4, 4, "yellow_candle");
-  for (let x = -6; x <= 6; x++) for (let y = 2; y <= 9; y++) put(x, y, CZ1 + 1, y === 9 || Math.abs(x) === 6 ? "dark_oak_planks" : (x + y) % 3 === 0 ? "chiseled_bookshelf" : "bookshelf", (x + y) % 3 === 0 && y < 9 && Math.abs(x) < 6 ? { books_stored: 63, direction: 0 } : undefined);
-  for (let x = -6; x <= 6; x += 2) for (let y = 10; y <= 14; y++) put(x, y, CZ1 + 1, "iron_bars");                            // organ pipes
-  for (const sx of [-1, 1]) { put(sx * 7, 2, CZ1 + 6, "lectern", { "minecraft:cardinal_direction": "south", powered_bit: false }); put(sx * 4, 2, CZ1 + 3, "flower_pot", undefined, true); put(sx * 8, 2, CZ1 + 3, "amethyst_block"); put(sx * 8, 3, CZ1 + 3, "amethyst_cluster", { "minecraft:block_face": "up" }, true); }
-  for (let z = CZ2 - 5; z >= CZ1 + 6; z -= 8) chandelier(0, 21, z, 4);
-  for (let z = CZ2 - 8; z >= CZ1 + 12; z -= 8) for (const sx of [-1, 1]) chandelier(sx * 16, 21, z, 6);
-  for (const sx of [-1, 1]) for (let z = CZ2 - 4; z >= CZ1 + 8; z -= 9) {              // side chapels: a bench, candles, flowers, a little shelf
-    put(sx * 19, 1, z, "bookshelf"); put(sx * 19, 2, z, "white_candle", { candles: 2, lit: true }, true); chair(sx * 18, 1, z - 1, -sx, 0, "spruce"); chair(sx * 18, 1, z + 1, -sx, 0, "spruce");
-    put(sx * 19, 1, z - 2, "potted_azalea_bush|flower_pot", undefined, true); put(sx * 19, 1, z + 2, "decorated_pot", { direction: 0 }, true);
-  }
+  // ================================================================ 3. THE TWIN CATHEDRAL (north): half black, half white (celestialextra.js)
+  cathedral(put, C, { stair, chair, chandelier, candle });
   yield;
 
   // ================================================================ 4. THE PLAZA: a three-tier fountain, benches, lamp posts
@@ -513,9 +450,8 @@ export function* celestialGen() {
     for (let k = 0; k < 4; k++) for (let x = -4 + k; x <= 4 - k; x++) for (let z = -4 + k; z <= 4 - k; z++) { if (Math.abs(x) === 4 - k || Math.abs(z) === 4 - k) stair(lx + x, 17 + k, lz + z, "smooth_sandstone_stairs", Math.abs(x) >= Math.abs(z) ? -Math.sign(x) || 1 : 0, Math.abs(z) > Math.abs(x) ? -Math.sign(z) : 0); }
     for (let y = 21; y <= 23; y++) put(lx, y, lz, "smooth_sandstone_wall|sandstone_wall");
     for (const [cx, cz] of [[-5, -5], [5, -5], [-5, 5], [5, 5]]) put(lx + cx, 15, lz + cz, "end_rod", { facing_direction: 0 }, true);
-    // the top: a purple crystal finial with a soul lantern (the butterflies fly in the sky now - butterflies.js)
-    put(lx, 24, lz, "amethyst_block"); put(lx, 25, lz, "amethyst_cluster", { "minecraft:block_face": "up" }, true);
-    for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) put(lx + dx, 23, lz + dz, "soul_lantern", { hanging: false }, true);
+    // the BUTTERFLY sitting on top (picture): built of blocks, wings up in a V, looking towards the spawn
+    butterfly(put, lx, 25, lz, (Math.atan2(-lz, -lx) * 180) / Math.PI + (sx * sz > 0 ? 25 : -25), 14, 62, true, lx + lz * 3);
     // flowers + crystals around the plaza
     for (let k = 0; k < 12; k++) { const a = (k / 12) * Math.PI * 2, x = Math.round(Math.cos(a) * 8), z = Math.round(Math.sin(a) * 8); if (C.has(lx + x, 1, lz + z)) continue; put(lx + x, 1, lz + z, k % 3 === 0 ? "amethyst_cluster" : ["allium", "lilac", "pink_tulip"][k % 3], k % 3 === 0 ? { "minecraft:block_face": "up" } : k % 3 === 1 ? { upper_block_bit: false } : undefined, true); if (k % 3 === 1) put(lx + x, 2, lz + z, "lilac", { upper_block_bit: true }, true); }
   }
@@ -653,6 +589,14 @@ export function* celestialGen() {
       }
     }
   }
+  yield;
+
+  // ================================================================ 10e. THE SKY: big built butterflies floating around / above the spawn + the server name
+  for (const [x, y, z, yaw, size] of [[-60, 62, 22, 30, 12], [56, 76, -6, 200, 13], [6, 90, 36, 95, 10], [-96, 56, -66, 300, 12], [98, 68, 58, 150, 12], [-74, 84, 96, 20, 10],
+    [82, 96, -92, 250, 14], [-48, 102, -104, 120, 9], [42, 58, 108, 340, 9], [-114, 72, 22, 60, 9], [116, 86, -28, 230, 8], [-22, 86, 40, 170, 8]]) {
+    butterfly(put, x, y, z, yaw, size, 50 + ((x * 7 + z) & 15), (x + z) % 3 === 0, x * 31 + z);
+  }
+  nameSign(put, 0, 22, 70);                                 // 『ZYTHER SMP』 above the south avenue, facing the plaza (and the back faces the Nether Gate)
   yield;
 
   // ================================================================ 11. the outer garden: big trees, bushes, flowers (between the ring and the edge, and inside the ring)

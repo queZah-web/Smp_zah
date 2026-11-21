@@ -17,7 +17,7 @@ export const STR = {
     "click.teleport": "Click to teleport",
     "click.claim": "Click to claim",
     // ---- SMP Menu (dashboard)
-    "menu.title": "SMP Menu",
+    "menu.title": "§r§f\uE100\uE101\uE102\uE103\uE104\uE105\uE106 \uE107\uE108\uE109\uE10A§r",   // 『Zyther Smp』 in green (custom letters: RP/font/glyph_E1.png)
     "menu.button": "§6§lSMP Menu\n§r§7Statistics, achievements,\n§r§7daily reward and more",
     "menu.button.daily": "\n§r§aDaily reward ready!",
     "menu.button.new1": "\n§r§e{0} new notification",
@@ -64,7 +64,7 @@ export const STR = {
     "click.open": "اضغط للفتح",
     "click.teleport": "اضغط للانتقال",
     "click.claim": "اضغط للاستلام",
-    "menu.title": "قائمة SMP",
+    "menu.title": "§r§f\uE100\uE101\uE102\uE103\uE104\uE105\uE106 \uE107\uE108\uE109\uE10A§r",
     "menu.button": "§6§lقائمة SMP\n§r§7الإحصائيات والإنجازات\n§r§7والمكافأة اليومية والمزيد",
     "menu.button.daily": "\n§r§aالمكافأة اليومية جاهزة!",
     "menu.button.new1": "\n§r§eلديك إشعار جديد واحد",
