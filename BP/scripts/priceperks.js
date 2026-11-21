@@ -1,4 +1,4 @@
-// Trading perks on the shop (see systems/skills.js).  Trading level 50 = buy prices -5%, 100 = -10% (max),
+// Trading perks + SERVER RANK perks on the shop (see systems/skills.js, systems/viprank.js).  Trading level 50 = buy prices -5%, 100 = -10% (max),
 // 150 = sell prices +5%, 200 = +10% (max).  Only players who reached the level get them.
 //
 // Anti-exploit (no loops, no easy money):
@@ -8,17 +8,20 @@
 //     (the bonus is only paid on items you got some other way: mined, farmed, fished, dropped by mobs ...)
 //   * every price is rounded per transaction in the shop's favour (floor for what you get, round for what you pay)
 import { skillData, tradeBuyDiscount, tradeSellBonus, noBonusAdd } from "./systems/skills.js";
+import { rankBuyPct, rankSellPct } from "./systems/viprank.js";
 
 export { noBonusAdd };
-export const discountPct = (p) => { try { return tradeBuyDiscount(p); } catch (e) { return 0; } };
-export const sellBonusPct = (p) => { try { return tradeSellBonus(p); } catch (e) { return 0; } };
+// the server rank (viprank.js) is ADDED to the Trading perk: buy max -75 %, sell max +80 %
+const safe = (fn, p) => { try { return fn(p) || 0; } catch (e) { return 0; } };
+export const discountPct = (p) => Math.min(75, safe(tradeBuyDiscount, p) + safe(rankBuyPct, p));
+export const sellBonusPct = (p) => Math.min(80, safe(tradeSellBonus, p) + safe(rankSellPct, p));
 
 /** price of ONE item for this player. price = normal shop price, sellPrice = what the same item sells for (0 if not sellable) */
 export function buyPrice(p, price, sellPrice = 0) {
   const d = discountPct(p);
   if (d <= 0 || !(price > 1)) return price;
   let v = Math.round((price * (100 - d)) / 100);
-  if (sellPrice > 0) v = Math.max(v, Math.ceil((sellPrice * 110) / 100));      // never cheaper than the best possible sell price
+  if (sellPrice > 0) v = Math.max(v, Math.ceil((sellPrice * (100 + sellBonusPct(p)) * 110) / 10000));   // never cheaper than what YOU could sell it for (with your bonus) + 10 %
   return Math.max(1, Math.min(price, v));
 }
 

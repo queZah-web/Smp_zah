@@ -7,6 +7,7 @@
 // Every claim is stored in its own world dynamic property  "pr:<claim id>"  (nothing else in the world data is touched).
 import { world, system } from "@minecraft/server";
 import { stats, takeMoney, addMoney, allRecords } from "../data.js";
+import { buyPrice } from "../priceperks.js";
 import { luxProtect } from "../lux.js";
 import { staffHook } from "./opcore.js";
 import { zoneOverlaps } from "./spawnzone.js";
@@ -272,7 +273,7 @@ export function growBlock(c, lv) {
 export function buyGrow(p, c, lv) {
   if (c.o !== p.id) return { err: "Only the owner can buy fast growth." };
   const why = growBlock(c, lv); if (why) return { err: why };
-  const cost = growPrice(c, lv);
+  const cost = buyPrice(p, growPrice(c, lv), 0);
   if (stats(p).money < cost) return { err: "Not enough money. You need $" + cost.toLocaleString("en-US") + "." };
   if (!takeMoney(p, cost)) return { err: "Not enough money." };
   const old = c.g;
@@ -302,7 +303,7 @@ export function checkSpot(p, size) {
 }
 export function createClaim(p, sizeKey, mode) {
   load();
-  const size = sizeOf(sizeKey), ms = addMs(0, mode), cost = priceFor(size, ms);
+  const size = sizeOf(sizeKey), ms = addMs(0, mode), cost = buyPrice(p, priceFor(size, ms), 0);
   const err = checkSpot(p, size); if (err) return { err };
   if (stats(p).money < cost) return { err: "Not enough money. You need $" + cost.toLocaleString("en-US") + "." };
   const mine = claimsOf(p.id), box = boxAt(size, p.location), l = p.location;
@@ -318,7 +319,7 @@ export function createClaim(p, sizeKey, mode) {
 export function renew(p, c, mode) {
   if (c.o !== p.id) return { err: "Only the owner can buy time." };
   if (!active(c)) return { err: "This protection already ended." };
-  const size = sizeOf(c.s), ms = addMs(timeLeft(c), mode), cost = priceFor(size, ms);
+  const size = sizeOf(c.s), ms = addMs(timeLeft(c), mode), cost = buyPrice(p, priceFor(size, ms), 0);
   if (ms <= 0) return { err: "This protection already has " + (mode === "24" || mode === "1" ? "the maximum (" + MAX_HOURS + "h)" : "at least that much time") + "." };
   if (stats(p).money < cost) return { err: "Not enough money. You need $" + cost.toLocaleString("en-US") + "." };
   if (!takeMoney(p, cost)) return { err: "Not enough money." };

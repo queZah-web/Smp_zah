@@ -9,6 +9,7 @@
 import { system } from "@minecraft/server";
 import { stats } from "../data.js";
 import { money, num } from "../format.js";
+import { buyPrice } from "../priceperks.js";
 import { setHud, hudMode } from "../hud.js";
 import { ex } from "./store.js";
 import { SHORT_ROWS, make, set, open, hdr, COLS, NAV, backBtn, status } from "./ui.js";
@@ -101,7 +102,7 @@ const shopPage = (kind) => function page(player, pg, back) {
   const slots = gridSlots(items.length);
   items.forEach((it, i) => {
     const own = owns(player, kind, it.id), isWorn = w && w.id === it.id;
-    const price = "\n§r§7Price: §a" + money(it.money) + " §7or §d" + num(it.shards) + " shards";
+    const price = "\n§r§7Price: §a" + money(buyPrice(player, it.money, 0)) + " §7or §d" + num(it.shards) + " shards";
     if (own) set(f, slots[i], hdr(1, isWorn ? "g" : "c") + K.label(it) + "\n§r" + (isWorn ? "§aWearing - click to take off" : "§eOwned - click to wear"), it.icon, { run: () => { wear(player, kind, isWorn ? "" : it.id); page(player, p, back); } });
     else set(f, slots[i], hdr(1) + K.label(it) + price + "\n§r§eClick to see more", it.icon, { run: () => itemPage(player, kind, it, p, back) });
   });
@@ -122,8 +123,8 @@ function itemPage(player, kind, it, listPage, back) {
   const sample = kind === "color" ? "\n§r§7Your name: " + paint(it, player.name) : "";
   set(f, 0 * COLS + 4, hdr(1) + K.label(it) + "\n§r§7" + K.title.replace(/s$/, "") + sample + "\n§r§7Money: §a" + money(me.money) + "\n§r§7Shards: §d" + num(me.shards), it.icon, null);
   const done = (cur) => { const r = buy(player, kind, it, cur); if (r.err) { fail(player, r.err); return here(); } wear(player, kind, it.id); player.sendMessage(menuMsg(player, "§a[Cosmetics] You bought §f" + it.name + " §afor " + (cur === "shards" ? "§d" + num(r.price) + " shards" : "§e" + money(r.price)) + "§a - now wearing it.")); list(); };
-  const okM = me.money >= it.money, okS = me.shards >= it.shards;
-  set(f, 2 * COLS + 2, hdr(1, okM ? "g" : "r") + "§a§lBuy with money\n§r§7Price: §a" + money(it.money) + "\n§r" + (okM ? "§eClick to buy" : "§cNeed " + money(it.money - me.money) + " more"), NAV.ok, { run: () => (okM ? done("money") : (fail(player, "Not enough money."), here())) });
+  const myM = buyPrice(player, it.money, 0), okM = me.money >= myM, okS = me.shards >= it.shards;
+  set(f, 2 * COLS + 2, hdr(1, okM ? "g" : "r") + "§a§lBuy with money\n§r§7Price: §a" + money(myM) + "\n§r" + (okM ? "§eClick to buy" : "§cNeed " + money(myM - me.money) + " more"), NAV.ok, { run: () => (okM ? done("money") : (fail(player, "Not enough money."), here())) });
   set(f, 2 * COLS + 6, hdr(1, okS ? "g" : "r") + "§d§lBuy with shards\n§r§7Price: §d" + num(it.shards) + " shards\n§r" + (okS ? "§eClick to buy" : "§cNeed " + num(it.shards - me.shards) + " more"), NAV.ok, { run: () => (okS ? done("shards") : (fail(player, "Not enough shards."), here())) });
   if (kind === "trail") set(f, 2 * COLS + 4, hdr(1) + "§b§lPreview\n§r§7See it around you\n§r§7for a few seconds", ICON.trail, { run: () => { preview(player, it); here(); } });
   backBtn(f, list);

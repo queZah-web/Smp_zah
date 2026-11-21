@@ -44,6 +44,7 @@ import { buildingPage } from "./spawnbuild.js";
 import { fastHealOn, setFastHeal } from "./fastheal.js";
 import { itemTimerOn, setItemTimer } from "./itemtimer.js";
 import { enderPage, isAdminRole } from "./enderchest.js";
+import { RANKS, rankOf, rankIndexOf, setRank, rankLabel, rankedIds } from "./viprank.js";
 
 const SYM = OPMENU.symbol;
 const ICON = {
@@ -457,6 +458,7 @@ export function opPage(player, back) {
   set(f, 2 * COLS + 5, hdr(1) + "§6§lServer & staff\n§r§7Protection bypass, X-ray, spawn,\n§r§7shop control, leaderboards, staff roles", "textures/ui/shop/ic_gear", { run: () => serverPage(player, self) });
   set(f, 1 * COLS + 6, hdr(1) + "§d§lLogs\n§r§7All the logs of the server:\n§r§7shop & money, staff actions, duels,\n§r§7Heart Logs, alerts\n§r§eClick to open", ICON.book, { run: () => logsHubPage(player, self) });
   if (isOwner(player)) set(f, 2 * COLS + 6, hdr(1, "g") + "§a§lBuilding\n§r§7Ready places built for you:\n§r§7a green Spawn (only the Owner\n§r§7can change it)\n§r§eClick to open", "textures/blocks/grass_side_carried", { run: () => buildingPage(player, self) });
+  if (isOwner(player)) { const n = rankedIds().length; set(f, 3 * COLS + 4, hdr(Math.min(99, Math.max(1, n)), "g") + "§6§lRanks\n§r§7Silver, Gold, Emerald, Diamond,\n§r§7Netherite, Master I-III, Legend\n§r§7Give / take a rank: cheaper buying,\n§r§7more money when selling\n§r§7Players with a rank: §f" + n + "\n§r§eClick to open", "textures/items/gold_ingot", { run: () => vipHome(player, self) }); }
   if (isOwner(player)) set(f, 4 * COLS + 4, hdr(1, "g") + "§5§lOwner\n§r§7Only you: decide what Helper, Mod\n§r§7and Admin may do, hand over the Owner", ICON.crown, { run: () => ownerPage(player, self) });
   perm(f, 4 * COLS + 3, player, "spectate", "§b§lSpectator\n§r§7Now: §f" + modeLabel(player) + "\n§r§7Here or on a player\n§r§eClick to open", "textures/items/spyglass", () => spectatorPage(player, self), isSpectator(player) ? "g" : "c");
   { const v = isVanished(player), vm = visionMode(player), need = can(player, "vanish") ? "vanish" : "orevision";
@@ -1048,3 +1050,71 @@ function logPlayersPage(player, back, pg = 0) {
 
 // the staff pages (staffmenu.js) open this page when an operator clicks a player
 initStaffMenu({ openPlayer: (p, id, name, back) => playerPage(p, id, name, back) });
+
+// ================================================================ SERVER RANKS (Owner only) - viprank.js
+function vipHome(player, back) {
+  if (!isOwner(player)) return back();
+  const self = () => vipHome(player, back), held = rankedIds();
+  const f = make("Ranks", 6); f.self = self; f.glass = true;
+  set(f, 0 * COLS + 4, hdr(Math.min(99, Math.max(1, held.length)), "g") + "§6§lServer ranks\n§r§7Players with a rank: §f" + held.length + "\n§r§7Every rank: a BUY discount on everything\n§r§7bought with money + a SELL bonus\n§r§7(never cheaper than its own sell price:\n§r§7no money loop is possible)", "textures/items/gold_ingot", null);
+  RANKS.forEach((r, i) => {
+    const n = held.filter((h) => h.idx === i).length, slot = i < 5 ? 1 * COLS + 2 + i : 2 * COLS + [2, 3, 5, 6][i - 5];
+    set(f, slot, hdr(Math.min(99, Math.max(1, n)), n ? "g" : "c") + rankLabel(r) + "\n§r§7Buy: §a-" + r.buy + "%\n§r§7Sell: §a+" + r.sell + "%\n§r§7Players: §f" + n + "\n§r§eClick: who has it", r.icon, { run: () => vipHolders(player, i, self) });
+  });
+  set(f, 4 * COLS + 3, hdr(1, "g") + "§a§lGive a rank\n§r§7Pick a player (online or offline)\n§r§7and choose his rank\n§r§eClick to open", ICON.player, { run: () => vipPlayers(player, self) });
+  set(f, 4 * COLS + 5, hdr(Math.min(99, Math.max(1, held.length))) + "§e§lAll ranked players\n§r§7Everybody who has a rank\n§r§eClick to open", ICON.book, { run: () => vipHolders(player, -1, self) });
+  backBtn(f, back); status(player, f);
+  open(player, f);
+}
+function vipName(id) { const t = online(id); if (t) return t.name; const r = recordOf(id); return r?.name ? String(r.name) : id; }
+function vipHolders(player, idx, back, page = 0) {
+  if (!isOwner(player)) return back();
+  const list = rankedIds().filter((h) => idx < 0 || h.idx === idx).map((h) => ({ ...h, name: vipName(h.id) })).sort((a, b) => b.idx - a.idx || a.name.localeCompare(b.name));
+  const again = (pg) => vipHolders(player, idx, back, pg);
+  const items = list.map((h) => ({ zone: online(h.id) ? "g" : "c", icon: RANKS[h.idx].icon, text: "§f§l" + h.name + "\n§r" + rankLabel(RANKS[h.idx]) + "\n§r" + (online(h.id) ? "§aOnline" : "§7Offline") + "\n§r§eClick to change", run: () => vipPlayer(player, h.id, h.name, () => again(page)) }));
+  listPage(player, idx < 0 ? "Ranked players" : RANKS[idx].name, items, page, back, again, [[7, hdr(1, "g") + "§a§lGive a rank\n§r§7Pick a player", ICON.player, () => vipPlayers(player, () => again(page))]]);
+}
+function vipPlayers(player, back, page = 0, q = "") {
+  if (!isOwner(player)) return back();
+  const live = new Map(world.getAllPlayers().map((p) => [p.id, p]));
+  let all = knownPlayers().map((x) => ({ id: x.id, name: String(x.name) }));
+  for (const p of live.values()) if (!all.some((x) => x.id === p.id)) all.push({ id: p.id, name: p.name });
+  const ql = q.toLowerCase(); if (ql) all = all.filter((x) => x.name.toLowerCase().includes(ql));
+  all.sort((a, b) => (live.has(b.id) ? 1 : 0) - (live.has(a.id) ? 1 : 0) || a.name.localeCompare(b.name));
+  const again = (pg) => vipPlayers(player, back, pg, q);
+  const items = all.map((x) => () => { const r = rankOf(x.id), on = live.has(x.id);
+    return { zone: on ? "g" : "c", icon: r ? r.icon : ICON.player, text: (on ? "§a§l" : "§7§l") + x.name + "\n§r" + (on ? "§aOnline" : "§7Offline") + "\n§r§7Rank: " + rankLabel(r) + "\n§r§eClick to choose", run: () => vipPlayer(player, x.id, x.name, () => again(page)) }; });
+  const extras = [[7, hdr(1) + "§b§lSearch\n§r§7Find a player by name", ICON.search, () => {
+    const form = new OprForm().title("Search player"); textField(form, "§fPart of the name", "e.g. steve");
+    showModal(player, form, (v) => vipPlayers(player, back, 0, v ? String(v[0] ?? "").trim() : q));
+  }]];
+  if (q) extras.push([8, hdr(1) + "§c§lClear search\n§r§7Show everybody again", NAV.no, () => vipPlayers(player, back, 0, "")]);
+  listPage(player, q ? "Give a rank: " + q : "Give a rank", items, page, back, again, extras);
+}
+function vipPlayer(player, id, name, back) {
+  if (!isOwner(player)) return back();
+  const self = () => vipPlayer(player, id, name, back), cur = rankIndexOf(id);
+  const f = make(name + " §8- rank", 6); f.self = self; f.glass = true;
+  set(f, 0 * COLS + 4, hdr(1, cur >= 0 ? "g" : "c") + "§f§l" + name + "\n§r§7Rank now: " + rankLabel(cur >= 0 ? RANKS[cur] : null) + "\n§r" + (online(id) ? "§aOnline" : "§7Offline") + "\n§r§eClick a rank to give it", ICON.player, null);
+  RANKS.forEach((r, i) => {
+    const slot = i < 5 ? 1 * COLS + 2 + i : 2 * COLS + [2, 3, 5, 6][i - 5];
+    set(f, slot, hdr(1, i === cur ? "g" : "c") + rankLabel(r) + "\n§r§7Buy: §a-" + r.buy + "% §8| §7Sell: §a+" + r.sell + "%\n§r" + (i === cur ? "§aHe has this rank" : "§eClick to give"), r.icon, i === cur ? null : { run: () => confirm(player, "Give " + r.name + "?", ["§f" + name + " §7gets " + rankLabel(r), "§7Buy §a-" + r.buy + "% §7| Sell §a+" + r.sell + "%"], () => {
+      if (!isOwner(player)) return back();
+      if (!setRank(id, i)) { say(player, "§c[Ranks] Could not save."); return self(); }
+      try { slog(player, "rank", { id, name }, "Rank: " + r.name); } catch (e) { /* ignore */ }
+      say(player, "§a[Ranks] " + name + " is now " + rankLabel(r) + "§a.");
+      const t = online(id); if (t) { try { t.sendMessage(oprMsg(t, "§6§l[Rank] §r§aYou got the rank " + rankLabel(r) + "§a!  §7Buy §a-" + r.buy + "% §7| Sell §a+" + r.sell + "%")); t.playSound("random.levelup"); t.onScreenDisplay.setTitle("§f" + r.glyph + " " + rankLabel(r), { subtitle: "§7Buy §a-" + r.buy + "% §7| Sell §a+" + r.sell + "%", fadeInDuration: 5, stayDuration: 60, fadeOutDuration: 15 }); } catch (e) { /* ignore */ } }
+      self();
+    }, self) });
+  });
+  if (cur >= 0) set(f, 4 * COLS + 4, hdr(1, "r") + "§c§lTake the rank away\n§r§7Back to a normal player\n§r§eClick", ICON.barrier, { run: () => confirm(player, "Take the rank?", ["§f" + name + " §7loses " + rankLabel(RANKS[cur])], () => {
+    if (!isOwner(player)) return back();
+    setRank(id, -1);
+    try { slog(player, "rank", { id, name }, "Rank removed"); } catch (e) { /* ignore */ }
+    say(player, "§e[Ranks] " + name + " has no rank now.");
+    const t = online(id); if (t) { try { t.sendMessage(oprMsg(t, "§e[Rank] Your rank was taken away.")); } catch (e) { /* ignore */ } }
+    self();
+  }, self) });
+  backBtn(f, back); status(player, f);
+  open(player, f);
+}

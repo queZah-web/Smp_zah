@@ -4,6 +4,7 @@
 import { world } from "@minecraft/server";
 import { ModalFormData } from "@minecraft/server-ui";
 import { balance } from "../data.js";
+import { buyPrice } from "../priceperks.js";
 import { money } from "../format.js";
 import { SHORT_ROWS, makeShop as make, set, open, hdr, COLS, NAV, NAV_START, backBtn, status } from "../smp/ui.js";
 import { showModal, textField, confirmShopShort as confirm } from "./forms.js";
@@ -72,7 +73,7 @@ function durationPage(player, sz, back) {
     (err ? "§c" + err : "§7It will be centred on your position:\n§r§7X " + b.x1 + " to " + b.x2 + "\n§r§7Y " + b.y1 + " to " + b.y2 + "\n§r§7Z " + b.z1 + " to " + b.z2), ICON[sz.key], null);
   if (!err) {
     [["1", "1 hour"], ["12", "12 hours"], ["24", "24 hours"]].forEach(([mode, label], i) => {
-      const cost = priceFor(sz, addMs(0, mode));
+      const cost = buyPrice(player, priceFor(sz, addMs(0, mode)), 0);
       set(f, 1 * COLS + 2 + i * 2, hdr(Number(mode)) + "§a§l" + label + "\n§r§7Cost: §a" + money(cost) + "\n§r" + (balance(player) >= cost ? "§eClick to buy" : "§cNot enough money"), ICON[sz.key], { run: () => buyConfirm(player, sz, mode, label, cost, back) });
     });
     set(f, 3 * COLS + 4, hdr(1) + "§b§lPreview the area\n§r§7Shows the borders around you\n§r§7for a few seconds", ICON.eye, { run: () => { showBorders(player, { ...b, d: player.dimension.id }, 10); durationPage(player, sz, back); } });
@@ -110,7 +111,7 @@ export function managePage(player, id, back) {
   if (owner) {
     // buy time - exact price: you only pay for the time you really get
     [["1", "+1 hour", "Adds 1 hour"], ["12", "Up to 12 hours", "Fills the time up to 12h"], ["24", "Up to 24 hours", "Fills the time up to 24h (max)"]].forEach(([mode, label, tip], i) => {
-      const add = addMs(left, mode), cost = priceFor(sz, add), slot = 1 * COLS + 2 + i * 2;
+      const add = addMs(left, mode), cost = buyPrice(player, priceFor(sz, add), 0), slot = 1 * COLS + 2 + i * 2;
       if (add <= 0) set(f, slot, hdr(1, "r") + "§c§l" + label + "\n§r§7" + (mode === "1" || mode === "24" ? "Already at the maximum (" + MAX_HOURS + "h)" : "You already have 12h or more"), NAV.no, null);
       else set(f, slot, hdr(Number(mode)) + "§a§l" + label + "\n§r§7" + tip + "\n§r§7You get: §f+" + dur(add) + "\n§r§7Cost: §a" + money(cost) + "\n§r" + (balance(player) >= cost ? "§eClick to buy" : "§cNot enough money"), ICON[c.s], {
         run: () => { const r = renew(player, c, mode); if (r.err) fail(player, r.err); else { player.sendMessage(shopMsg(player, "§a[Protection] §f" + c.n + " §a+" + dur(r.ms) + " for " + money(r.cost) + " §7- time left §f" + dur(timeLeft(c)))); luxProtect("renew", player.dimension, player.location); } self(); } });
@@ -159,7 +160,7 @@ function growPage(player, id, back) {
   set(f, 0 * COLS + 4, hdr(1) + "§a§lFast Growth - " + c.n + "\n§r§7Only crops inside THIS land grow faster.\n§r§7Crops, saplings (grow into trees), sugar cane,\n§r§7cactus, bamboo, cocoa, nether wart, stems.\n§r§7Baby animals here grow up faster too.\n§r§7Now: " + (cur ? "§a" + growOf(cur).name + " §7x" + growOf(cur).x + " - " + dur(left) + " left" : "§cOff") + "\n§r§7Each purchase = +" + GROW_PACK_H + " hours (max " + GROW_MAX_H + "h)", "textures/items/wheat", null);
   const icons = ["textures/items/carrot", "textures/items/potato", "textures/items/wheat", "textures/items/bread", "textures/items/emerald"];
   GROW.forEach((g, i) => {
-    const price = growPrice(c, g.lv), why = growBlock(c, g.lv), slot = 2 * COLS + i * 2;
+    const price = buyPrice(player, growPrice(c, g.lv), 0), why = growBlock(c, g.lv), slot = 2 * COLS + i * 2;
     if (why) set(f, slot, hdr(1, "r") + "§c§l" + g.name + " §7x" + g.x + "\n§r§7Price: §a" + money(price) + " §7for " + GROW_PACK_H + "h\n§r§c" + why, NAV.no, null);
     else set(f, slot, hdr(g.lv, bal >= price ? "g" : "r") + "§a§l" + g.name + " §7x" + g.x + " speed\n§r§7Plants and baby animals grow\n§r§7about " + g.x + " times faster\n§r§7+" + GROW_PACK_H + " hours for §a" + money(price) + "\n§r§7(" + money(growPrice(c, g.lv) / GROW_PACK_H) + " per hour)\n§r" + (bal >= price ? "§eClick to buy" : "§cNot enough money"), icons[i], {
       run: () => confirm(player, "Buy Fast Growth", ["§f" + g.name + " §7x" + g.x + " - " + c.n, "§7Time: §f+" + GROW_PACK_H + " hours (real time)", "§7Cost: §a" + money(price), "§7Your balance: §a" + money(bal)],

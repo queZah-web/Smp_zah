@@ -461,7 +461,7 @@ function potionPage(player, eff, back) {
     const row = 2 + r * 2;
     set(f, row * COLS + 1, hdr(1) + form.color + form.label + "\n§r§7" + form.desc, potionIcon(eff, form), null);
     eff.variants.forEach((v, k) => {
-      const pr = potionPrice(eff, form, v);
+      const pr = potionPrice(eff, form, v, player);
       set(f, row * COLS + 3 + k * 2, hdr(1) + form.color + potionName(eff, form, v) + "\n§r§7Buy: §a" + money(pr.buy) + "\n§r§7Sell: §c" + (pr.sell > 0 ? money(pr.sell) : "can not be sold") + (hasLimit(potionKey(eff, form, v)) ? "\n§r§cLimit: " + limitText(potionKey(eff, form, v)) : "") + "\n§r§eClick to open", potionIcon(eff, form),
         { run: () => potionBuyPage(player, eff, form, v, () => potionPage(player, eff, back)) });
     });
@@ -470,7 +470,7 @@ function potionPage(player, eff, back) {
   open(player, f);
 }
 function potionBuyPage(player, eff, form, v, back) {
-  const name = potionName(eff, form, v), pr = potionPrice(eff, form, v), icon = potionIcon(eff, form), key = potionKey(eff, form, v);
+  const name = potionName(eff, form, v), pr = potionPrice(eff, form, v, player), icon = potionIcon(eff, form), key = potionKey(eff, form, v);
   const owned = potionOwned(player, eff, form, v), left = sellLeft(player), lim = hasLimit(key), uLeft = lim ? unitsLeft(player, key) : 0;
   const f = make(name); const refresh = () => potionBuyPage(player, eff, form, v, back); f.self = refresh;
   let tip = hdr(1) + form.color + name + "\n§r§7Buy: §a" + money(pr.buy) + "\n§r§7Sell: §c" + (pr.sell > 0 ? money(pr.sell) : "can not be sold");

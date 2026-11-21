@@ -3,6 +3,8 @@ import { SHORT_ROWS, make, set, open, hdr, COLS, NAV, backBtn, status } from "..
 import { NV } from "./config.js";
 import { nvTimeLeft, nvFitsMin, nvAddMinutes, nvPrice, nvClock, nvIsOn, nvToggle, nvNotice, nvBasePrice, nvSetPrices, nvResetPrices, NV_MAX_PRICE } from "./nv.js";
 import { stats, takeMoney } from "../data.js";
+import { buyPrice } from "../priceperks.js";
+const myNv = (p, m) => buyPrice(p, nvPrice(m), 0);                     // the rank / Trading discount of this player
 import { money } from "../format.js";
 import { confirmShort as confirm, showModal, textField } from "./forms.js";
 import { ModalFormData } from "@minecraft/server-ui";
@@ -17,7 +19,7 @@ const timeLine = (p) => (nvTimeLeft(p) > 0 ? "\u00a77Time left: \u00a7f" + nvClo
 const PACKS = [[30, "30 minutes"], [60, "1 hour"], [360, "6 hours"]];
 /** takes the money and adds the time - every check is done again here, so a double click or an old page can never over-fill or go below zero */
 function buy(p, min) {
-  const pk = PACKS.find((x) => x[0] === min), cost = nvPrice(min);
+  const pk = PACKS.find((x) => x[0] === min), cost = myNv(p, min);
   if (!pk || !nvFitsMin(p, min)) { p.sendMessage(menuMsg(p, "\u00a7c[NV] You can hold at most " + NV.maxHours + " hours of night vision.")); return false; }
   if (stats(p).money < cost) { p.sendMessage(menuMsg(p, "\u00a7c[NV] You don't have enough money! You need \u00a7f" + money(cost - stats(p).money) + " \u00a7cmore.")); return false; }
   if (!takeMoney(p, cost)) return false;
@@ -34,10 +36,10 @@ export function nvPage(p, back) {
   const bal = stats(p).money, on = nvIsOn(p), left = nvTimeLeft(p);
   const f = make("Night Vision", SHORT_ROWS); f.self = () => nvPage(p, back);
   const again = () => nvPage(p, back);
-  set(f, 0 * COLS + 4, hdr(1) + "\u00a7b\u00a7lNight Vision\n\u00a7r" + PACKS.map(([m, l]) => "\u00a77" + l + ": \u00a7a" + money(nvPrice(m))).join("\n\u00a7r") + "\n\u00a7r\u00a77Maximum: \u00a7f" + NV.maxHours + " hours\n\u00a7r\u00a77Your balance: \u00a7a" + money(bal) + "\n\u00a7r" + timeLine(p) + "\n\u00a7r\u00a77Now: " + (on ? "\u00a7aON" : "\u00a7cOFF"), ICON, null);
+  set(f, 0 * COLS + 4, hdr(1) + "\u00a7b\u00a7lNight Vision\n\u00a7r" + PACKS.map(([m, l]) => "\u00a77" + l + ": \u00a7a" + money(myNv(p, m))).join("\n\u00a7r") + "\n\u00a7r\u00a77Maximum: \u00a7f" + NV.maxHours + " hours\n\u00a7r\u00a77Your balance: \u00a7a" + money(bal) + "\n\u00a7r" + timeLine(p) + "\n\u00a7r\u00a77Now: " + (on ? "\u00a7aON" : "\u00a7cOFF"), ICON, null);
 
   [[1, 0], [4, 1], [7, 2]].forEach(([col, i]) => {
-    const [min, label] = PACKS[i], price = nvPrice(min), fit = nvFitsMin(p, min), okb = fit && bal >= price;
+    const [min, label] = PACKS[i], price = myNv(p, min), fit = nvFitsMin(p, min), okb = fit && bal >= price;
     set(f, 2 * COLS + col, hdr(1, okb ? "g" : "r") + "\u00a7a\u00a7l+" + label + "\n\u00a7r\u00a77Cost: \u00a7a" + money(price) + "\n\u00a7r" + (!fit ? "\u00a7cWould go over " + NV.maxHours + " hours" : bal >= price ? "\u00a7eClick to buy" : "\u00a7cNeed " + money(price - bal) + " more"), NAV.ok,
       { run: () => { if (!fit) return again(); confirm(p, "Buy time", ["\u00a7fNight Vision", "\u00a77Time: \u00a7f" + label + " (real time)", "\u00a77Cost: \u00a7a" + money(price), "\u00a77Your balance: \u00a7a" + money(bal)], () => { buy(p, min); again(); }, again); } });
   });

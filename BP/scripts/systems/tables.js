@@ -9,6 +9,8 @@ import { world, system, BlockTypes } from "@minecraft/server";
 import { sendBar } from "../barsend.js";
 import { ex } from "../smp/store.js";
 import { stats, takeMoney, addMoney } from "../data.js";
+import { buyPrice } from "../priceperks.js";
+const my = (p, n) => buyPrice(p, n, 0);                  // the rank / Trading discount of this player
 import { money } from "../format.js";
 import { makeShop as make, set, open, hdr, COLS, NAV, backBtn, status } from "../smp/ui.js";
 import { confirmShop as confirm } from "./forms.js";
@@ -66,7 +68,7 @@ function calcExtra(key, id, tot) {
 export function singlePrice(p, key) {
   const t = TABLES[key], item = held(p), id = item ? item.typeId.replace("minecraft:", "") : "";
   const { extra, why } = calcExtra(key, id, enchants(item).tot);
-  return { price: t.single + extra, extra, lines: why ? [why] : [] };
+  return { price: my(p, t.single + extra), extra, lines: why ? [why] : [] };
 }
 
 // ---------------------------------------------------------------- paying
@@ -177,7 +179,7 @@ function buyUse(p, key, block) {
   luxDing(p); luxShop(p);
 }
 function buyPass(p, key) {
-  const cost = key === "all" ? ALL_PASS.pass : TABLES[key].pass, name = key === "all" ? ALL_PASS.name : TABLES[key].name + " pass";
+  const cost = my(p, key === "all" ? ALL_PASS.pass : TABLES[key].pass), name = key === "all" ? ALL_PASS.name : TABLES[key].name + " pass";
   if (!charge(p, cost)) return false;
   addPass(p, key);
   p.sendMessage(shopMsg(p, "§a[Tables] §f" + name + " §abought for §e" + money(cost) + " §a- §f" + PASS_MINUTES + " minutes §7(" + (key === "all" ? "all tables" : "this table") + " open freely now)"));
@@ -190,10 +192,10 @@ function tablePage(p, key, block) {
   const t = TABLES[key], { price, lines } = singlePrice(p, key);
   const f = make(t.name); f.self = () => tablePage(p, key, block);
   const bal = stats(p).money;
-  set(f, 1 * COLS + 4, hdr(1) + "§e§l" + t.name + "\n§r§7" + t.info + "\n§r§7Your balance: §a" + money(bal) + "\n§r§7One use: §a" + money(price) + lines.map((l) => "\n§r§8" + l).join("") + "\n§r§7" + PASS_MINUTES + "-minute pass: §a" + money(t.pass), t.icon, null);
+  set(f, 1 * COLS + 4, hdr(1) + "§e§l" + t.name + "\n§r§7" + t.info + "\n§r§7Your balance: §a" + money(bal) + "\n§r§7One use: §a" + money(price) + lines.map((l) => "\n§r§8" + l).join("") + "\n§r§7" + PASS_MINUTES + "-minute pass: §a" + money(my(p, t.pass)), t.icon, null);
   set(f, 4 * COLS + 2, hdr(1, bal >= price ? "g" : "r") + "§a§lPay & use once\n§r§7Cost: §a" + money(price) + "\n§r" + (bal >= price ? "§eClick to pay" : "§cNeed " + money(price - bal) + " more"), NAV.ok, { run: () => { buyUse(p, key, block); } });
-  set(f, 4 * COLS + 4, hdr(1, bal >= t.pass ? "g" : "r") + "§b§l" + PASS_MINUTES + "-minute pass\n§r§7" + t.name + " only\n§r§7Cost: §a" + money(t.pass) + "\n§r" + (bal >= t.pass ? "§eClick to buy" : "§cNeed " + money(t.pass - bal) + " more"), t.icon, { run: () => { buyPass(p, key); } });
-  set(f, 4 * COLS + 6, hdr(1, bal >= ALL_PASS.pass ? "g" : "r") + "§d§lAll-In-One pass\n§r§7All 4 tables, " + PASS_MINUTES + " minutes\n§r§7Cost: §a" + money(ALL_PASS.pass) + "\n§r" + (bal >= ALL_PASS.pass ? "§eClick to buy" : "§cNeed " + money(ALL_PASS.pass - bal) + " more"), ALL_PASS.icon, { run: () => { buyPass(p, "all"); } });
+  set(f, 4 * COLS + 4, hdr(1, bal >= my(p, t.pass) ? "g" : "r") + "§b§l" + PASS_MINUTES + "-minute pass\n§r§7" + t.name + " only\n§r§7Cost: §a" + money(my(p, t.pass)) + "\n§r" + (bal >= my(p, t.pass) ? "§eClick to buy" : "§cNeed " + money(my(p, t.pass) - bal) + " more"), t.icon, { run: () => { buyPass(p, key); } });
+  set(f, 4 * COLS + 6, hdr(1, bal >= my(p, ALL_PASS.pass) ? "g" : "r") + "§d§lAll-In-One pass\n§r§7All 4 tables, " + PASS_MINUTES + " minutes\n§r§7Cost: §a" + money(my(p, ALL_PASS.pass)) + "\n§r" + (bal >= my(p, ALL_PASS.pass) ? "§eClick to buy" : "§cNeed " + money(my(p, ALL_PASS.pass) - bal) + " more"), ALL_PASS.icon, { run: () => { buyPass(p, "all"); } });
   set(f, 7 * COLS + 4, hdr(1, "r") + "§c§lCancel\n§r§7Close", NAV.no, { run: () => {} });
   open(p, f);
 }
@@ -208,11 +210,11 @@ export function passesPage(p, back) {
     set(f, slot, hdr(1, own > 0 ? "g" : "c") + "§f§l" + t.name + "\n§r§7" + t.info + "\n§r§7" + PASS_MINUTES + " min: §a" + money(price) + "\n§r" + st + "\n§r§eClick to buy", t.icon, {
       run: () => confirm(p, "Buy pass", ["§f" + t.name + (key === "all" ? "" : " pass"), "§7Duration: §f" + PASS_MINUTES + " minutes (real time)", "§7Cost: §a" + money(price), "§7Your balance: §a" + money(stats(p).money)], () => { buyPass(p, key); passesPage(p, back); }, () => passesPage(p, back)) });
   };
-  card(3 * COLS + 1, "anvil", TABLES.anvil, TABLES.anvil.pass);
-  card(3 * COLS + 3, "enchant", TABLES.enchant, TABLES.enchant.pass);
-  card(3 * COLS + 5, "grind", TABLES.grind, TABLES.grind.pass);
-  card(3 * COLS + 7, "smith", TABLES.smith, TABLES.smith.pass);
-  card(5 * COLS + 4, "all", ALL_PASS, ALL_PASS.pass);
+  card(3 * COLS + 1, "anvil", TABLES.anvil, my(p, TABLES.anvil.pass));
+  card(3 * COLS + 3, "enchant", TABLES.enchant, my(p, TABLES.enchant.pass));
+  card(3 * COLS + 5, "grind", TABLES.grind, my(p, TABLES.grind.pass));
+  card(3 * COLS + 7, "smith", TABLES.smith, my(p, TABLES.smith.pass));
+  card(5 * COLS + 4, "all", ALL_PASS, my(p, ALL_PASS.pass));
   if (back) backBtn(f, back);
   status(p, f);
   open(p, f);

@@ -103,7 +103,8 @@ export function applyTag(p) {
     const c = clanOf(p);
     let rt = ""; try { rt = clanView.rankTag(p.id) || ""; } catch (e) { rt = ""; }                  // e.g. "[Richest]" for the richest player (ranks.js)
     let ow = ""; try { ow = clanView.isOwner(p) ? "\u00a75\u00a7lOwner" : ""; } catch (e) { ow = ""; }  // the server Owner: dark purple "Owner" above everything
-    const top = [ow, rt].filter(Boolean).join("\n");
+    let vb = ""; try { vb = clanView.vipBadge(p) || ""; } catch (e) { vb = ""; }                        // the server rank (crown + GOLD ...), viprank.js
+    const top = [ow, vb, rt].filter(Boolean).join("\n");
     let mt = ""; try { mt = moneyLine(stats(p).money); } catch (e) { mt = ""; }                      // the player's money, under the name
     const nm = c ? "\u00a7" + c.tc + p.name : (top ? "\u00a7f" + p.name : p.name);
     const next = [top, c ? tagText(c) : "", nm, mt].filter(Boolean).join("\n");                     // Owner / [Richest] / [WOLF] (tag colour) / Reed (same colour) / $83.7k
@@ -337,9 +338,10 @@ try {
       if (mutedText(p)) return;                                          // muted: the staff hook cancels the message, do not send it again
       let nm = p.name; try { nm = titleView.name(p) || p.name; } catch (err) { nm = p.name; }            // the name in its chosen colour (Cosmetics)
       let owt = ""; try { owt = clanView.isOwner(p) ? "\u00a75\u00a7l[Owner]\u00a7r" : ""; } catch (err) { owt = ""; }
-      if (!c && !tt && !owt && nm === p.name) return;                    // everybody else: the normal chat is not touched
+      let vc = ""; try { vc = clanView.vipChat(p) || ""; } catch (err) { vc = ""; }                     // the server rank (viprank.js)
+      if (!c && !tt && !owt && !vc && nm === p.name) return;             // everybody else: the normal chat is not touched
       const msg = String(e.message ?? "").replace(/\u00a7/g, "");
-      const prefix = [owt, c ? tagText(c) : "", tt].filter(Boolean).join(" ");     // [Owner] [CLAN] [Title]
+      const prefix = [owt, vc, c ? tagText(c) : "", tt].filter(Boolean).join(" ");     // [Owner] RANK [CLAN] [Title]
       e.cancel = true;
       system.run(() => { try { world.sendMessage((prefix ? prefix + " §r" : "") + "<" + nm + (nm === p.name ? "" : "§r") + "> " + msg); } catch (err) { /* ignore */ } });
     } catch (err) { /* never block the chat */ }

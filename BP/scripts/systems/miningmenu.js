@@ -13,6 +13,8 @@ import { make, set, open, hdr, COLS, NAV, backBtn, status } from "../smp/ui.js";
 import { miningOpts, activeOpts, setMiningOpt, setTimberMode, timeLeft, fitsMin, addMinutes, priceOf, packsOf, maxMinOf, basePriceOf, setPrices, resetPrices, MINING_MAX_PRICE, abilityOff, setAbilityOff, ABILITY_KEYS } from "./mining.js";
 import { VEIN_MAX, MINING_PASS, AREA_DEPTH, MAGNET_RANGE, MAGNET_PAUSE } from "./config.js";
 import { stats, takeMoney } from "../data.js";
+import { buyPrice } from "../priceperks.js";
+const myPrice = (p, key, m) => buyPrice(p, priceOf(key, m), 0);        // the rank / Trading discount of this player
 import { money } from "../format.js";
 import { confirmShort as confirm } from "./forms.js";
 import { luxDing, luxShop } from "../lux.js";
@@ -52,7 +54,7 @@ function autoOn(p, key) {
 // ---------------------------------------------------------------- buying time (real time).  Normal tools: 30 min / 1 h / 6 h packs.  Magnet + Auto-Smelt: ONE pack of 30 minutes (max 30 minutes held).
 const offMsg = (p, name) => { try { p.sendMessage(menuMsg(p, "§c[Mining] §f" + name + " §cis switched off by the Owner for now.")); } catch (e) { /* ignore */ } };
 function buy(p, key, min) {
-  const cost = priceOf(key, min), name = MINING_PASS[key].name;
+  const cost = myPrice(p, key, min), name = MINING_PASS[key].name;
   if (abilityOff(key)) { offMsg(p, name); return false; }                  // nobody can buy time for an ability the Owner switched off
   if (!fitsMin(p, key, min)) { p.sendMessage(menuMsg(p, "§c[Mining] You can hold at most " + minLabel(maxMinOf(key)) + " of " + name + (maxMinOf(key) <= 30 ? ". Wait until the time is over." : "."))); return false; }
   if (stats(p).money < cost) { p.sendMessage(menuMsg(p, "§c[Mining] You don't have enough money! You need §f" + money(cost - stats(p).money) + " §cmore.")); return false; }
@@ -64,16 +66,16 @@ function buy(p, key, min) {
   luxDing(p); luxShop(p);
   return true;
 }
-const packsText = (key) => packsOf(key).map((m) => "§7" + minLabel(m) + ": §a" + money(priceOf(key, m))).join("\n§r");
+const packsText = (key, p) => packsOf(key).map((m) => "§7" + minLabel(m) + ": §a" + money(p ? myPrice(p, key, m) : priceOf(key, m))).join("\n§r");
 
 export function buyPage(p, key, back) {
   const t = MINING_PASS[key], bal = stats(p).money, packs = packsOf(key), maxMin = maxMinOf(key);
   const f = make(t.name, 5); f.self = () => buyPage(p, key, back);
   const again = () => buyPage(p, key, back), leave = () => miningPage(p, back);
-  set(f, 0 * COLS + 4, hdr(1) + "§e§l" + t.name + "\n§r" + packsText(key) + "\n§r§7Maximum: §f" + minLabel(maxMin) + (packs.length === 1 ? "\n§r§7Only one pack: " + minLabel(packs[0]) : "") + "\n§r§7Your balance: §a" + money(bal) + "\n§r" + timeLine(p, key), ICON[key] ?? NAV.page, null);
+  set(f, 0 * COLS + 4, hdr(1) + "§e§l" + t.name + "\n§r" + packsText(key, p) + "\n§r§7Maximum: §f" + minLabel(maxMin) + (packs.length === 1 ? "\n§r§7Only one pack: " + minLabel(packs[0]) : "") + "\n§r§7Your balance: §a" + money(bal) + "\n§r" + timeLine(p, key), ICON[key] ?? NAV.page, null);
   const cols = packs.length === 1 ? [4] : [1, 4, 7];
   packs.forEach((min, i) => {
-    const price = priceOf(key, min), fit = fitsMin(p, key, min), okb = fit && bal >= price, label = minLabel(min);
+    const price = myPrice(p, key, min), fit = fitsMin(p, key, min), okb = fit && bal >= price, label = minLabel(min);
     set(f, 2 * COLS + cols[i], hdr(1, okb ? "g" : "r") + "§a§l+" + label + "\n§r§7Cost: §a" + money(price) + "\n§r" + (!fit ? "§cWould go over " + minLabel(maxMin) : bal >= price ? "§eClick to buy" : "§cNeed " + money(price - bal) + " more"), NAV.ok,
       { run: () => { if (!fit) return again(); confirm(p, "Buy time", ["§f" + t.name, "§7Time: §f" + label + " (real time)", "§7Cost: §a" + money(price), "§7Your balance: §a" + money(bal)], () => { buy(p, key, min); again(); }, again); } });
   });
@@ -108,7 +110,7 @@ export function miningPage(player, back) {
   set(f, 1 * COLS + C[2], zone(a.area === 5) + "§b§lArea Mining 5x5\n§r§7Now: " + paid("a5", a.area === 5) + "\n§r§7Pickaxe looking down / up digs a\n§r§7row of 5, " + AREA_DEPTH[5] + " deep (sneak = 1 block)\n§r" + timeLine(player, "a5") + SW, ICON.a5, { run: click("a5", toggle("area", o.area === 5 ? 0 : 5)) });
   set(f, 1 * COLS + C[3], zone(a.chest) + "§b§lChest Sell\n§r§7Now: " + paid("chest", a.chest) + "\n§r§7AXE: break a chest = everything inside\n§r§7is sold - the chest stays in place\n§r" + timeLine(player, "chest") + SW, ICON.chest, { run: click("chest", toggle("chest", !o.chest)) });
   set(f, 1 * COLS + C[4], zone(a.smelt) + "§6§lAuto-Smelt\n§r§7Now: " + paid("smelt", a.smelt) + "\n§r§7Ores drop ingots: iron, gold,\n§r§7copper, ancient debris (scrap)\n§r§8Works with Vein + Area. Silk Touch = ore\n§r" + timeLine(player, "smelt") + SW, ICON.smelt, { run: click("smelt", toggle("smelt", !o.smelt)) });
-  const buyBtn = (col, key) => set(f, 2 * COLS + col, hdr(1, timeLeft(player, key) > 0 ? "c" : "g") + "§6§lBuy time\n§r§7" + MINING_PASS[key].name + "\n§r§7" + packsOf(key).map((m) => minLabel(m) + " §a" + money(priceOf(key, m))).join("\n§r§7") + (packsOf(key).length === 1 ? "\n§r§8Max " + minLabel(maxMinOf(key)) : ""), "textures/ui/shop/ic_info", { run: () => (abilityOff(key) ? (offMsg(player, MINING_PASS[key].name), again()) : buyPage(player, key, back)) });
+  const buyBtn = (col, key) => set(f, 2 * COLS + col, hdr(1, timeLeft(player, key) > 0 ? "c" : "g") + "§6§lBuy time\n§r§7" + MINING_PASS[key].name + "\n§r§7" + packsOf(key).map((m) => minLabel(m) + " §a" + money(myPrice(player, key, m))).join("\n§r§7") + (packsOf(key).length === 1 ? "\n§r§8Max " + minLabel(maxMinOf(key)) : ""), "textures/ui/shop/ic_info", { run: () => (abilityOff(key) ? (offMsg(player, MINING_PASS[key].name), again()) : buyPage(player, key, back)) });
   ["timber", "a3", "a5", "chest", "smelt"].forEach((k, i) => buyBtn(C[i], k));
 
   // ---- row 4: FREE tools (nothing to buy)

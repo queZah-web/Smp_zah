@@ -21,6 +21,7 @@ import { world, system, ItemStack } from "@minecraft/server";
 import { invWatch } from "./systems/invwatch.js";
 import { ActionFormData } from "@minecraft/server-ui";
 import { stats, takeMoney, addTx, knownPlayers } from "./data.js";
+import { buyPrice } from "./priceperks.js";
 import { econMsg } from "./systems/staffcore.js";
 import { combatLeft } from "./systems/combat.js";
 import { container } from "./inv.js";
@@ -131,7 +132,7 @@ export function heldUnits(p) {
   return n;
 }
 export const ownedUnits = (p) => heartsOf(p).n + heldUnits(p);
-export const nextPrice = (p) => { const c = heartsCfg(); return Math.min(LIMITS.money, Math.floor(c.price + c.step * (ownedUnits(p) / 2))); };
+export const nextPrice = (p) => { const c = heartsCfg(); return buyPrice(p, Math.min(LIMITS.money, Math.floor(c.price + c.step * (ownedUnits(p) / 2))), 0); };   // with the rank / Trading discount
 
 // ------------------------------------------------------------------ the extra health itself
 const applied = new Map();                   // player id -> the level that was applied in this session

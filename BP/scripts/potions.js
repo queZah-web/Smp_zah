@@ -12,6 +12,7 @@
 import { econMsg } from "./systems/staffcore.js";   // staff tools: frozen money account
 import * as MC from "@minecraft/server";
 import { stats, balance, addMoney, takeMoney, addTx } from "./data.js";
+import { buyPrice } from "./priceperks.js";
 import { saleFx, buyFx } from "./salefx.js";
 import { money } from "./format.js";
 import { container, isPlain } from "./inv.js";
@@ -75,9 +76,10 @@ export function basePotionPrice(eff, form, v) {
 export const potionKey = (eff, form, v) => `pot:${eff.id}:${form.key}:${v.lv}`;
 export const POTION_OVERRIDE = new Map();            // potionKey -> { buy, sell }  set by an admin (shopadmin.js).  Nothing here = the formula.
 /** { buy, sell } for one potion.  The admin can change both (shopadmin.js); the formula is used otherwise. */
-export function potionPrice(eff, form, v) {
+export function potionPrice(eff, form, v, p) {
   const o = POTION_OVERRIDE.get(potionKey(eff, form, v));
-  return o ? { buy: o.buy, sell: o.sell } : basePotionPrice(eff, form, v);
+  const r = o ? { buy: o.buy, sell: o.sell } : basePotionPrice(eff, form, v);
+  return p ? { buy: buyPrice(p, r.buy, r.sell), sell: r.sell } : r;           // p given: this player's price (rank / Trading discount)
 }
 export const potionName = (eff, form, v) => `${form.short} of ${eff.name}` + (v.lv === "long" ? " (Extended)" : v.label !== "I" ? " " + v.label : "");
 export const potionIcon = (eff, form) => `textures/ui/shop/pot_${form.key}_${eff.id}`;
@@ -149,7 +151,7 @@ function deliverOne(p, form, v) {
 
 export function buyPotion(p, eff, form, v, qty) {
   { const em = econMsg(p); if (em) return fail(p, em); }
-  const name = potionName(eff, form, v), unit = potionPrice(eff, form, v).buy, total = unit * qty, key = potionKey(eff, form, v);
+  const name = potionName(eff, form, v), unit = potionPrice(eff, form, v, p).buy, total = unit * qty, key = potionKey(eff, form, v);
   { const lb = limitBlock(p, key, name, qty); if (lb) return fail(p, lb); }
   if (balance(p) < total) return fail(p, `§c[Shop] Not enough money. Need §f${money(total)}§c, you have §f${money(balance(p))}§c.`);
   if (container(p).emptySlotsCount < qty) return fail(p, `§c[Shop] Not enough free inventory slots (${qty} needed - potions do not stack).`);

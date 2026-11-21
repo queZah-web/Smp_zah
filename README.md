@@ -325,3 +325,14 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
 - The spawn is now 112 blocks high (UP) for the towers and the sky. A Celestial spawn built before: Undo it and build again.
 - The side panel (scoreboard) title and the SMP Menu title are now 『Zyther Smp』 in green bold letters (custom font: `RP/font/glyph_E1.png`,
   characters U+E100 - U+E10A).
+
+## Server ranks (VIP) - /opr > Ranks (Owner only) - `systems/viprank.js`
+- Silver -5 % / +5 %, Gold 10/10, Emerald 15/15, Diamond 20/20, Netherite 25/25, Master 30/30, Master II 40/40,
+  Master III 50/50, Legend 70/70 (buy discount / sell bonus). Added to the Trading skill perks (max -75 % / +80 %).
+- The discount works on everything bought with money: /shop items, spawn eggs, spawners, enchant books, potions, /mining
+  tools, Night Vision, Hearts, cosmetics, table uses + passes, land protection + fast growth. Shard prices never change.
+- No exploit: an item that can be sold is never cheaper than (its sell price with YOUR bonus) + 10 %, and items bought
+  from the shop never get the sell bonus -> buy / sell (or buy / craft / sell) loops can never make money.
+- The Owner gives / changes / takes a rank (online or offline players), sees who has each rank; the player gets a title.
+- Above the name: a crown in the rank's colours (custom glyphs U+E110 - U+E118 in `RP/font/glyph_E1.png`) + the rank
+  name; in chat the crown + rank before the name.

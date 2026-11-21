@@ -6,6 +6,7 @@ import { isVanishedId } from "../systems/staffcore.js";   // staff tools: no tra
 import { world, system, MolangVariableMap } from "@minecraft/server";
 import { ex } from "./store.js";
 import { takeMoney, addMoney, takeShards, addShards, stats } from "../data.js";
+import { buyPrice } from "../priceperks.js";
 import { titleView } from "./titlestate.js";
 import { luxPrefs } from "../lux.js";
 import { isMuted } from "./fxprefs.js";
@@ -29,7 +30,7 @@ export function buy(p, kind, item, currency) {
   const list = kind === "color" ? COLORS : TRAILS;
   if (!list.includes(item)) return { err: "Unknown item." };
   if (owns(p, kind, item.id)) return { err: "You already own this." };
-  const price = currency === "shards" ? item.shards : item.money;
+  const price = currency === "shards" ? item.shards : buyPrice(p, item.money, 0);      // money: with the rank / Trading discount
   if (!(price > 0)) return { err: "This item cannot be bought." };
   if ((currency === "shards" ? stats(p).shards : stats(p).money) < price) return { err: "Not enough " + (currency === "shards" ? "shards" : "money") + "." };
   if (!(currency === "shards" ? takeShards(p, price) : takeMoney(p, price))) return { err: "Not enough " + (currency === "shards" ? "shards" : "money") + "." };

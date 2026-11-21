@@ -8,5 +8,7 @@ export const clanView = {
   top: () => [],   // ranked clans for /baltop clan: [{ name, tag, members, kills, money }] best first
   isOwner: (p) => false,   // true for the server Owner (filled by staffcore.js): "Owner" is shown above his name
   applyTag: (p) => {},   // rebuilds the text above a player's name (filled by clans.js)
+  vipBadge: (p) => "",   // the server rank above the name, e.g. crown + "GOLD" (filled by viprank.js)
+  vipChat: (p) => "",   // the server rank before the name in the chat (filled by viprank.js)
   noHit: (attacker, victim) => false,   // true when the attacker may NOT hurt the victim (same clan and the owner turned friendly fire off)
 };
