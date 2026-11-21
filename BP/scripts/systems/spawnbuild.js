@@ -238,6 +238,7 @@ export function buildingPage(player, back) {
   set(f, 1 * COLS + 4, hdr(1, "g") + "§d§lDropper\n§r§7A giant tower with 7 drop shafts\n§r§7(80 - 120 high), water pools, a lobby\n§r§7Games: Events > Dropper\n§r§eClick to open", "textures/items/feather", { run: () => { try { dropperHook.page(player, self); } catch (e) { say(player, "§c[Dropper] " + e); } } });
   set(f, 3 * COLS + 6, hdr(1, "g") + "§d§lRed Light\n§r§7Red Light, Green Light: a long\n§r§7field, sky walls, a giant doll\n§r§7Games: Events > Red Light\n§r§eClick to open", "textures/items/dye_powder_pink", { run: () => { try { squidHook.page(player, self); } catch (e) { say(player, "§c[Red Light] " + e); } } });
   set(f, 3 * COLS + 2, hdr(1, "g") + "§c§lTNT Run\n§r§7An arena with 4 falling floors\n§r§7(sand / gravel on TNT), seats\n§r§7Games: Events > TNT Run\n§r§eClick to open", "textures/blocks/tnt_side", { run: () => { try { tntHook.page(player, self); } catch (e) { say(player, "§c[TNT Run] " + e); } } });
+  set(f, 1 * COLS + 8, hdr(1, "g") + "§b§lSpleef\n§r§7A round snow floor over a lava pit,\n§r§7ice walls, seats all around\n§r§7Games: Events > Spleef\n§r§eClick to open", "textures/items/diamond_shovel", { run: () => { try { spleefHook.page(player, self); } catch (e) { console.warn("[spawnbuild] spleef: " + e); } } });
   set(f, 3 * COLS + 4, hdr(1, "g") + "§a§lStadium\n§r§7A football stadium: pitch, stands,\n§r§7roof, scoreboards, floodlights\n§r§7Matches: Events > Football\n§r§eClick to open", "textures/items/slime_ball", { run: () => { try { stadiumHook.page(player, self); } catch (e) { say(player, "§c[Stadium] " + e); } } });
   backBtn(f, back); status(player, f);
   open(player, f);
@@ -260,6 +261,8 @@ export const pillarsHook = { page: () => {} };
 export const pillars1Hook = { page: () => {} };
 /** set by colorrush.js */
 export const colorHook = { page: () => {} };
+/** set by spleef.js */
+export const spleefHook = { page: () => {} };
 function spawnPage(player, back) {
   if (!isOwner(player)) return;
   const self = () => spawnPage(player, back), z = getZone();

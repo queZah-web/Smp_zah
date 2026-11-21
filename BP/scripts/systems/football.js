@@ -2,7 +2,7 @@
 // FOOTBALL (event)  -  /opr > Building > Stadium  or  /opr > Events > Football  (Owner)   and   /football (every player)
 //
 // The Owner builds the stadium (stadiumdesign.js) once, then runs matches:
-//   * chooses the players (online players, or everybody standing on the pitch), the team size (1 - 10) and the time (5 - 60 min)
+//   * chooses the players (online players, or everybody standing on the pitch) and can put each one in BLUE or RED (the rest is random), the team size (1 - 11) and the time (5 - 60 min)
 //   * Start: the teams are made at RANDOM.  BLUE team = blue diamond + white iron kit, defends the north goal.  RED team = black netherite + red kit,
 //     defends the south goal.  Everybody is sent to the half of his team; his own armour waits in a locker (a hidden barrel
 //     under the pitch) and comes back at the end; Adventure mode (nobody can break / place); nobody can be hurt.
@@ -33,7 +33,7 @@ import { canTeleport, teleportWithFx } from "./util.js";
 
 const KEY = "fb:std", MKEY = "fb:m", STAT_KEY = "fb:st", PEND_KEY = "fb:pend", CFG_KEY = "fb:cfg";
 const BALL = "smp:football", KIT_LORE = "§8Football match item";
-const SIZES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], MINUTES = [5, 10, 15, 20, 32, 45, 60];
+const SIZES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], MINUTES = [5, 10, 15, 20, 32, 45, 60];
 const KICKOFF_PAUSE = 30, START_COUNT = 10, FOULS_OUT = 3, BENCH_SECS = 30;
 const TEAM = {
   // the two kits look completely different (not only a dye colour): BLUE = shiny blue diamond + white iron, RED = black netherite + red
@@ -65,7 +65,7 @@ const inStadium = (p) => { const s = stadium(); if (!s) return false; const l = 
 const onPitch = (s, loc, m = 0) => { const r = rel(s, loc); return Math.abs(r.u) <= 20.5 + m && Math.abs(r.w) <= 34.5 + m && r.y >= -1 && r.y <= 9; };
 
 let cfg = null;
-const conf = () => (cfg ??= { size: 5, min: 15, roster: [], ...readJson(CFG_KEY, {}) });
+const conf = () => (cfg ??= { size: 5, min: 15, roster: [], team: {}, ...readJson(CFG_KEY, {}) });   // team: { player id: "b" | "r" } = the Owner put him in that team (else random)
 const saveCfg = () => writeJson(CFG_KEY, conf());
 let stats = null, statDirty = false;
 const st = () => (stats ??= readJson(STAT_KEY, {}));
@@ -268,12 +268,18 @@ export function startMatch(player) {
   if (busy) return { err: "The stadium is being built." };
   if (M) return { err: "A match is already running." };
   const c = conf();
+  c.team ??= {};
   const ids = c.roster.filter((id) => online(id)).slice(0, c.size * 2);
   if (ids.length < 2) return { err: "Choose at least 2 online players." };
-  for (let i = ids.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [ids[i], ids[j]] = [ids[j], ids[i]]; }
+  // the teams: first the players the Owner put in a team (max "size" each), then the others at random into the smaller team
+  const want = { b: [], r: [] }, free = [];
+  for (const id of ids) { const t = c.team[id]; if ((t === "b" || t === "r") && want[t].length < c.size) want[t].push(id); else free.push(id); }
+  for (let i = free.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [free[i], free[j]] = [free[j], free[i]]; }
+  for (const id of free) { const t = want.b.length < want.r.length ? "b" : want.r.length < want.b.length ? "r" : Math.random() < 0.5 ? "b" : "r"; (want[t].length < c.size ? want[t] : want[t === "b" ? "r" : "b"]).push(id); }
+  const teamOf = new Map(); for (const t of ["b", "r"]) for (const id of want[t]) teamOf.set(id, t);
   M = { teams: { b: [], r: [] }, pl: {}, score: { b: 0, r: 0 }, left: c.min * 60, total: c.min * 60, phase: "count", until: system.currentTick + START_COUNT * 20, kick: null, last: null, goals: [], ball: null, rv: { x: 0, z: 0 }, vy: 0, by: player.name };
   ids.forEach((id, i) => {
-    const p = online(id), t = i % 2 ? "r" : "b";
+    const p = online(id), t = teamOf.get(id) ?? (i % 2 ? "r" : "b");
     M.teams[t].push(id);
     let gm; try { gm = p.getGameMode(); } catch (e) { gm = undefined; }
     const l = p.location;
@@ -551,7 +557,7 @@ export function footballPage(player, back) {
     const n = c.roster.filter((id) => online(id)).length;
     set(f, 1 * COLS + 2, hdr(Math.max(1, c.size)) + "§f§lPlayers per team\n§r§7Now: §e" + c.size + " vs " + c.size + "\n§r§eClick to change", "textures/ui/shop/ic_player", { run: () => { c.size = SIZES[(SIZES.indexOf(c.size) + 1) % SIZES.length]; saveCfg(); self(); } });
     set(f, 1 * COLS + 4, hdr(Math.min(99, c.min)) + "§f§lMatch time\n§r§7Now: §e" + c.min + " minutes\n§r§eClick to change", "textures/items/clock_item", { run: () => { c.min = MINUTES[(MINUTES.indexOf(c.min) + 1) % MINUTES.length]; saveCfg(); self(); } });
-    set(f, 1 * COLS + 6, hdr(Math.max(1, Math.min(99, n)), n >= 2 ? "g" : "c") + "§f§lChoose the players\n§r§7Chosen (online): §e" + n + " §7/ " + c.size * 2 + "\n§r§7The teams are made at random\n§r§eClick to choose", "textures/ui/shop/ic_player", { run: () => rosterPage(player, self) });
+    set(f, 1 * COLS + 6, hdr(Math.max(1, Math.min(99, n)), n >= 2 ? "g" : "c") + "§f§lChoose the players\n§r§7Chosen (online): §e" + n + " §7/ " + c.size * 2 + "\n§r§7Put players in BLUE / RED,\n§r§7the rest is random\n§r§eClick to choose", "textures/ui/shop/ic_player", { run: () => rosterPage(player, self) });
     set(f, 2 * COLS + 4, hdr(1, n >= 2 ? "g" : "r") + "§a§lStart the match\n§r§7" + Math.min(n, c.size * 2) + " players, " + c.min + " min\n§r§7Kits, teams, countdown " + START_COUNT + " s\n§r§eClick to start", "textures/ui/shop/ic_confirm", { run: () => { const r = startMatch(player); if (r.err) say(player, "§c[Football] " + r.err); else self(); } });
     set(f, 2 * COLS + 2, hdr(1, "g") + "§b§lTeleport\n§r§7To the stands", "textures/items/ender_pearl", { run: () => { try { player.teleport(abs(s, S.view), { dimension: dimOf(s), facingLocation: abs(s, S.center) }); } catch (e) { /* ignore */ } } });
     set(f, 2 * COLS + 6, hdr(1, "r") + "§c§lUndo the stadium\n§r§7The land comes back as it was\n§r§eClick to undo", "textures/ui/shop/ic_cancel", { run: () => confirm(player, "Remove the stadium?", ["§7The land comes back as it was."], () => undoStadium(player), self) });
@@ -568,14 +574,23 @@ export function footballPage(player, back) {
 function rosterPage(player, back, page = 0) {
   if (!owner(player)) return;
   const self = () => rosterPage(player, back, page), c = conf(), s = stadium();
+  c.team ??= {};
   const f = makeOpr("Football: players", 6); f.self = self; f.glass = true;
-  const all = world.getAllPlayers().sort((a, b) => a.name.localeCompare(b.name)), per = 27, list = all.slice(page * per, page * per + per);
+  const all = world.getAllPlayers().sort((a, b) => a.name.localeCompare(b.name)), per = 36, list = all.slice(page * per, page * per + per);
   c.roster = c.roster.filter((id) => all.some((p) => p.id === id));
-  set(f, 0 * COLS + 4, hdr(Math.max(1, c.roster.length), "g") + "§a§lChoose the players\n§r§7Chosen: §e" + c.roster.length + " §7/ " + c.size * 2 + "\n§r§7Click a name to add / remove", "textures/ui/shop/ic_player", null);
+  for (const id of Object.keys(c.team)) if (!c.roster.includes(id)) delete c.team[id];
+  const nb = c.roster.filter((id) => c.team[id] === "b").length, nr = c.roster.filter((id) => c.team[id] === "r").length;
+  set(f, 0 * COLS + 4, hdr(Math.max(1, c.roster.length), "g") + "§a§lChoose the players\n§r§7Chosen: §e" + c.roster.length + " §7/ " + c.size * 2 + "\n§r§9BLUE (set): §f" + nb + " §7/ " + c.size + "  §cRED (set): §f" + nr + " §7/ " + c.size + "\n§r§7Click a name: §fchosen (random team)\n§r§7-> §9BLUE §7-> §cRED §7-> not chosen", "textures/ui/shop/ic_player", null);
   list.forEach((p, i) => {
-    const on = c.roster.includes(p.id);
-    set(f, 1 * COLS + i, hdr(1, on ? "g" : "c") + (on ? "§a✔ " : "§7") + p.name + "\n§r§7" + (on ? "chosen - click to remove" : "click to add"), on ? "textures/items/slime_ball" : "textures/ui/shop/ic_player", { run: () => {
-      if (on) c.roster = c.roster.filter((x) => x !== p.id); else if (c.roster.length < c.size * 2) c.roster.push(p.id); else say(player, "§c[Football] The teams are full (" + c.size + " vs " + c.size + ").");
+    const on = c.roster.includes(p.id), t = c.team[p.id];
+    const label = !on ? "§7" + p.name + "\n§r§7not chosen - click to add" : t === "b" ? "§9§l" + p.name + "\n§r§9BLUE team §7- click: RED" : t === "r" ? "§c§l" + p.name + "\n§r§cRED team §7- click: remove" : "§a✔ " + p.name + "\n§r§7random team - click: BLUE";
+    const icon = !on ? "textures/ui/shop/ic_player" : t === "b" ? "textures/blocks/wool_colored_blue" : t === "r" ? "textures/blocks/wool_colored_red" : "textures/items/slime_ball";
+    set(f, 1 * COLS + i, hdr(1, on ? (t ? "g" : "c") : "c") + label, icon, { run: () => {
+      const cnt = (tt) => c.roster.filter((id) => c.team[id] === tt).length;
+      if (!on) { if (c.roster.length < c.size * 2) c.roster.push(p.id); else say(player, "§c[Football] The teams are full (" + c.size + " vs " + c.size + ")."); }
+      else if (!t) { if (cnt("b") < c.size) c.team[p.id] = "b"; else if (cnt("r") < c.size) { c.team[p.id] = "r"; say(player, "§e[Football] BLUE is full (" + c.size + ") - put in RED."); } else say(player, "§c[Football] Both teams are full."); }
+      else if (t === "b") { if (cnt("r") < c.size) c.team[p.id] = "r"; else { delete c.team[p.id]; c.roster = c.roster.filter((x) => x !== p.id); say(player, "§e[Football] RED is full (" + c.size + ")."); } }
+      else { delete c.team[p.id]; c.roster = c.roster.filter((x) => x !== p.id); }
       saveCfg(); self();
     } });
   });
@@ -583,7 +598,8 @@ function rosterPage(player, back, page = 0) {
     if (s) for (const p of world.getAllPlayers()) if (p.dimension.id === s.d && onPitch(s, p.location) && !c.roster.includes(p.id) && c.roster.length < c.size * 2) c.roster.push(p.id);
     saveCfg(); self();
   } });
-  set(f, 5 * COLS + 5, hdr(1, "r") + "§c§lClear\n§r§7Nobody chosen", "textures/ui/shop/ic_cancel", { run: () => { c.roster = []; saveCfg(); self(); } });
+  set(f, 5 * COLS + 4, hdr(1, "c") + "§e§lAll teams random\n§r§7Keeps the players, forgets\n§r§7the BLUE / RED choices", "textures/items/slime_ball", { run: () => { c.team = {}; saveCfg(); self(); } });
+  set(f, 5 * COLS + 5, hdr(1, "r") + "§c§lClear\n§r§7Nobody chosen", "textures/ui/shop/ic_cancel", { run: () => { c.roster = []; c.team = {}; saveCfg(); self(); } });
   if (all.length > (page + 1) * per) set(f, 5 * COLS + 8, hdr(1) + "Next page", "textures/ui/shop/nav_next", { run: () => rosterPage(player, back, page + 1) });
   if (page > 0) set(f, 5 * COLS + 0, hdr(1) + "Previous page", "textures/ui/shop/nav_prev", { run: () => rosterPage(player, back, page - 1) });
   backBtn(f, back);

@@ -45,6 +45,7 @@ export const LISTS = {
   shards: { label: "Shards", title: "SHARDS LEADERBOARD", sub: "Top 10 Shard Holders", foot: "Shiny!", get: (r) => r.shards, fmt: (v) => "§d" + num(v) + " shards" },
   skills: { label: "Skills", title: "SKILLS LEADERBOARD", sub: "Top 10 Skill Masters", foot: "Practice makes perfect!", get: (r) => skillTotal(r.id), fmt: (v) => "§bTotal Lv " + num(v) },
   tntrun: { label: "TNT Run", title: "TNT RUN LEADERBOARD", sub: "Top 10 TNT Run Winners", foot: "Don't stop running!", get: (r) => r.tw, fmt: (v) => "§f" + num(v) + " wins" },   // not in TOP_KEYS (no daily reward): only the board in the TNT Run arena + /tntrun
+  spleef: { label: "Spleef", title: "SPLEEF LEADERBOARD", sub: "Top 10 Spleef Winners", foot: "Dig fast, stay on top!", get: (r) => r.spw, fmt: (v) => "§f" + num(v) + " wins" },   // not in TOP_KEYS: only the board in the arena + /spleef
   squid: { label: "Red Light", title: "RED LIGHT, GREEN LIGHT", sub: "Top 10 Winners", foot: "Don't move!", get: (r) => r.sw, fmt: (v) => "§f" + num(v) + " wins" },   // not in TOP_KEYS: only the board in the arena + /redlight
   dropper: { label: "Dropper", title: "DROPPER LEADERBOARD", sub: "Top 10 Dropper Winners", foot: "Mind the gap!", get: (r) => r.dr, fmt: (v) => "§f" + num(v) + " wins" },   // not in TOP_KEYS: only the board at the tower + /dropper
   pillars: { label: "Pillars", title: "PILLARS OF FORTUNE", sub: "Top 10 Winners", foot: "Last one standing!", get: (r) => r.pw, fmt: (v) => "§f" + num(v) + " wins" },   // not in TOP_KEYS: only /pillars

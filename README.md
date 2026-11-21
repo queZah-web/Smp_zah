@@ -345,3 +345,18 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
   rank taken away = the statue disappears. It can't be hit, pushed or moved and comes back if removed by a command.
 - Owner: place one statue where you stand (looking at you), place ALL ranked players in a row, go to / remove a statue,
   remove all. Bedrock can't give an add-on a player's real skin, so the statue wears the rank outfit.
+
+## Spleef (event) - /opr > Building / Events > Spleef (Owner), /spleef (everybody) - `systems/spleef.js`, `spleefdesign.js`
+- Arena 65 x 65: a round snow floor (41 across) over a deep pit with a lava lake, deepslate + ice walls 4 blocks above
+  the snow, 6 rows of spruce seats, a walkway with soul lanterns, a back wall with ice windows, snowy pines.
+- Owner: players (2 - 24), prize, "the floor melts" after 2 / 3 / 5 min (the snow shrinks ring by ring) or OFF.
+- Game: the floor is made new, players in a circle, Adventure mode + the SPLEEF SHOVEL (diamond, Efficiency V, can
+  break ONLY snow), 10 s countdown (no digging), DIG! Snow breaks instantly with no drops.
+- Out at once: falling below the floor, leaving the arena (over the wall), leaving the game. Out players go to the
+  seats and can't come back. No other items (pearls, food, blocks), no placing, no flying, no PvP damage / knockback,
+  fire resistance (the lava never hurts). Last one on the floor wins: prize, fireworks, wins / losses saved,
+  SPLEEF leaderboard in the arena.
+
+## Football: 11 vs 11 + the Owner picks the teams
+- Team size now 1 - 11. In "Choose the players" a click cycles: chosen (random team) -> BLUE -> RED -> not chosen.
+  The players put in a team stay there (max the team size); the others are spread at random to keep the teams even.

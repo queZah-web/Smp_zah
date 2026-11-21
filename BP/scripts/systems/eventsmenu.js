@@ -5,7 +5,7 @@ import { makeOpr as make, set, open, hdr, COLS, NAV, SHORT_ROWS, backBtn, status
 import { showModal, textField, dropdown, confirmOpr as confirm } from "./forms.js";
 import { knownPlayers } from "../data.js";
 import { allow, isOwner } from "./staffcore.js";
-import { stadiumHook, tntHook, squidHook, dropperHook, pillarsHook, pillars1Hook, colorHook } from "./spawnbuild.js";
+import { stadiumHook, tntHook, squidHook, dropperHook, pillarsHook, pillars1Hook, colorHook, spleefHook } from "./spawnbuild.js";
 import { isStaff } from "./opcore.js";
 import { oprMsg, OprForm } from "./oprlang.js";
 import {
@@ -71,6 +71,7 @@ export function hubButtons(f, player, self) {
   if (isOwner(player)) set(f, 3 * COLS + 1, hdr(1, "g") + "§6§lPillars\n§r§7Pillars of Fortune: random items,\n§r§7last one standing on the pillars\n§r§eClick to open", "textures/items/gold_ingot", { run: () => { try { pillarsHook.page(player, self); } catch (e) { say(player, "§c[Pillars] " + e); } } });
   if (isOwner(player)) set(f, 3 * COLS + 8, hdr(1, "g") + "§e§lPillars 1x1\n§r§7Pillars of Fortune on pillars\n§r§7of ONE block (hard)\n§r§eClick to open", "textures/items/gold_nugget", { run: () => { try { pillars1Hook.page(player, self); } catch (e) { say(player, "§c[Pillars 1x1] " + e); } } });
   if (isOwner(player)) set(f, 3 * COLS + 0, hdr(1, "g") + "§d§lColor Rush\n§r§7A colour is called: run onto it,\n§r§7the rest of the floor vanishes\n§r§eClick to open", "textures/blocks/wool_colored_magenta", { run: () => { try { colorHook.page(player, self); } catch (e) { say(player, "§c[Color Rush] " + e); } } });
+  if (isOwner(player)) set(f, 3 * COLS + 6, hdr(1, "g") + "§b§lSpleef\n§r§7Dig the snow under the others with\n§r§7a shovel - the last one up wins\n§r§eClick to open", "textures/items/diamond_shovel", { run: () => { try { spleefHook.page(player, self); } catch (e) { console.warn("[events] spleef: " + e); } } });
   set(f, 3 * COLS + 4, hdr(1) + "§7§lGood to know\n§r§7Operators and duel players are never\n§r§7touched by the rules.\n§r§7Stopping an event restores the time,\n§r§7the weather and the game modes.\n§r§7Stop-the-death rules: " + (beforeHurtOk() ? "§aavailable" : "§cnot available here"), ICON.paper, null);
 }
 
