@@ -1,0 +1,37 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "SMP Ender View",
+    "description": "Helper of the SMP pack: lets admins see / take / clear a player's ender chest (/opr). Needs the SMP pack. - @Zahraiiq",
+    "uuid": "157a55f3-76e0-463b-a04e-4d4621ee9ec1",
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      21,
+      90
+    ]
+  },
+  "modules": [
+    {
+      "type": "script",
+      "language": "javascript",
+      "uuid": "fe3f2712-0731-44ca-b05d-0ba0b71363e3",
+      "entry": "scripts/main.js",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "module_name": "@minecraft/server",
+      "version": "2.8.0"
+    }
+  ]
+}

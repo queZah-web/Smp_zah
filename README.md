@@ -252,3 +252,12 @@ under 1 s), how the other blocks vanish (at once / in waves 0.5 s / 1 s), prize.
   /mining (30 min / 1 h / 6 h): Timber 899 / 1,699 / 8,999, Timber x2 1,798 / 3,398 / 17,998, Area 3x3 1,999 / 3,799 / 19,999,
   Area 5x5 3,499 / 6,499 / 34,999, Chest Sell 1,499 / 2,799 / 14,999, Auto-Smelt 2,499 (30 min).
   Prices an admin had set in the game stay as they were (Set prices > reset = the new prices).
+
+## Ender chest of a player (Admin / Owner) - /opr > Players > a player > Inventory > Ender chest
+See his ender chest (icons, amounts, names, enchantments, durability), take an item (all / half / 1: the REAL item goes into
+your inventory) or clear the whole ender chest (cheaters). Online players only; an operator's: Owner only; staff log.
+The SMP pack uses script API 2.0.0, which can't read ender chests (that came in 2.8.0), so the small helper pack
+**SMP Ender View** (`enderview/`, script API 2.8.0) does the reading / moving (script events `smp:ec` / `smp:ec_r`).
+It is inside the .mcaddon: turn it on in the world's behavior packs (under the SMP pack). Without it the page says so and
+"Clear" still works with the game's `replaceitem ... slot.enderchest` command.
+Code: `systems/enderchest.js` (page), `enderview/scripts/main.js` (helper).

@@ -43,6 +43,7 @@ import { activeCount as eventsRunning } from "./events.js";
 import { buildingPage } from "./spawnbuild.js";
 import { fastHealOn, setFastHeal } from "./fastheal.js";
 import { itemTimerOn, setItemTimer } from "./itemtimer.js";
+import { enderPage, isAdminRole } from "./enderchest.js";
 
 const SYM = OPMENU.symbol;
 const ICON = {
@@ -698,7 +699,8 @@ function inventoryPage(player, id, name, back) {
     [[1, E.Head], [2, E.Chest], [3, E.Legs], [4, E.Feet], [6, E.Offhand]].forEach(([col, slot]) => cell(5 * COLS + col, eq.getEquipment(slot)));
     set(f, 5 * COLS + 0, hdr(1) + "§e§lArmor + off-hand\n§r§7Helmet, chestplate, leggings,\n§r§7boots | off-hand", NAV.shield, null);
   } catch (e) { /* ignore */ }
-  set(f, 7 * COLS + 4, hdr(1) + "§5§lEnder chest\n§r§7Bedrock scripts can't read an\n§r§7ender chest (game limit)", ICON.ender, null);
+  if (isAdminRole(player)) set(f, 7 * COLS + 4, hdr(1, "g") + "§5§lEnder chest\n§r§7See his ender chest, take items\n§r§7or clear it (cheaters)\n§r§8Admin / Owner only\n§r§eClick to open", ICON.ender, { run: () => enderPage(player, id, name, f.self) });
+  else set(f, 7 * COLS + 4, hdr(1, "r") + "§5§lEnder chest\n§r§7Admin / Owner only", ICON.ender, null);
   backBtn(f, back); status(player, f);
   open(player, f);
 }
@@ -784,6 +786,7 @@ function invAdminPage(player, id, name, back) {
   } catch (e) { say(player, "§c[Operator] Could not read the inventory."); }
   set(f, 5 * COLS + 0, hdr(1) + "§e§lArmor + off-hand\n§r§7Helmet, chestplate, leggings,\n§r§7boots | off-hand", NAV.shield, null);
   [["Head", 1], ["Chest", 2], ["Legs", 3], ["Feet", 4], ["Offhand", 6]].forEach(([nm, col]) => cell(5 * COLS + col, { k: "e", e: EquipmentSlot[nm] }, EQ_NAME[nm]));
+  if (isAdminRole(player)) set(f, 7 * COLS + 7, hdr(1, "g") + "§5§lEnder chest\n§r§7See it, take items, clear it\n§r§8Admin / Owner only\n§r§eClick to open", ICON.ender, { run: () => enderPage(player, id, name, self) });
   let lvl = 0; try { lvl = t.level; } catch (e) { /* ignore */ }
   const nStacks = (() => { let n = 0; for (const sp of allSpecs(t)) { try { if (readSpec(t, sp)) n++; } catch (e) { /* ignore */ } } return n; })();
   if (canTake) {
@@ -799,7 +802,7 @@ function invAdminPage(player, id, name, back) {
   } else {
     set(f, 7 * COLS + 3, hdr(1, "r") + "§7§lTaking is locked\n§r§7" + (block ? block : lockText("takeitem", player)), ICON.barrier, { run: () => { if (!block) allow(player, "takeitem"); } });
   }
-  set(f, 7 * COLS + 7, hdr(1) + "§5§lEnder chest\n§r§7Bedrock scripts can't read an\n§r§7ender chest (game limit)", ICON.ender, null);
+  if (!isAdminRole(player)) set(f, 7 * COLS + 7, hdr(1, "r") + "§5§lEnder chest\n§r§7Admin / Owner only", ICON.ender, null);
   backBtn(f, back); status(player, f);
   open(player, f);
 }
