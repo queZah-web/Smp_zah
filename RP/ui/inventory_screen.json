@@ -1,1 +1,154 @@
-{"inventory_panel_bottom_half":{"type":"panel","size":["100%","50%"],"anchor_from":"left_middle","anchor_to":"top_left","controls":[{"grid@qo36d10I_ff5f_4d2f_87z8_ce49f7fgbla.975f29e7_c44b_495e_9a57_2ebbcffa634b":{"anchor_from":"bottom_middle","anchor_to":"bottom_middle","offset":[0,-26]}}]},"player_inventory":{"layer":4,"modifications":[{"control_name":"hotbar_grid","operation":"replace","value":{"hotbar_grid@chest.hotbar_grid_template":{"$0a26c741_885a_4580_bac9_6e688f9edbaf":"common.grid_item_for_hotbar","$button_ref":"crafting.inventory_container_slot_button","$background_images":"crafting.container_cell_images","layer":2}}},{"control_name":"inventory_panel_bottom_half","operation":"replace","value":[{"inventory_panel_bottom_half@crafting.inventory_panel_bottom_half":{"$0a26c741_885a_4580_bac9_6e688f9edbaf":"common.grid_item_for_inventory","$button_ref":"crafting.inventory_container_slot_button","$background_images":"crafting.container_cell_images","layer":2}}]}]},"recipe_inventory_screen_content":{"$39360c8f_993c_4d41_a6fd_2224f8975fdf":true,"$5a522d1f_c94b_40d9_b0e3_cf7bb8f55bb9":true,"$c9523a09_41e4_43ec_966b_1e9c78ac771b":"qo36d10l_ff5f_4d2f_87z8_ce49f7fgbla.261546e9_870e_4171_920a_8ad4c26d66be","modifications":[{"array_name":"controls","operation":"insert_back","value":[{"d1fef717_f279_49e6_b114_430a550563ca@qo36d10I_ff5f_4d2f_87z8_ce49f7fgbla.78bd9fed_4a76_43f2_92c5_f9e927a7dab5":{"$390edd8f_3b70_4b3c_afab_437075ec77e0":"75b0e802_c3d7_4b02_81bc_bbff3200e5be","$07c37bbf_c627_4145_ae57_c12cc33e6085":"6ece2f30_7707_4201_902b_57b999975ac3","$4745c052_ebdd_450e_b118_5da6a593d4c5":"329c466c_36d9_4bf9_a4b1_074ffb09b0da","$71715adb_8554_4564_ae00_568c08cbbf90":"76342282_d055_4606_9624_2fcd95783442","$c5a3a4cf_78d4_499d_90b1_a108bd2ae90f":"#643fd101_f65f_4c2f_8778_ce49427ffbca"}}]}]}}
+{
+ "inventory_panel_bottom_half": {
+  "type": "panel",
+  "size": [
+   "100%",
+   "50%"
+  ],
+  "anchor_from": "left_middle",
+  "anchor_to": "top_left",
+  "controls": [
+   {
+    "grid@qo36d10I_ff5f_4d2f_87z8_ce49f7fgbla.975f29e7_c44b_495e_9a57_2ebbcffa634b": {
+     "anchor_from": "bottom_middle",
+     "anchor_to": "bottom_middle",
+     "offset": [
+      0,
+      -26
+     ]
+    }
+   }
+  ]
+ },
+ "player_inventory": {
+  "layer": 4,
+  "modifications": [
+   {
+    "control_name": "hotbar_grid",
+    "operation": "replace",
+    "value": {
+     "hotbar_grid@chest.hotbar_grid_template": {
+      "$0a26c741_885a_4580_bac9_6e688f9edbaf": "common.grid_item_for_hotbar",
+      "$button_ref": "crafting.inventory_container_slot_button",
+      "$background_images": "crafting.container_cell_images",
+      "layer": 2
+     }
+    }
+   },
+   {
+    "control_name": "inventory_panel_bottom_half",
+    "operation": "replace",
+    "value": [
+     {
+      "inventory_panel_bottom_half@crafting.inventory_panel_bottom_half": {
+       "$0a26c741_885a_4580_bac9_6e688f9edbaf": "common.grid_item_for_inventory",
+       "$button_ref": "crafting.inventory_container_slot_button",
+       "$background_images": "crafting.container_cell_images",
+       "layer": 2
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "recipe_inventory_screen_content": {
+  "$39360c8f_993c_4d41_a6fd_2224f8975fdf": true,
+  "$5a522d1f_c94b_40d9_b0e3_cf7bb8f55bb9": true,
+  "$c9523a09_41e4_43ec_966b_1e9c78ac771b": "qo36d10l_ff5f_4d2f_87z8_ce49f7fgbla.261546e9_870e_4171_920a_8ad4c26d66be",
+  "modifications": [
+   {
+    "array_name": "controls",
+    "operation": "insert_back",
+    "value": [
+     {
+      "d1fef717_f279_49e6_b114_430a550563ca@qo36d10I_ff5f_4d2f_87z8_ce49f7fgbla.78bd9fed_4a76_43f2_92c5_f9e927a7dab5": {
+       "$390edd8f_3b70_4b3c_afab_437075ec77e0": "75b0e802_c3d7_4b02_81bc_bbff3200e5be",
+       "$07c37bbf_c627_4145_ae57_c12cc33e6085": "6ece2f30_7707_4201_902b_57b999975ac3",
+       "$4745c052_ebdd_450e_b118_5da6a593d4c5": "329c466c_36d9_4bf9_a4b1_074ffb09b0da",
+       "$71715adb_8554_4564_ae00_568c08cbbf90": "76342282_d055_4606_9624_2fcd95783442",
+       "$c5a3a4cf_78d4_499d_90b1_a108bd2ae90f": "#643fd101_f65f_4c2f_8778_ce49427ffbca"
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "namespace": "crafting",
+ "Fast_craft_icon": {
+  "type": "image",
+  "size": [
+   16,
+   16
+  ],
+  "texture": "textures/ui/Fast_craft"
+ },
+ "bt_Fast_craft_button@common_buttons.light_content_button": {
+  "size": [
+   18,
+   18
+  ],
+  "offset": [
+   1,
+   2
+  ],
+  "anchor_from": "bottom_right",
+  "anchor_to": "bottom_right"
+ },
+ "Fast_craft_button@crafting.bt_Fast_craft_button": {
+  "$button_content": "crafting.Fast_craft_icon",
+  "property_bag": {
+   "#collection_name": "crafting_output_items",
+   "#collection_index": 0
+  },
+  "button_mappings": [
+   {
+    "from_button_id": "button.menu_select",
+    "to_button_id": "button.crafting_output_tertiary",
+    "mapping_type": "pressed"
+   }
+  ]
+ },
+ "crafting_arrow": {
+  "controls": [
+   {
+    "Fast_craft_button@crafting.Fast_craft_button": {}
+   }
+  ]
+ },
+ "crafting_arrow_large": {
+  "controls": [
+   {
+    "Fast_craft_button@crafting.Fast_craft_button": {
+     "size": [
+      22,
+      22
+     ],
+     "offset": [
+      2,
+      4
+     ]
+    }
+   }
+  ]
+ },
+ "no_coalesce_container_slot_button": {
+  "$is_output|default": false,
+  "modifications": [
+   {
+    "array_name": "button_mappings",
+    "operation": "insert_front",
+    "value": [
+     {
+      "ignored": "$is_output",
+      "from_button_id": "button.menu_select",
+      "to_button_id": "$button_auto_place",
+      "mapping_type": "double_pressed"
+     }
+    ]
+   }
+  ]
+ },
+ "output_no_coalesce_container_slot_button": {
+  "$is_output": true
+ }
+}

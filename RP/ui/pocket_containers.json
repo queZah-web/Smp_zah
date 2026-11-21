@@ -1,1 +1,187 @@
-{"panel/container":{"$35fe415e_8ca4_481c_8f8c_6cb153740e88":"textures/ui/inventory_organizer/icon/transfer_right","$320b78e5_206c_49fa_8b0b_7a99dca1eeea":"textures/ui/inventory_organizer/icon/dynamic_transfer_right","$9b72af88_8e72_4af2_bc8d_6bd0111778ea":"textures/ui/inventory_organizer/icon/refill_right","$0c1d772d_1c15_41c6_a13a_8cbbf25ef859":"top_right","$416bcbba_1466_4a46_98e8_abfb5476b14c":"top_left","$a9dd5e89_75d3_4d57_9cfc_598934a5ae31":[1,0],"$1bafe10c_4cbd_42d3_8bea_fbbc523a5984":"#345d2ca1_6e3d_4614_98d1_011f5dba376f","$0b720721_9fa4_4a26_b209_6cf033cafb7f":"#da5ad385_1fb2_46c0_9efa_3af1ddfc3ffc"},"panel/inventory":{"$35fe415e_8ca4_481c_8f8c_6cb153740e88":"textures/ui/inventory_organizer/icon/transfer_left","$320b78e5_206c_49fa_8b0b_7a99dca1eeea":"textures/ui/inventory_organizer/icon/dynamic_transfer_left","$9b72af88_8e72_4af2_bc8d_6bd0111778ea":"textures/ui/inventory_organizer/icon/refill_left","$0c1d772d_1c15_41c6_a13a_8cbbf25ef859":"top_left","$416bcbba_1466_4a46_98e8_abfb5476b14c":"top_right","$a9dd5e89_75d3_4d57_9cfc_598934a5ae31":[-1,0],"$75a46f57_ae04_42fc_8b90_03d0eed9b485":"fdf82614_92b9_456c_ba14_0b1ea4c1fbd8","$1bafe10c_4cbd_42d3_8bea_fbbc523a5984":"#da5ad385_1fb2_46c0_9efa_3af1ddfc3ffc","$0b720721_9fa4_4a26_b209_6cf033cafb7f":"#345d2ca1_6e3d_4614_98d1_011f5dba376f"},"inventory_panel":{"$item_collection_name":"$pane_collection","modifications":[{"array_name":"controls","operation":"insert_front","value":[{"b5e7e557_e9fd_4379_8015_aae57e998bd1@qo36d10I_ff5f_4d2f_87z8_ce49f7fgbla.8b721f91_1586_46dd_a3cf_dbf167a0618d":{"$52fe24ed_7a33_424a_bd20_7b0d3d4bacc2":"qo36d10l_ff5f_4d2f_87z8_ce49f7fgbla.34bd3eaa_6dd6_4a3d_8ecf_9b0e2e9a234d","layer":7}},{"abd513ba_9792_45e0_81bc_d0f1d79ee1d9@qo36d10l_ff5f_4d2f_87z8_ce49f7fgbla.5c44fad0_ba73_47dd_b36a_51654057d5bc":{"anchor_from":"$0c1d772d_1c15_41c6_a13a_8cbbf25ef859","anchor_to":"$416bcbba_1466_4a46_98e8_abfb5476b14c","offset":"$a9dd5e89_75d3_4d57_9cfc_598934a5ae31","layer":1}}]}]},"panel":{"$5a522d1f_c94b_40d9_b0e3_cf7bb8f55bb9":true,"$5d1b0132_33c8_4731_a3cd_4a079861b6d7":true,"$e5ca9eb2_98ff_4852_a824_221d80c1bebc":true,"$00a9c7e2_a351_4830_9bca_a041224df941":false,"modifications":[{"array_name":"controls","operation":"insert_back","value":[{"0e972530_ec2b_42b4_b4ce_ccc4f1da4970@qo36d10I_ff5f_4d2f_87z8_ce49f7fgbla.78bd9fed_4a76_43f2_92c5_f9e927a7dab5":{"$390edd8f_3b70_4b3c_afab_437075ec77e0":"f7416a32_4385_42fc_96ce_089f0d5c5375","$07c37bbf_c627_4145_ae57_c12cc33e6085":"0df17f74_55d4_4bb6_a778_810f352f58c9","$4745c052_ebdd_450e_b118_5da6a593d4c5":"87d017c9_51fc_46d1_b274_2405a394a3c9","$71715adb_8554_4564_ae00_568c08cbbf90":"be7b84da_931f_46ad_b105_63a77110a5bf","$c5a3a4cf_78d4_499d_90b1_a108bd2ae90f":"#7585c937_4542_446d_add5_69228a0f40d4"}},{"d1fef717_f279_49e6_b114_430a550563ca@qo36d10I_ff5f_4d2f_87z8_ce49f7fgbla.78bd9fed_4a76_43f2_92c5_f9e927a7dab5":{"$390edd8f_3b70_4b3c_afab_437075ec77e0":"75b0e802_c3d7_4b02_81bc_bbff3200e5be","$07c37bbf_c627_4145_ae57_c12cc33e6085":"6ece2f30_7707_4201_902b_57b999975ac3","$4745c052_ebdd_450e_b118_5da6a593d4c5":"329c466c_36d9_4bf9_a4b1_074ffb09b0da","$71715adb_8554_4564_ae00_568c08cbbf90":"76342282_d055_4606_9624_2fcd95783442","$c5a3a4cf_78d4_499d_90b1_a108bd2ae90f":"#643fd101_f65f_4c2f_8778_ce49427ffbca"}}]}]},"small_chest_panel":{"$75a46f57_ae04_42fc_8b90_03d0eed9b485":"ee745063_ced2_4d0a_8000_47499a6af195"},"large_chest_panel":{"$75a46f57_ae04_42fc_8b90_03d0eed9b485":"1e24280a_b02e_4399_ad20_5bb7c3c3d070"},"hopper_panel":{"$75a46f57_ae04_42fc_8b90_03d0eed9b485":"aca74c9e_4141_4ca2_bac8_7eabb7431385"},"dispenser_panel":{"$75a46f57_ae04_42fc_8b90_03d0eed9b485":"b7c94c41_e6d5_4490_87ce_5176659e48b3"},"dropper_panel":{"$75a46f57_ae04_42fc_8b90_03d0eed9b485":"b7c94c41_e6d5_4490_87ce_5176659e48b3"},"ender_chest_panel":{"$75a46f57_ae04_42fc_8b90_03d0eed9b485":"ee745063_ced2_4d0a_8000_47499a6af195"}}
+{
+ "panel/container": {
+  "$35fe415e_8ca4_481c_8f8c_6cb153740e88": "textures/ui/inventory_organizer/icon/transfer_right",
+  "$320b78e5_206c_49fa_8b0b_7a99dca1eeea": "textures/ui/inventory_organizer/icon/dynamic_transfer_right",
+  "$9b72af88_8e72_4af2_bc8d_6bd0111778ea": "textures/ui/inventory_organizer/icon/refill_right",
+  "$0c1d772d_1c15_41c6_a13a_8cbbf25ef859": "top_right",
+  "$416bcbba_1466_4a46_98e8_abfb5476b14c": "top_left",
+  "$a9dd5e89_75d3_4d57_9cfc_598934a5ae31": [
+   1,
+   0
+  ],
+  "$1bafe10c_4cbd_42d3_8bea_fbbc523a5984": "#345d2ca1_6e3d_4614_98d1_011f5dba376f",
+  "$0b720721_9fa4_4a26_b209_6cf033cafb7f": "#da5ad385_1fb2_46c0_9efa_3af1ddfc3ffc"
+ },
+ "panel/inventory": {
+  "$35fe415e_8ca4_481c_8f8c_6cb153740e88": "textures/ui/inventory_organizer/icon/transfer_left",
+  "$320b78e5_206c_49fa_8b0b_7a99dca1eeea": "textures/ui/inventory_organizer/icon/dynamic_transfer_left",
+  "$9b72af88_8e72_4af2_bc8d_6bd0111778ea": "textures/ui/inventory_organizer/icon/refill_left",
+  "$0c1d772d_1c15_41c6_a13a_8cbbf25ef859": "top_left",
+  "$416bcbba_1466_4a46_98e8_abfb5476b14c": "top_right",
+  "$a9dd5e89_75d3_4d57_9cfc_598934a5ae31": [
+   -1,
+   0
+  ],
+  "$75a46f57_ae04_42fc_8b90_03d0eed9b485": "fdf82614_92b9_456c_ba14_0b1ea4c1fbd8",
+  "$1bafe10c_4cbd_42d3_8bea_fbbc523a5984": "#da5ad385_1fb2_46c0_9efa_3af1ddfc3ffc",
+  "$0b720721_9fa4_4a26_b209_6cf033cafb7f": "#345d2ca1_6e3d_4614_98d1_011f5dba376f",
+  "$is_inventory_half_screen": true
+ },
+ "inventory_panel": {
+  "$item_collection_name": "$pane_collection",
+  "modifications": [
+   {
+    "array_name": "controls",
+    "operation": "insert_front",
+    "value": [
+     {
+      "b5e7e557_e9fd_4379_8015_aae57e998bd1@qo36d10I_ff5f_4d2f_87z8_ce49f7fgbla.8b721f91_1586_46dd_a3cf_dbf167a0618d": {
+       "$52fe24ed_7a33_424a_bd20_7b0d3d4bacc2": "qo36d10l_ff5f_4d2f_87z8_ce49f7fgbla.34bd3eaa_6dd6_4a3d_8ecf_9b0e2e9a234d",
+       "layer": 7
+      }
+     },
+     {
+      "abd513ba_9792_45e0_81bc_d0f1d79ee1d9@qo36d10l_ff5f_4d2f_87z8_ce49f7fgbla.5c44fad0_ba73_47dd_b36a_51654057d5bc": {
+       "anchor_from": "$0c1d772d_1c15_41c6_a13a_8cbbf25ef859",
+       "anchor_to": "$416bcbba_1466_4a46_98e8_abfb5476b14c",
+       "offset": "$a9dd5e89_75d3_4d57_9cfc_598934a5ae31",
+       "layer": 1
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "panel": {
+  "$5a522d1f_c94b_40d9_b0e3_cf7bb8f55bb9": true,
+  "$5d1b0132_33c8_4731_a3cd_4a079861b6d7": true,
+  "$e5ca9eb2_98ff_4852_a824_221d80c1bebc": true,
+  "$00a9c7e2_a351_4830_9bca_a041224df941": false,
+  "modifications": [
+   {
+    "array_name": "controls",
+    "operation": "insert_back",
+    "value": [
+     {
+      "0e972530_ec2b_42b4_b4ce_ccc4f1da4970@qo36d10I_ff5f_4d2f_87z8_ce49f7fgbla.78bd9fed_4a76_43f2_92c5_f9e927a7dab5": {
+       "$390edd8f_3b70_4b3c_afab_437075ec77e0": "f7416a32_4385_42fc_96ce_089f0d5c5375",
+       "$07c37bbf_c627_4145_ae57_c12cc33e6085": "0df17f74_55d4_4bb6_a778_810f352f58c9",
+       "$4745c052_ebdd_450e_b118_5da6a593d4c5": "87d017c9_51fc_46d1_b274_2405a394a3c9",
+       "$71715adb_8554_4564_ae00_568c08cbbf90": "be7b84da_931f_46ad_b105_63a77110a5bf",
+       "$c5a3a4cf_78d4_499d_90b1_a108bd2ae90f": "#7585c937_4542_446d_add5_69228a0f40d4"
+      }
+     },
+     {
+      "d1fef717_f279_49e6_b114_430a550563ca@qo36d10I_ff5f_4d2f_87z8_ce49f7fgbla.78bd9fed_4a76_43f2_92c5_f9e927a7dab5": {
+       "$390edd8f_3b70_4b3c_afab_437075ec77e0": "75b0e802_c3d7_4b02_81bc_bbff3200e5be",
+       "$07c37bbf_c627_4145_ae57_c12cc33e6085": "6ece2f30_7707_4201_902b_57b999975ac3",
+       "$4745c052_ebdd_450e_b118_5da6a593d4c5": "329c466c_36d9_4bf9_a4b1_074ffb09b0da",
+       "$71715adb_8554_4564_ae00_568c08cbbf90": "76342282_d055_4606_9624_2fcd95783442",
+       "$c5a3a4cf_78d4_499d_90b1_a108bd2ae90f": "#643fd101_f65f_4c2f_8778_ce49427ffbca"
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "small_chest_panel": {
+  "$75a46f57_ae04_42fc_8b90_03d0eed9b485": "ee745063_ced2_4d0a_8000_47499a6af195"
+ },
+ "large_chest_panel": {
+  "$75a46f57_ae04_42fc_8b90_03d0eed9b485": "1e24280a_b02e_4399_ad20_5bb7c3c3d070"
+ },
+ "hopper_panel": {
+  "$75a46f57_ae04_42fc_8b90_03d0eed9b485": "aca74c9e_4141_4ca2_bac8_7eabb7431385"
+ },
+ "dispenser_panel": {
+  "$75a46f57_ae04_42fc_8b90_03d0eed9b485": "b7c94c41_e6d5_4490_87ce_5176659e48b3"
+ },
+ "dropper_panel": {
+  "$75a46f57_ae04_42fc_8b90_03d0eed9b485": "b7c94c41_e6d5_4490_87ce_5176659e48b3"
+ },
+ "ender_chest_panel": {
+  "$75a46f57_ae04_42fc_8b90_03d0eed9b485": "ee745063_ced2_4d0a_8000_47499a6af195"
+ },
+ "half_screen": {
+  "$fcql_is_container_screen": true,
+  "$is_inventory_half_screen|default": false,
+  "modifications": [
+   {
+    "array_name": "controls",
+    "operation": "insert_back",
+    "value": [
+     {
+      "fcql_pocket_ui_panel": {
+       "type": "panel",
+       "layer": 380,
+       "anchor_from": "bottom_middle",
+       "anchor_to": "bottom_middle",
+       "offset": [
+        0,
+        -11
+       ],
+       "size": [
+        130,
+        30
+       ],
+       "ignored": "(not $is_inventory_half_screen)",
+       "controls": [
+        {
+         "background": {
+          "type": "image",
+          "texture": "textures/ui/dialog_background_opaque",
+          "size": [
+           "100%",
+           "100%"
+          ]
+         }
+        },
+        {
+         "status_text@fcQL.status_text_panel": {
+          "anchor_from": "left_middle",
+          "anchor_to": "left_middle",
+          "offset": [
+           37,
+           0
+          ],
+          "layer": 381,
+          "size": [
+           "100%c - 56px",
+           16
+          ]
+         }
+        },
+        {
+         "toggle_holder": {
+          "type": "panel",
+          "anchor_from": "right_middle",
+          "anchor_to": "right_middle",
+          "offset": [
+           -12,
+           0
+          ],
+          "layer": 382,
+          "size": [
+           24,
+           24
+          ],
+          "controls": [
+           {
+            "quick_loot_toggle@fcQL.toggle_button": {
+             "size": [
+              24,
+              24
+             ]
+            }
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    ]
+   }
+  ]
+ }
+}

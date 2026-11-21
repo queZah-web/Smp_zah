@@ -1,9 +1,10 @@
 {
-  "ui_defs": [
-    "ui/server_form.json",
-    "ui/hud_screen.json",
-    "ui/smp_hud.json",
-    "ui/ffb7817f_2714_4b4a_a718_c636d9101256.json",
-    "ui/2799bfed_41be_4990_b9fe_1311730ff738.json"
-  ]
+ "ui_defs": [
+  "ui/server_form.json",
+  "ui/hud_screen.json",
+  "ui/smp_hud.json",
+  "ui/ffb7817f_2714_4b4a_a718_c636d9101256.json",
+  "ui/2799bfed_41be_4990_b9fe_1311730ff738.json",
+  "ui/fc_quick_loot.json"
+ ]
 }

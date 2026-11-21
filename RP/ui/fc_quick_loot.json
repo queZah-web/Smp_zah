@@ -1,0 +1,190 @@
+{
+  "namespace": "fcQL",
+  "common.container_slot_button_prototype": {
+    "modifications": [
+      {
+        "array_name": "button_mappings",
+        "operation": "insert_front",
+        "value": [
+          {
+            "ignored": "(not fcql_mode#toggle_state)",
+            "from_button_id": "button.menu_select",
+            "to_button_id": "button.container_auto_place",
+            "mapping_type": "pressed"
+          },
+          {
+            "ignored": "(not fcql_mode#toggle_state)",
+            "from_button_id": "button.menu_ok",
+            "to_button_id": "button.container_auto_place",
+            "mapping_type": "pressed"
+          }
+        ]
+      }
+    ]
+  },
+  "toggle_button@common_toggles.switch_toggle": {
+    "$toggle_name": "fcql_toggle",
+    "$toggle_view_binding_name": "fcql_mode",
+    "$toggle_default_state": false,
+    "size": [24, 24],
+    "$use_button_background": false,
+    "$use_glyph_button_background": false,
+    "$show_focus_highlight": false,
+    "$border_visible": false,
+    "$default_border_visible": false,
+    "$hover_border_visible": false,
+    "$frame_control": "fcQL.toggle_frame_transparent",
+    "$focus_control": "fcQL.toggle_frame_transparent",
+    "$track_control": "fcQL.toggle_track_transparent",
+    "$track_hover_control": "fcQL.toggle_track_transparent_hover",
+    "$thumb_control": "fcQL.toggle_unchecked",
+    "$checked_thumb_control": "fcQL.toggle_checked",
+    "$unchecked_thumb_control": "fcQL.toggle_unchecked",
+    "$thumb_hover_control": "fcQL.toggle_unchecked_hover",
+    "$checked_thumb_hover_control": "fcQL.toggle_checked_hover",
+    "$unchecked_thumb_hover_control": "fcQL.toggle_unchecked_hover"
+  },
+  "toggle_unchecked": {
+    "type": "image",
+    "texture": "textures/ui/Fast_craft",
+    "size": [24, 24],
+    "uv": [2, 2],
+    "uv_size": [20, 20]
+  },
+  "toggle_checked": {
+    "type": "image",
+    "texture": "textures/ui/Fast_craft",
+    "size": [24, 24],
+    "uv": [2, 2],
+    "uv_size": [20, 20]
+  },
+  "toggle_unchecked_hover": {
+    "type": "image",
+    "texture": "textures/ui/Fast_craft",
+    "size": [24, 24],
+    "uv": [2, 2],
+    "uv_size": [20, 20]
+  },
+  "toggle_checked_hover": {
+    "type": "image",
+    "texture": "textures/ui/Fast_craft",
+    "size": [24, 24],
+    "uv": [2, 2],
+    "uv_size": [20, 20]
+  },
+  "toggle_track_transparent": {
+    "type": "image",
+    "size": [24, 24],
+    "alpha": 0
+  },
+  "toggle_track_transparent_hover": {
+    "type": "image",
+    "size": [24, 24],
+    "alpha": 0
+  },
+  "toggle_frame_transparent": {
+    "type": "image",
+    "size": [24, 24],
+    "alpha": 0
+  },
+  "toggle_panel": {
+    "type": "panel",
+    "layer": 200,
+    "ignored": "(not $fcql_inline_enabled|default:false)",
+    "anchor_from": "left_middle",
+    "anchor_to": "left_middle",
+    "size": [24, 24],
+    "controls": [
+      {
+        "quick_loot_toggle@fcQL.toggle_button": {
+          "size": [ 24, 24 ]
+        }
+      }
+    ]
+  },
+
+  "floating_toggle_panel": {
+    "type": "panel",
+    "$floating_layer|default": 400,
+    "$floating_anchor_from|default": "bottom_left",
+    "$floating_anchor_to|default": "bottom_left",
+    "$offset|default": [ 0, 0 ],
+    "layer": "$floating_layer",
+    "anchor_from": "$floating_anchor_from",
+    "anchor_to": "$floating_anchor_to",
+    "offset": "$offset",
+    "size": [ 24, 24 ],
+    "controls": [
+      {
+        "quick_loot_toggle@fcQL.toggle_button": {
+          "size": [ 24, 24 ]
+        }
+      }
+    ]
+  },
+
+  "status_text_panel": {
+    "type": "panel",
+    "layer": 400,
+    "anchor_from": "top_middle",
+    "anchor_to": "top_middle",
+    "offset": [0, 10],
+    "size": [100, 10],
+    "controls": [
+      {
+        "status_on": {
+          "type": "label",
+          "text": "Fast Loot: On",
+          "color": [0, 1, 0],
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "fcql_mode",
+              "source_property_name": "#toggle_state",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "status_off": {
+          "type": "label",
+          "text": "Fast Loot: Off",
+          "color": [0.5, 0.5, 0.5],
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "fcql_mode",
+              "source_property_name": "(not #toggle_state)",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "fast_loot_csbp@common.container_slot_button_prototype": {
+    "layer": 5,
+    "tts_ignore_count": true,
+    "tts_inherit_siblings": true,
+    "button_mappings": [
+      { "from_button_id": "button.menu_select", "mapping_type": "pressed", "to_button_id": "button.container_auto_place" },
+      { "from_button_id": "button.menu_ok", "mapping_type": "pressed", "to_button_id": "button.container_auto_place" }
+    ]
+  },
+  "fast_loot_variant": {
+    "type": "panel",
+    "visible": false,
+    "controls": [
+      { "fast_loot_button@fcQL.fast_loot_csbp": {} }
+    ],
+    "bindings": [
+      {
+        "binding_type": "view",
+        "source_control_name": "fcql_mode",
+        "source_property_name": "#toggle_state",
+        "target_property_name": "#visible"
+      }
+    ]
+  }
+}

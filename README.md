@@ -261,3 +261,10 @@ The SMP pack uses script API 2.0.0, which can't read ender chests (that came in 
 It is inside the .mcaddon: turn it on in the world's behavior packs (under the SMP pack). Without it the page says so and
 "Clear" still works with the game's `replaceitem ... slot.enderchest` command.
 Code: `systems/enderchest.js` (page), `enderview/scripts/main.js` (helper).
+
+## Fast Craft & Fast Loot (merged into the resource pack)
+From "Fast craft & Fast loot v3.1" (UT_MODS): a Fast Craft button next to the crafting arrow (crafting table, inventory,
+stonecutter; pocket UI too), double-click to send an item / quick trade at villagers, and a Quick Loot switch on chests
+(click = the whole stack moves). Its UI files were joined with the SMP UI files (chest_screen, inventory_screen, pocket_containers,
+ui_common, _global_variables: both changes kept), new: ui/fc_quick_loot.json, trade_2_screen(_pocket), stonecutter_screen(_pocket),
+inventory_screen_pocket, textures/ui/Fast_craft.png + arrow_large.png. Credits: RP/CREDITS_Fast_Craft_Quick_Loot.txt.

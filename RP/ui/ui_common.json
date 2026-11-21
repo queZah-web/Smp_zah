@@ -1,1 +1,29 @@
-{"container_item":{"$5a522d1f_c94b_40d9_b0e3_cf7bb8f55bb9|default":false,"modifications":[{"control_name":"item_button_ref","operation":"insert_after","value":{"79ed6ff9_3a7d_471e_86d2_bc280db74328@qo36d10l_ff5f_4d2f_87z8_ce49f7fgbla.79ed6ff9_3a7d_471e_86d2_bc280db74328":{}}}]},"base_screen":{"$bd2fa36b_6de0_4f07_ada4_f18f3df5073b":"#is_selected_slot","$614ff79e_0ccd_42b1_97f2_f63574bce1b8":"#item_id_aux","$b15753b6_1fd8_440c_b6ba_f0e71c9d7d03":"#inventory_selected_item"}}
+{
+ "container_item": {
+  "$5a522d1f_c94b_40d9_b0e3_cf7bb8f55bb9|default": false,
+  "modifications": [
+   {
+    "control_name": "item_button_ref",
+    "operation": "insert_after",
+    "value": {
+     "79ed6ff9_3a7d_471e_86d2_bc280db74328@qo36d10l_ff5f_4d2f_87z8_ce49f7fgbla.79ed6ff9_3a7d_471e_86d2_bc280db74328": {}
+    }
+   },
+   {
+    "array_name": "controls",
+    "operation": "insert_front",
+    "value": {
+     "fast_loot_variant@fcQL.fast_loot_variant": {}
+    }
+   }
+  ]
+ },
+ "base_screen": {
+  "$bd2fa36b_6de0_4f07_ada4_f18f3df5073b": "#is_selected_slot",
+  "$614ff79e_0ccd_42b1_97f2_f63574bce1b8": "#item_id_aux",
+  "$b15753b6_1fd8_440c_b6ba_f0e71c9d7d03": "#inventory_selected_item"
+ },
+ "container_item/item_cell": {
+  "modifications": []
+ }
+}

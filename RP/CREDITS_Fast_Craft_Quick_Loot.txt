@@ -1,0 +1,3 @@
+Fast Craft & Fast Loot v3.1 (UI) by UT_MODS / Mod MCPE
+https://www.curseforge.com/members/mod_mc
+Merged into this addon on the request of the SMP addon owner (its UI files were joined with the SMP UI files).
