@@ -44,7 +44,6 @@ import "./crates.js";      // crates (shulker-box crate + keys every 30 real min
 import "./arena.js";       // the 2 fighting arenas (/arena, Owner: /opr > Building > Arenas)
 import "./signlog.js";     // sign log: who placed / wrote each sign (Owner only: look at it, sneak + click, /signlog)
 import "./fasthopper.js";
-import "./chatban.js";     // swear filter: mute 1 hour + staff alert (the filter = extra pack "SMP Chat Guard", needs Beta APIs)
 import "./fastheal.js";     // fast healing, Java style (Admin / Owner: /opr > World > Fast healing)  // hoppers move 20 items at once (DonutSMP style)
 import "./afkhall.js";     // the AFK Hall (Owner: /opr > Building > AFK Hall) - becomes the AFK area
 import "./football.js";    // Football event: the stadium (Owner: /opr > Building / Events > Football), matches, /football

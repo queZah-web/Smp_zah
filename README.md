@@ -360,3 +360,6 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
 ## Football: 11 vs 11 + the Owner picks the teams
 - Team size now 1 - 11. In "Choose the players" a click cycles: chosen (random team) -> BLUE -> RED -> not chosen.
   The players put in a team stay there (max the team size); the others are spread at random to keep the teams even.
+
+## The swear filter is removed
+- The extra packs "SMP Chat Guard" / chatshield and the SMP side (chatban.js) are gone. No pack needs Beta APIs now.
