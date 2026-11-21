@@ -4,6 +4,8 @@
 //   * Grand Spawn  "The Ancient Sanctuary"  151 x 151  (see spawndesign.js): walls, towers, giant tree, moat, avenues,
 //                  Crate Temple (the 3 crates are placed and working), Hall of Legends (10 TOP boards), cliff + waterfall, ruins
 //   * Small Spawn  41 x 41 garden spawn
+//   * Celestial Sanctuary 201 x 201 (see celestialdesign.js): gothic ring, cathedral, plaza, pavilions, furnished house, gardens
+//   * Spawn rules (the Owner switches each one): no building / breaking, no PvP, no damage, no fire, no monsters, no explosions, no hunger
 //
 // No lag:
 //   * the area is loaded with temporary ticking areas only while building (removed afterwards)
@@ -24,6 +26,7 @@ import { oprMsg } from "./oprlang.js";
 import { pick } from "./arextra.js";
 import { getZone, setZone, clearZone, inZone, inZoneColumn, otherZoneOverlaps } from "./spawnzone.js";
 import { GRAND, SMALL, grandSpawnGen, smallSpawn, boardSpots } from "./spawndesign.js";
+import { CELESTIAL, celestialGen, celestialBoards } from "./celestialdesign.js";
 import { placeCrateAt, removeCrateAt, isCrateAt } from "./crates.js";
 import { addFixedAt, removeFixed } from "./hologram.js";
 
@@ -31,7 +34,7 @@ const PAD = 1;
 const TILE = 51;                   // backup pieces: 51 x (height) x 51
 const SPAWN_KEY = "spawn:v1";      // the /spawn point (spawn.js)
 const AREA = "smp_spawn_";         // temporary ticking areas
-const KINDS = { grand: { D: GRAND, name: "Grand Spawn", size: "151 x 151" }, small: { D: SMALL, name: "Small Spawn", size: "41 x 41" } };
+const KINDS = { grand: { D: GRAND, name: "Grand Spawn", size: "151 x 151" }, small: { D: SMALL, name: "Small Spawn", size: "41 x 41" }, celestial: { D: CELESTIAL, name: "Celestial Sanctuary", size: "201 x 201" } };
 const say = (p, m) => { try { p.sendMessage(oprMsg(p, m)); } catch (e) { /* ignore */ } };
 const bar = (p, m) => { try { p.onScreenDisplay.setActionBar(m); } catch (e) { /* ignore */ } };
 
@@ -105,11 +108,12 @@ function* buildJob(player, dim, zone, kind) {
     bar(player, "§a[Spawn] §fDesigning...");
     let canvas;
     if (kind === "grand") { const g = grandSpawnGen(); let r; while (!(r = g.next()).done) yield; canvas = r.value; }
+    else if (kind === "celestial") { const g = celestialGen(); let r; while (!(r = g.next()).done) yield; canvas = r.value; }
     else canvas = smallSpawn();
     yield;
     const og = canvas.orderedGen(); let r; while (!(r = og.next()).done) yield;
     const buckets = r.value, pal = canvas.pal.map((p) => perm(p.id, p.st));
-    const total = canvas.size + (2 * R + 1) * 2;
+    const total = canvas.size + (2 * R + 1) * 2 + (canvas.fills?.length ?? 0);
     let n = 0, fails = 0, lastPct = -1;
     const tick = () => { const pct = Math.floor((n / total) * 100); if (pct !== lastPct) { lastPct = pct; bar(player, "§a[Spawn] §fBuilding " + KINDS[kind].name + "... §e" + pct + "%"); } };
     // 3. clear the area (air above the floor) and fill the ground under it
@@ -119,6 +123,11 @@ function* buildJob(player, dim, zone, kind) {
       try { dim.fillBlocks(new BlockVolume({ x: cx + x, y: fy + 1, z: cz - h }, { x: cx + x, y: fy + D.UP - 2, z: cz + h }), air); } catch (e) { fails++; }
       n++; tick(); yield;
       try { dim.fillBlocks(new BlockVolume({ x: cx + x, y: fy - 4, z: cz - h }, { x: cx + x, y: fy - 1, z: cz + h }), dirt); } catch (e) { fails++; }
+      n++; tick(); yield;
+    }
+    // 3b. the big flat parts (one fill each)
+    for (const fl of canvas.fills ?? []) {
+      try { dim.fillBlocks(new BlockVolume({ x: cx + fl.from.x, y: fy + fl.from.y, z: cz + fl.from.z }, { x: cx + fl.to.x, y: fy + fl.to.y, z: cz + fl.to.z }), perm(fl.id)); } catch (e) { fails++; }
       n++; tick(); yield;
     }
     // 4. every block (solid bottom-up, then hanging / standing things top-down, water last)
@@ -134,7 +143,7 @@ function* buildJob(player, dim, zone, kind) {
       try { const rec = placeCrateAt(dim, cx + c.x, fy + c.y, cz + c.z, c.type); if (rec) zone.crates.push({ x: rec.x, y: rec.y, z: rec.z }); } catch (e) { console.warn("[spawnbuild] crate: " + e); }
     }
     let full = false;
-    if (kind === "grand") for (const s of boardSpots()) {
+    if (kind === "grand" || kind === "celestial") for (const s of kind === "grand" ? boardSpots() : celestialBoards()) {
       try { const b = addFixedAt(dim.id, cx + s.x, fy + s.y, cz + s.z, s.key); if (b === "full") full = true; else if (b) zone.boards.push(b.id); } catch (e) { console.warn("[spawnbuild] board: " + e); }
       yield;
     }
@@ -146,7 +155,7 @@ function* buildJob(player, dim, zone, kind) {
     removeAreas(dim);
     bar(player, "§a[Spawn] §fDone!");
     say(player, "§a[Spawn] " + KINDS[kind].name + " is ready! §7(" + Math.round((Date.now() - t0) / 1000) + " s" + (fails ? ", " + fails + " blocks skipped" : "") + ") §aIt is now the /spawn point. Only you can change it.");
-    if (kind === "grand") say(player, "§a[Spawn] §f" + zone.crates.length + " §acrates and §f" + zone.boards.length + " §aTOP boards placed." + (full ? " §c(Some boards were not placed: the limit of fixed boards is full - remove old ones in Operator > Holograms.)" : ""));
+    if (kind === "grand" || kind === "celestial") say(player, "§a[Spawn] §f" + zone.crates.length + " §acrates and §f" + zone.boards.length + " §aTOP boards placed." + (full ? " §c(Some boards were not placed: the limit of fixed boards is full - remove old ones in Operator > Holograms.)" : ""));
     if (!zone.backup) say(player, "§c[Spawn] (Part of the backup failed: Undo can not put everything back.)");
     try { player.playSound("random.levelup"); } catch (e) { /* ignore */ }
   } catch (e) {
@@ -259,6 +268,7 @@ function spawnPage(player, back) {
   const here = () => ["§7Middle: §f" + Math.floor(player.location.x) + " " + Math.floor(player.location.y) + " " + Math.floor(player.location.z)];
   if (!z) {
     set(f, 2 * COLS + 3, hdr(1, "g") + "§2§lGrand Spawn\n§r§7The Ancient Sanctuary: 151 x 151\n§r§7Walls, towers, giant tree of life,\n§r§7Crate Temple (3 crates placed),\n§r§7Hall of Legends (10 TOP boards),\n§r§7waterfall, ruins, gardens\n§r§7The land is saved first (Undo)\n§r§eClick to build", "textures/ui/shop/ic_confirm", { run: () => confirm(player, "Build the Grand Spawn here?", [...here(), "§7Everything in 151 x 151 blocks around you", "§7is replaced (Undo puts it back).", "§7Takes about a minute. No lag."], () => buildHere(player, "grand"), self) });
+    set(f, 2 * COLS + 4, hdr(1, "g") + "§f§lCelestial Sanctuary\n§r§7201 x 201: a white gothic ring with\n§r§764 pillars + seats, a cathedral with\n§r§7twin towers, a fountain plaza, Crate\n§r§7Pavilion, Hall of Legends (TOP), a\n§r§7furnished Library & Café, Wisteria tree\n§r§7garden, Moonlit garden, pergolas\n§r§eClick to build", "textures/blocks/quartz_block_chiseled", { run: () => confirm(player, "Build the Celestial Sanctuary here?", [...here(), "§7Everything in 201 x 201 blocks around you", "§7is replaced (Undo puts it back).", "§7Takes a few minutes. No lag."], () => buildHere(player, "celestial"), self) });
     set(f, 2 * COLS + 5, hdr(1, "c") + "§a§lSmall Spawn\n§r§7Green garden spawn: 41 x 41\n§r§7Gazebo, fountain, trees, 4 paths\n§r§eClick to build", "textures/blocks/sapling_oak", { run: () => confirm(player, "Build the Small Spawn here?", [...here(), "§7Everything in 41 x 41 blocks around you", "§7is replaced (Undo puts it back)."], () => buildHere(player, "small"), self) });
   } else {
     const D = KINDS[z.kind ?? "small"].D;
@@ -267,6 +277,44 @@ function spawnPage(player, back) {
     if (D.places?.top) set(f, 2 * COLS + 5, hdr(1, "g") + "§6§lHall of Legends\n§r§7Go to the TOP boards\n§r§eClick to go", "textures/items/gold_ingot", { run: () => goTo(player, D.places.top) });
     set(f, 2 * COLS + 6, hdr(1, "r") + "§c§lUndo\n§r§7Remove the spawn: the land comes\n§r§7back as it was before\n§r§eClick to undo", "textures/ui/shop/ic_cancel", { run: () => confirm(player, "Remove the spawn?", ["§7The land comes back as it was.", "§7The old spawn point comes back."], () => undoSpawn(player), self) });
   }
+  set(f, 3 * COLS + 4, hdr(1, "g") + "§6§lSpawn rules\n§r§7No breaking, no PvP, no damage,\n§r§7no fire, no monsters, no explosions,\n§r§7no hunger - switch each one\n§r§eClick to open", "textures/ui/shop/ic_shield", { run: () => rulesPage(player, self) });
+  backBtn(f, back); status(player, f);
+  open(player, f);
+}
+
+// ---------------------------------------------------------------- the spawn rules (the Owner switches each one; saved in the world)
+const RULES_KEY = "spawn:rules";
+const RULE_LIST = [
+  ["build", "No building / breaking", "Only the Owner can break, place or use\n§r§7blocks (Admins too can't)", "textures/items/iron_pickaxe"],
+  ["pvp", "No PvP", "Players can't hurt each other\n§r§7(no damage, no knockback)", "textures/items/iron_sword"],
+  ["damage", "No damage", "Nobody takes any damage\n§r§7(falling, mobs, lava ...)", "textures/ui/shop/ic_shield"],
+  ["fire", "No fire", "Nobody burns: fire aspect, lava,\n§r§7flame arrows - players AND mobs", "textures/items/fireball"],
+  ["mobs", "No monsters", "Monsters don't spawn and the ones\n§r§7that come in are removed", "textures/items/spawn_eggs/spawn_egg_zombie|textures/items/rotten_flesh"],
+  ["boom", "No explosions", "Explosions don't break any block", "textures/blocks/tnt_side"],
+  ["hunger", "No hunger", "The food bar stays full", "textures/items/apple"],
+];
+const RULE_DEF = { build: 1, pvp: 1, damage: 0, fire: 1, mobs: 1, boom: 1, hunger: 1 };
+let rulesCache = null;
+export function spawnRules() {
+  if (rulesCache) return rulesCache;
+  try { const v = world.getDynamicProperty(RULES_KEY); rulesCache = { ...RULE_DEF, ...(typeof v === "string" ? JSON.parse(v) : {}) }; } catch (e) { return { ...RULE_DEF }; }
+  return rulesCache;
+}
+const rule = (k) => !!spawnRules()[k];
+function setRule(player, k, on) {
+  const r = spawnRules(); r[k] = on ? 1 : 0;
+  try { world.setDynamicProperty(RULES_KEY, JSON.stringify(r)); } catch (e) { /* ignore */ }
+  try { slog(player, "spawnrules", null, k + " = " + (on ? "ON" : "OFF")); } catch (e) { /* ignore */ }
+}
+function rulesPage(player, back) {
+  if (!isOwner(player)) return;
+  const self = () => rulesPage(player, back), r = spawnRules();
+  const f = make("Spawn rules", SHORT_ROWS); f.self = self; f.glass = true;
+  set(f, 0 * COLS + 4, hdr(1, "g") + "§6§lSpawn rules\n§r§7They work inside the built spawn\n§r§7Green = ON (protected), red = OFF\n§r§7Only the Owner can change them", "textures/ui/shop/ic_shield", null);
+  RULE_LIST.forEach(([k, name, info, icon], i) => {
+    const on = !!r[k], slot = i < 4 ? 1 * COLS + 1 + i * 2 : 2 * COLS + 2 + (i - 4) * 2;
+    set(f, slot, hdr(1, on ? "g" : "r") + "§f§l" + name + "\n§r§7" + info + "\n§r§7Now: " + (on ? "§aON" : "§cOFF") + "\n§r§eClick to switch", icon.split("|")[1] ?? icon, { run: () => { setRule(player, k, !on); self(); } });
+  });
   backBtn(f, back); status(player, f);
   open(player, f);
 }
@@ -287,17 +335,17 @@ const FACE = { Up: [0, 1, 0], Down: [0, -1, 0], North: [0, 0, -1], South: [0, 0,
 const LIQUID = /^(?!milk_bucket$)(.+_bucket|dispenser|dropper)$/, DANGER = /^(flint_and_steel|fire_charge|tnt|tnt_minecart|end_crystal|respawn_anchor|bed|.+_bed)$/, PISTON = /^(piston|sticky_piston)$/;
 
 safe("break", () => world.beforeEvents.playerBreakBlock.subscribe((ev) => {
-  if (!getZone()) return;
+  if (!getZone() || !rule("build")) return;
   const b = ev.block;
   if (inZone(b.dimension.id, b.x, b.y, b.z) && !free(ev.player)) { ev.cancel = true; deny(ev.player); }
 }));
 safe("place", () => { const s = world.beforeEvents.playerPlaceBlock; if (!s) return; s.subscribe((ev) => {
-  if (!getZone()) return;
+  if (!getZone() || !rule("build")) return;
   const b = ev.block;
   if (inZone(b.dimension.id, b.x, b.y, b.z) && !free(ev.player)) { ev.cancel = true; deny(ev.player); }
 }); });
 safe("interact", () => world.beforeEvents.playerInteractWithBlock.subscribe((ev) => {
-  if (!getZone() || free(ev.player)) return;
+  if (!getZone() || free(ev.player) || !rule("build")) return;
   const b = ev.block, d = b.dimension.id;
   if (isCrateAt(d, b.x, b.y, b.z)) return;                                       // crates: everybody may open them
   const f = FACE[String(ev.blockFace)] ?? [0, 0, 0];
@@ -310,7 +358,7 @@ safe("interact", () => world.beforeEvents.playerInteractWithBlock.subscribe((ev)
   if (hit) { ev.cancel = true; deny(ev.player); }
 }));
 safe("entity", () => world.beforeEvents.playerInteractWithEntity.subscribe((ev) => {
-  if (!getZone() || free(ev.player)) return;
+  if (!getZone() || free(ev.player) || !rule("build")) return;
   const t = ev.target; if (!t) return;
   const id = t.typeId;
   if (id !== "minecraft:armor_stand" && id !== "minecraft:painting" && !/item_frame$/.test(id)) return;    // NPCs / buttons of other systems keep working
@@ -318,8 +366,39 @@ safe("entity", () => world.beforeEvents.playerInteractWithEntity.subscribe((ev) 
   if (inZone(t.dimension.id, Math.floor(l.x), Math.floor(l.y), Math.floor(l.z))) { ev.cancel = true; deny(ev.player); }
 }));
 safe("explosion", () => world.beforeEvents.explosion.subscribe((ev) => {
-  if (!getZone()) return;
+  if (!getZone() || !rule("boom")) return;
   const all = ev.getImpactedBlocks(), d = ev.dimension.id, keep = all.filter((b) => !inZone(d, b.x, b.y, b.z));
   if (keep.length !== all.length) ev.setImpactedBlocks(keep);
 }));
 safe("leave", () => world.afterEvents.playerLeave.subscribe(({ playerId }) => told.delete(playerId)));
+
+// ---------------------------------------------------------------- the player / mob rules (every 0.5 s, only for players inside the spawn)
+const inSpawn = (e) => { try { const l = e.location; return inZone(e.dimension.id, Math.floor(l.x), Math.floor(l.y), Math.floor(l.z)); } catch (x) { return false; } };
+const isMonster = (e) => { try { return !!e.getComponent("minecraft:type_family")?.hasTypeFamily("monster"); } catch (x) { return false; } };
+system.runInterval(() => {
+  if (!getZone()) return;
+  const r = spawnRules();
+  if (!r.pvp && !r.damage && !r.fire && !r.mobs && !r.hunger) return;
+  for (const p of world.getAllPlayers()) {
+    if (!inSpawn(p)) continue;
+    try {
+      if (r.damage) p.addEffect("resistance", 30, { amplifier: 4, showParticles: false });
+      if (r.pvp) p.addEffect("weakness", 30, { amplifier: 255, showParticles: false });
+      if (r.hunger) p.addEffect("saturation", 30, { amplifier: 0, showParticles: false });
+      if (r.fire) { p.extinguishFire?.(); p.addEffect("fire_resistance", 30, { amplifier: 0, showParticles: false }); }
+    } catch (e) { /* ignore */ }
+    if (r.fire || r.mobs) {
+      let near = []; try { near = p.dimension.getEntities({ location: p.location, maxDistance: 32, excludeTypes: ["minecraft:player", "minecraft:item"] }); } catch (e) { near = []; }
+      for (const e of near) {
+        if (!inSpawn(e)) continue;
+        try { if (r.mobs && isMonster(e) && !e.nameTag) { e.remove(); continue; } if (r.fire) e.extinguishFire?.(); } catch (x) { /* ignore */ }
+      }
+    }
+  }
+}, 10);
+safe("noMobs", () => world.afterEvents.entitySpawn.subscribe(({ entity }) => {
+  try { if (!getZone() || !rule("mobs")) return; if (entity.typeId === "minecraft:player" || entity.typeId === "minecraft:item") return; if (isMonster(entity) && inSpawn(entity)) entity.remove(); } catch (e) { /* ignore */ }
+}));
+safe("noBurn", () => world.afterEvents.entityHitEntity.subscribe(({ hitEntity }) => {        // fire aspect: the mob / player is put out at once
+  try { if (!getZone() || !rule("fire") || !hitEntity || !inSpawn(hitEntity)) return; system.runTimeout(() => { try { hitEntity.extinguishFire?.(); } catch (e) { /* ignore */ } }, 1); system.runTimeout(() => { try { hitEntity.extinguishFire?.(); } catch (e) { /* ignore */ } }, 3); } catch (e) { /* ignore */ }
+}));

@@ -268,3 +268,20 @@ stonecutter; pocket UI too), double-click to send an item / quick trade at villa
 (click = the whole stack moves). Its UI files were joined with the SMP UI files (chest_screen, inventory_screen, pocket_containers,
 ui_common, _global_variables: both changes kept), new: ui/fc_quick_loot.json, trade_2_screen(_pocket), stonecutter_screen(_pocket),
 inventory_screen_pocket, textures/ui/Fast_craft.png + arrow_large.png. Credits: RP/CREDITS_Fast_Craft_Quick_Loot.txt.
+
+## Building > Spawn > Celestial Sanctuary (201 x 201) + Spawn rules
+A third spawn (only one spawn can exist: Undo the old one first). ~98k blocks + 4 big fills, built in a few minutes, no lag.
+- The RING: 7 tiers of white seats all around, a gothic colonnade of 64 pillars with pointed arches, a dark cornice with
+  lanterns, a spire on every pillar, 3 grand gates (E, S, W) with crowns and stairs.
+- The CATHEDRAL (north): mosaic windows, a rose window, twin towers (46 high + spires), a steep dark roof; inside: columns,
+  pews, a red carpet, an altar with candles, an organ wall (bookshelves + pipes), lecterns, amethyst, chandeliers, side chapels.
+- The PLAZA: a three-tier fountain, benches, lamp posts; 4 avenues with lamp posts and flower beds.
+- NE Crate Pavilion (domed gazebo, the 3 crates placed), NW Hall of Legends (the 10 TOP boards on obelisks).
+- SE Library & Café (furnished: bookshelves, reading tables, lecterns, armchairs, carpets, enchanting / cartography table,
+  café counter with cakes, kitchen, tables + chairs, plants, chandeliers, a terrace with umbrellas).
+- SW Wisteria Garden: a giant dark tree with pink hanging leaves, lanterns on chains, a swing, a pond, flowers, amethyst, a
+  tree house (table, chairs, bed, barrel, candles, ladder).  S Moonlit Garden: water channels, white paths and bridges,
+  arches with pale hanging moss, mushroom lamps, soul lanterns, glowing sea pickles.  E / W pergola gardens. 80 big trees.
+- **Spawn rules** (Building > Spawn > Spawn rules, Owner only, for every spawn type): No building / breaking (Owner only),
+  No PvP, No damage, No fire (players + mobs, fire aspect), No monsters, No explosions, No hunger - each ON / OFF.
+Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js` (builder, fills, rules).
