@@ -1,0 +1,52 @@
+{
+ "format_version": "1.8.0",
+ "animations": {
+  "animation.smp_rank_statue.idle": {
+   "loop": true,
+   "bones": {
+    "head": {
+     "rotation": [
+      "math.sin(query.anim_time * 40) * 3",
+      "math.sin(query.anim_time * 25) * 14",
+      0
+     ]
+    },
+    "body": {
+     "position": [
+      0,
+      "math.sin(query.anim_time * 90) * 0.15",
+      0
+     ]
+    },
+    "rightArm": {
+     "rotation": [
+      "-12 + math.sin(query.anim_time * 90) * 2",
+      0,
+      "8"
+     ]
+    },
+    "leftArm": {
+     "rotation": [
+      "-38 + math.sin(query.anim_time * 90 + 45) * 2",
+      "-20",
+      "-6"
+     ]
+    },
+    "cape": {
+     "rotation": [
+      "8 + math.sin(query.anim_time * 70) * 3",
+      0,
+      0
+     ]
+    },
+    "crown": {
+     "position": [
+      0,
+      "math.sin(query.anim_time * 120) * 0.12",
+      0
+     ]
+    }
+   }
+  }
+ }
+}

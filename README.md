@@ -336,3 +336,12 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
 - The Owner gives / changes / takes a rank (online or offline players), sees who has each rank; the player gets a title.
 - Above the name: a crown in the rank's colours (custom glyphs U+E110 - U+E118 in `RP/font/glyph_E1.png`) + the rank
   name; in chat the crown + rank before the name.
+
+## Rank statues - /opr > Ranks > Rank statues (Owner) - `systems/rankstatue.js`
+- A player-size statue of a ranked player on a dark pedestal with a gold rim: a rank outfit (shoulder pads, chest gem,
+  bracers, boots), a cape with the rank gem and a crown, all in the rank's colours (entity `smp:rank_statue`, 9 textures).
+  It breathes, looks around, the cape moves; sparkles while somebody is near.
+- Above it: crown + RANK, the name, money, kills, online / offline - updated every 2 s. New rank = new colours at once;
+  rank taken away = the statue disappears. It can't be hit, pushed or moved and comes back if removed by a command.
+- Owner: place one statue where you stand (looking at you), place ALL ranked players in a row, go to / remove a statue,
+  remove all. Bedrock can't give an add-on a player's real skin, so the statue wears the rank outfit.

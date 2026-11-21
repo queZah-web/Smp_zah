@@ -1,0 +1,36 @@
+{
+ "format_version": "1.10.0",
+ "minecraft:client_entity": {
+  "description": {
+   "identifier": "smp:rank_statue",
+   "materials": {
+    "default": "entity_alphatest"
+   },
+   "textures": {
+    "silver": "textures/entity/rank_statue_silver",
+    "gold": "textures/entity/rank_statue_gold",
+    "emerald": "textures/entity/rank_statue_emerald",
+    "diamond": "textures/entity/rank_statue_diamond",
+    "netherite": "textures/entity/rank_statue_netherite",
+    "master": "textures/entity/rank_statue_master",
+    "master2": "textures/entity/rank_statue_master2",
+    "master3": "textures/entity/rank_statue_master3",
+    "legend": "textures/entity/rank_statue_legend"
+   },
+   "geometry": {
+    "default": "geometry.smp_rank_statue"
+   },
+   "scripts": {
+    "animate": [
+     "idle"
+    ]
+   },
+   "animations": {
+    "idle": "animation.smp_rank_statue.idle"
+   },
+   "render_controllers": [
+    "controller.render.smp_rank_statue"
+   ]
+  }
+ }
+}

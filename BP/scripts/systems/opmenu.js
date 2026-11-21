@@ -45,6 +45,7 @@ import { fastHealOn, setFastHeal } from "./fastheal.js";
 import { itemTimerOn, setItemTimer } from "./itemtimer.js";
 import { enderPage, isAdminRole } from "./enderchest.js";
 import { RANKS, rankOf, rankIndexOf, setRank, rankLabel, rankedIds } from "./viprank.js";
+import { statues, placeStatue, placeAll, removeStatue, removeAllStatues } from "./rankstatue.js";
 
 const SYM = OPMENU.symbol;
 const ICON = {
@@ -1062,6 +1063,7 @@ function vipHome(player, back) {
     set(f, slot, hdr(Math.min(99, Math.max(1, n)), n ? "g" : "c") + rankLabel(r) + "\n§r§7Buy: §a-" + r.buy + "%\n§r§7Sell: §a+" + r.sell + "%\n§r§7Players: §f" + n + "\n§r§eClick: who has it", r.icon, { run: () => vipHolders(player, i, self) });
   });
   set(f, 4 * COLS + 3, hdr(1, "g") + "§a§lGive a rank\n§r§7Pick a player (online or offline)\n§r§7and choose his rank\n§r§eClick to open", ICON.player, { run: () => vipPlayers(player, self) });
+  { const n = statues().length; set(f, 3 * COLS + 4, hdr(Math.min(99, Math.max(1, n)), "g") + "§d§lRank statues\n§r§7A statue of a ranked player: rank\n§r§7outfit, crown, cape, pedestal, his name,\n§r§7rank, money and kills above it\n§r§7(always up to date)\n§r§7Statues: §f" + n + "\n§r§eClick to open", "textures/items/armor_stand", { run: () => statuesPage(player, self) }); }
   set(f, 4 * COLS + 5, hdr(Math.min(99, Math.max(1, held.length))) + "§e§lAll ranked players\n§r§7Everybody who has a rank\n§r§eClick to open", ICON.book, { run: () => vipHolders(player, -1, self) });
   backBtn(f, back); status(player, f);
   open(player, f);
@@ -1115,6 +1117,43 @@ function vipPlayer(player, id, name, back) {
     const t = online(id); if (t) { try { t.sendMessage(oprMsg(t, "§e[Rank] Your rank was taken away.")); } catch (e) { /* ignore */ } }
     self();
   }, self) });
+  backBtn(f, back); status(player, f);
+  open(player, f);
+}
+
+// ---- rank statues (rankstatue.js)
+function statuesPage(player, back, page = 0) {
+  if (!isOwner(player)) return back();
+  const again = (pg = page) => statuesPage(player, back, pg);
+  const items = statues().map((st) => { const i = rankIndexOf(st.pid), nm = vipName(st.pid);
+    return { zone: "g", icon: i >= 0 ? RANKS[i].icon : ICON.player, text: "§f§l" + nm + "\n§r" + rankLabel(i >= 0 ? RANKS[i] : null) + "\n§r§7" + dimLabel(st.d) + " §f" + Math.floor(st.x) + " " + st.y + " " + Math.floor(st.z) + "\n§r§eClick: go / remove", run: () => statuePage(player, st, () => again()) }; });
+  listPage(player, "Rank statues", items, page, back, again, [
+    [2, hdr(1, "g") + "§a§lPlace a statue HERE\n§r§7Pick a ranked player: his statue\n§r§7stands where you stand, looking at you", ICON.player, () => statuePick(player, () => again())],
+    [6, hdr(1, "g") + "§6§lPlace ALL here (a row)\n§r§7Every ranked player, best rank in the\n§r§7middle... in a row in front of you,\n§r§73 blocks apart, looking at you", "textures/items/gold_ingot", () => {
+      const pl = rankedIds().map((h) => ({ id: h.id, idx: h.idx, name: vipName(h.id) })).sort((a, b) => b.idx - a.idx);
+      if (!pl.length) { say(player, "§c[Ranks] Nobody has a rank yet."); return again(); }
+      confirm(player, "Place " + pl.length + " statues?", ["§7In a row in front of you, 3 blocks apart"], () => { const r = placeAll(player, pl); say(player, "§a[Ranks] " + r.made + " statues placed." + (r.err ? " §c" + r.err : "")); try { slog(player, "rank", null, r.made + " rank statues placed"); } catch (e) { /* ignore */ } again(); }, () => again());
+    }],
+    [8, hdr(1, "r") + "§c§lRemove ALL statues", ICON.barrier, () => confirm(player, "Remove every statue?", ["§7All rank statues disappear"], () => { removeAllStatues(); say(player, "§e[Ranks] All rank statues removed."); again(0); }, () => again())],
+  ]);
+}
+function statuePick(player, back, page = 0) {
+  if (!isOwner(player)) return back();
+  const pl = rankedIds().map((h) => ({ ...h, name: vipName(h.id) })).sort((a, b) => b.idx - a.idx || a.name.localeCompare(b.name));
+  const again = (pg) => statuePick(player, back, pg);
+  listPage(player, "Statue of...", pl.map((h) => ({ zone: "g", icon: RANKS[h.idx].icon, text: "§f§l" + h.name + "\n§r" + rankLabel(RANKS[h.idx]) + "\n§r§eClick: place his statue here", run: () => {
+    const r = placeStatue(player, h.id, h.name);
+    if (r.err) say(player, "§c[Ranks] " + r.err); else { say(player, "§a[Ranks] The statue of " + h.name + " is placed."); try { slog(player, "rank", { id: h.id, name: h.name }, "Rank statue placed"); } catch (e) { /* ignore */ } }
+    back();
+  } })), page, back, again);
+}
+function statuePage(player, st, back) {
+  if (!isOwner(player)) return back();
+  const i = rankIndexOf(st.pid), nm = vipName(st.pid), self = () => statuePage(player, st, back);
+  const f = make("Statue: " + nm, SHORT_ROWS); f.self = self;
+  set(f, 0 * COLS + 4, hdr(1, "g") + "§f§l" + nm + "\n§r" + rankLabel(i >= 0 ? RANKS[i] : null) + "\n§r§7" + dimLabel(st.d) + " §f" + Math.floor(st.x) + " " + st.y + " " + Math.floor(st.z), i >= 0 ? RANKS[i].icon : ICON.player, null);
+  set(f, 2 * COLS + 3, hdr(1, "g") + "§b§lGo there", "textures/items/ender_pearl", { run: () => tpTo(player, { x: st.x, y: st.y, z: st.z + 2 }, st.d, "the statue") });
+  set(f, 2 * COLS + 5, hdr(1, "r") + "§c§lRemove this statue", ICON.barrier, { run: () => confirm(player, "Remove the statue?", ["§f" + nm], () => { removeStatue(st.k); say(player, "§e[Ranks] Statue removed."); back(); }, self) });
   backBtn(f, back); status(player, f);
   open(player, f);
 }

@@ -1,0 +1,31 @@
+{
+ "format_version": "1.8.0",
+ "render_controllers": {
+  "controller.render.smp_rank_statue": {
+   "arrays": {
+    "textures": {
+     "Array.skins": [
+      "Texture.silver",
+      "Texture.gold",
+      "Texture.emerald",
+      "Texture.diamond",
+      "Texture.netherite",
+      "Texture.master",
+      "Texture.master2",
+      "Texture.master3",
+      "Texture.legend"
+     ]
+    }
+   },
+   "geometry": "Geometry.default",
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ],
+   "textures": [
+    "Array.skins[query.property('smp:rank')]"
+   ]
+  }
+ }
+}
