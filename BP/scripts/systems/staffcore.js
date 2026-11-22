@@ -416,6 +416,14 @@ try {
   chatGuard.active = true;
 } catch (e) { console.warn("[staff] mute hook not started: " + e); }
 
+/** the tag "muted" = muted now (kept up to date every second).  The Arabic chat pack (Beta APIs) reads it and stops the
+ *  messages of a muted player, so a staff mute works in the chat even though this pack runs without Beta APIs. */
+system.runInterval(() => {
+  for (const p of world.getAllPlayers()) {
+    try { const m = !!activeOf("mute", p.id), has = p.hasTag("muted"); if (m && !has) p.addTag("muted"); else if (!m && has) p.removeTag("muted"); } catch (e) { /* ignore */ }
+  }
+}, 20);
+
 /** extra layer: the game's own /ability mute (only works when Education Edition features are on; silently ignored otherwise) */
 function abilityMute(p, on) { try { p.runCommand("ability @s mute " + (on ? "true" : "false")); } catch (e) { /* not available */ } }
 try {
