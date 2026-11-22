@@ -104,7 +104,8 @@ system.runInterval(() => {
 // ===================================================================================================================
 // VILLAGER SPAWN EGG -> a villager WITHOUT a job (the player gives him the job he wants: he takes the first free job block)
 //   The game gives an egg villager a random job.  When a player uses a villager egg on a block, the villager that appears
-//   there (within 3 ticks, 3 blocks) is replaced at once by a jobless adult villager (the game's own "become unskilled" spawn).
+//   there (within 3 ticks, 3 blocks) loses his job at once (the game's own "become unskilled" event): an adult villager with no
+//   job, his own skin, exactly where the egg was used.
 // ===================================================================================================================
 const eggUses = [];                                   // { d, x, y, z, t }
 try {
@@ -124,14 +125,13 @@ try {
       const k = eggUses.findIndex((u) => u.d === d && now - u.t <= 3 && Math.abs(u.x - l.x) < 3 && Math.abs(u.y - l.y) < 3 && Math.abs(u.z - l.z) < 3);
       if (k < 0) return;
       eggUses.splice(k, 1);
-      const dim = entity.dimension, at = { x: l.x, y: l.y, z: l.z };
-      let rot = 0; try { rot = entity.getRotation().y; } catch (e) { rot = 0; }
-      const name = entity.nameTag;
-      entity.remove();
-      let v = null;
-      try { v = dim.spawnEntity(VILLAGER + "<minecraft:become_unskilled>", at); } catch (e) { v = null; }
-      if (!v) { try { dim.runCommand(`summon ${VILLAGER} ${at.x.toFixed(2)} ${at.y.toFixed(2)} ${at.z.toFixed(2)} ${rot.toFixed(0)} 0 minecraft:become_unskilled`); } catch (e) { /* ignore */ } }
-      else { try { if (name) v.nameTag = name; v.setRotation({ x: 0, y: rot }); } catch (e) { /* ignore */ } }
+      // the SAME villager loses his job (the game's own event): he keeps his skin and stays exactly where he was put.
+      // (Before, he was removed and a new one was spawned with this event as its spawn event: that new villager got no skin
+      //  -> sometimes invisible / "gone", and sometimes the new spawn failed.)
+      const v = entity;
+      const unskill = () => { try { if (alive(v)) v.triggerEvent("minecraft:become_unskilled"); } catch (e) { /* ignore */ } };
+      system.run(unskill);
+      system.runTimeout(unskill, 5);                      // once more: some versions give the job a moment after the spawn
     } catch (e) { console.warn("[restock] egg: " + e); }
   });
 } catch (e) { console.warn("[restock] egg setup: " + e); }

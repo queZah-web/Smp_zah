@@ -63,8 +63,9 @@ export function setClearMobsOn(on) {
     return { ok: true, on };
   } catch (e) { return { err: "Something went wrong." }; }
 }
-const MOB_KEEP = new Set(["minecraft:player", "minecraft:ender_dragon", "minecraft:wither", "minecraft:npc", "minecraft:armor_stand"]);
-/** removes the mobs of the three worlds (no drops). Skipped: players, bosses, NPCs, armor stands, this addon's own entities and every mob that has a name tag. Returns how many were removed */
+const MOB_KEEP = new Set(["minecraft:player", "minecraft:ender_dragon", "minecraft:wither", "minecraft:npc", "minecraft:armor_stand",
+  "minecraft:villager_v2", "minecraft:villager", "minecraft:wandering_trader", "minecraft:iron_golem", "minecraft:snow_golem", "minecraft:allay"]);   // villagers / golems are never cleared
+/** removes the mobs of the three worlds (no drops). Skipped: players, bosses, NPCs, armor stands, villagers + golems, tamed / leashed animals, this addon's own entities and every mob that has a name tag. Returns how many were removed */
 export function clearMobs() {
   let n = 0;
   for (const id of ["overworld", "nether", "the_end"]) {
@@ -75,6 +76,7 @@ export function clearMobs() {
         const t = e.typeId;
         if (!t.startsWith("minecraft:") || MOB_KEEP.has(t)) continue;
         if (e.nameTag) continue;                                 // has a name tag = stays
+        try { if (e.getComponent("minecraft:is_tamed") || e.getComponent("minecraft:leashable")?.isLeashed) continue; } catch (x) { /* ignore */ }   // pets and leashed animals stay
         e.remove(); n++;
       } catch (e2) { /* already gone */ }
     }
