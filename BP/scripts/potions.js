@@ -192,7 +192,7 @@ export function sellPotion(p, eff, form, v, qty) {
   if (cap.n === 0) cap.t = Date.now();
   cap.n += sold;
   addMoney(p, total); saleFx(p, total);
-  addTx(p, { type: "sell", id: form.item, name, qty: sold, total, icon: potionIcon(eff, form) });
+  addTx(p, { type: "sell", id: form.item, name, qty: sold, total, icon: potionIcon(eff, form), src: "potion", unit });
   p.sendMessage(shopMsg(p, `§a-${sold} ${name} (+${money(total)}) §8(${Math.max(0, SELL_CAP - cap.n)} left)`));
   addXp(p, "s", sold * xpPerUnit(unit));
   luxDing(p); luxShop(p);

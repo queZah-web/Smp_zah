@@ -183,7 +183,7 @@ function sellAll(p, b, mob) {
     const q = rec.l[id] ?? 0, price = SELL.get(id) ?? 0;
     if (q <= 0 || price <= 0) continue;
     total += price * q; n += q; delete rec.l[id];
-    addTx(p, { type: "sell", id, name: D.itemName(id) + " (spawner)", qty: q, total: price * q });
+    addTx(p, { type: "sell", id, name: D.itemName(id), qty: q, total: price * q, src: "spawner", unit: price, at: b.x + " " + b.y + " " + b.z, what: nameOf(mob) + " Spawner x" + (rec.n ?? 1) });
   }
   if (total <= 0) return say(p, "§7[Spawners] Nothing sellable stored.");
   addMoney(p, total); saleFx(p, total); D.shrink(rec, w0); save(b, rec);

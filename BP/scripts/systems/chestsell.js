@@ -66,14 +66,15 @@ function process(player, dim, loc, typeId, toolId) {
         const plan = sellCommit(player, info.it[0], info.unit, st.amount);
         cont.setItem(i, undefined);
         total += plan.total; bonus += plan.bonus; n += st.amount; xp += st.amount * xpPerUnit(info.it[3]);
-        sold[info.it[0]] ??= { it: info.it, qty: 0, total: 0 }; sold[info.it[0]].qty += st.amount; sold[info.it[0]].total += plan.total;
+        sold[info.it[0]] ??= { it: info.it, unit: info.unit, qty: 0, total: 0, bonus: 0 }; sold[info.it[0]].qty += st.amount; sold[info.it[0]].total += plan.total; sold[info.it[0]].bonus += plan.bonus;
       } else kept += st.amount;
     }
   }
   wearAxe(player, toolId);
   if (total > 0) {
     addMoney(player, total);
-    for (const k in sold) addTx(player, { type: "sell", id: sold[k].it[0], name: sold[k].it[1], qty: sold[k].qty, total: sold[k].total });
+    const at = block.x + " " + block.y + " " + block.z;
+    for (const k in sold) addTx(player, { type: "sell", id: sold[k].it[0], name: sold[k].it[1], qty: sold[k].qty, total: sold[k].total, src: "chest", bonus: sold[k].bonus, unit: sold[k].unit, at });
     try { saleFx(player, total); } catch (e) { /* ignore */ }
     player.sendMessage(menuMsg(player, "§a[Chest Sell] Sold §f" + num(n) + " §aitems for §e" + money(total) + (bonus > 0 ? " §8(+" + money(bonus) + " bonus)" : "") + (kept ? " §7- " + num(kept) + " unsellable items stay in the chest" : "") + "."));
     try { addXp(player, "s", xp); } catch (e) { /* ignore */ }

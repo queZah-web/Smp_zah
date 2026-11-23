@@ -382,3 +382,8 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
 - The logs keep far more records (e.g. 800 purchases / 800 sales), saved in several pieces.
 - Hopper log (/opr > Logs): who placed, opened and broke every hopper, go to it even after it is gone; Admins / Owner looking at a hopper see its tag in the action bar.
 - /opr > Players > a player > Last logout place: go to where he left the game.
+
+## Sales log (the most important one)
+- Every sale keeps how it was sold (shop item page, sell box, sell slot, chest sell + chest place, spawner + which spawner, potions), the normal price each, what he got each, the rank / skill bonus, where he stood, his money after, the exact time.
+- /opr > Logs > Sales: one list of ALL sales incl. auction sales (seller) and order sales; filters: time, how it was sold, one seller; sort: newest / biggest / most items; Overview: totals, bonus paid, top 9 sellers, top 9 items, money per way of selling.
+- Fixed: the time filter of every log list was hidden under the Back / balance buttons.

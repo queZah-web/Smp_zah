@@ -110,7 +110,7 @@ function check(p) {
     say(p, "§7[Sell slot] This item can't be sold (no price, renamed or special) - it stays in the slot. Take it out.");
     return;
   }
-  const got = sellStacks(p, [{ slot: SELL_SLOT, typeId: st.typeId, amount: st.amount }], infoOf);
+  const got = sellStacks(p, [{ slot: SELL_SLOT, typeId: st.typeId, amount: st.amount }], infoOf, "sellslot");
   const left = c.getItem(SELL_SLOT);         // frozen account / blocked item: nothing sold, the item stays - do not try again every 0.25 s
   if (!left) { kept.delete(p.id); putMark(p, c); }        // sold: the red item comes back at once
   else if (!(got > 0)) kept.set(p.id, signature(left)); else kept.delete(p.id);

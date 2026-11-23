@@ -47,14 +47,14 @@ export function sell(p, it, qty) {
   const have = countPlain(p, id);
   if (have < qty) return fail(p, `§c[Shop] You only have ${have}x ${name} (unmodified).`);
   removePlain(p, id, qty); const { total, bonus } = sellCommit(p, id, sellPrice, qty); addMoney(p, total); saleFx(p, total);
-  addTx(p, { type: "sell", id, name, qty, total });
+  addTx(p, { type: "sell", id, name, qty, total, src: "shop", bonus, unit: sellPrice });
   p.sendMessage(shopMsg(p, `§a-${num(qty)} ${name} (+${money(total)})` + (bonus > 0 ? ` §8(+${money(bonus)} bonus)` : "")));
   addXp(p, "s", qty * xpPerUnit(price));
   return ok(p);
 }
 /** sells exactly what the player moved into the sell box (partial stacks allowed).
  *  picks = [{slot, typeId, amount}]   infoOf(stack) -> { it, unit, up } | null  (price is re-checked on the REAL stack) */
-export function sellStacks(p, picks, infoOf) {
+export function sellStacks(p, picks, infoOf, src = "sellbox") {
   { const em = econMsg(p); if (em) { p.sendMessage(shopMsg(p, em)); return 0; } }
   const c = container(p), sold = {};
   let bonusTotal = 0;
@@ -66,12 +66,12 @@ export function sellStacks(p, picks, infoOf) {
     const qty = x.amount, plan = sellCommit(p, info.it[0], info.unit, qty), t = plan.total; bonusTotal += plan.bonus;
     if (s.amount === qty) c.setItem(x.slot, undefined); else { s.amount -= qty; c.setItem(x.slot, s); }
     const k = info.it[0] + (info.up ? "+" : "");
-    sold[k] ??= { it: info.it, up: info.up, qty: 0, total: 0 }; sold[k].qty += qty; sold[k].total += t;
+    sold[k] ??= { it: info.it, up: info.up, unit: info.unit, qty: 0, total: 0, bonus: 0 }; sold[k].qty += qty; sold[k].total += t; sold[k].bonus += plan.bonus;
   }
   let total = 0, n = 0, xp = 0;
   for (const k in sold) {
-    const { it, up, qty, total: t } = sold[k]; total += t; n += qty; xp += qty * xpPerUnit(it[3]);
-    addTx(p, { type: "sell", id: it[0], name: it[1] + (up ? " (enchanted)" : ""), qty, total: t });
+    const { it, up, qty, total: t, bonus: bn, unit } = sold[k]; total += t; n += qty; xp += qty * xpPerUnit(it[3]);
+    addTx(p, { type: "sell", id: it[0], name: it[1] + (up ? " (enchanted)" : ""), qty, total: t, src, bonus: bn, unit });
   }
   if (total > 0) { addMoney(p, total); saleFx(p, total); const ks = Object.keys(sold), one = ks.length === 1 ? sold[ks[0]] : null; p.sendMessage(shopMsg(p, `§a-${num(n)} ${one ? one.it[1] + (one.up ? " (enchanted)" : "") : "Items"} (+${money(total)})` + (bonusTotal > 0 ? ` §8(+${money(bonusTotal)} bonus)` : ""))); addXp(p, "s", xp); ok(p); }
   else p.sendMessage(shopMsg(p, "§7[Shop] Nothing was sold (the items changed)."));

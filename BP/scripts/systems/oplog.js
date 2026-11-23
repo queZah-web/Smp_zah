@@ -199,6 +199,7 @@ try {
       const q = Math.max(1, Math.floor(rec.qty ?? 1)), a = Math.max(0, Math.floor(rec.total ?? 0)), now = Date.now();
       const e = where(p, { t: now, k, i: p.id, p: p.name, x: String(rec.id ?? ""), n: String(rec.name ?? "?").slice(0, 48), q, a });
       if (shard) e.s = 1;
+      if (rec.src) e.src = String(rec.src); if (rec.bonus > 0) e.bn = Math.floor(rec.bonus); if (rec.unit > 0) e.u = Math.floor(rec.unit); if (rec.at) e.at = String(rec.at); if (rec.what) e.wh = String(rec.what).slice(0, 40);
       push(cat, e);
       const lim = shard ? C.big?.shards : k === "sell" ? C.big?.sell : C.big?.buy;
       if (lim && a >= lim) push("big", { ...e });

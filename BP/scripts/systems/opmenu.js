@@ -109,7 +109,9 @@ function listPage(player, title, items, page, back, self, extras = []) {
   if (pg > 0) set(f, base + 3, hdr(1) + "§e§lPrevious page", ICON.prev, { run: () => self(pg - 1) });
   if (pages > 1) set(f, base + 4, hdr(1) + "§fPage " + (pg + 1) + "§7/§f" + pages, NAV.page, null);
   if (pg < pages - 1) set(f, base + 5, hdr(1) + "§e§lNext page", ICON.next, { run: () => self(pg + 1) });
-  for (const [k, text, icon, run] of extras) set(f, base + k, text, icon, { run });
+  // col 0 = Back and col 1 = the balance (set below): an extra button asked for there moves to a free column (2, 6, 7, 8)
+  const freeCols = [2, 6, 7, 8].filter((c) => !f.buttons[base + c] && !extras.some((x) => x[0] === c));
+  for (const [k, text, icon, run] of extras) { const col = k <= 1 ? freeCols.shift() : k; if (col !== undefined) set(f, base + col, text, icon, { run }); }
   backBtn(f, back); status(player, f);
   open(player, f);
 }
@@ -916,6 +918,7 @@ const catEntries = (cat) => (cat === "ah" ? [...entries("ah"), ...entries("ord")
 const catNew = (u, cat) => (cat === "ah" ? (u.ah ?? 0) + (u.ord ?? 0) : u[cat] ?? 0);
 const isOrd = (e) => typeof e.k === "string" && e.k.startsWith("ord");
 const FILTERS = [["All", 0], ["Last 10 min", 10 * MIN_MS], ["Last 30 min", 30 * MIN_MS], ["Last hour", 60 * MIN_MS], ["Last 24 hours", 24 * 60 * MIN_MS]];
+const SALE_SRC = { shop: "Shop (item page)", sellbox: "Sell box (/sell)", sellslot: "Sell slot", chest: "Chest sell (axe)", spawner: "Spawner (sell all)", potion: "Potions", auction: "Auction (/ah)", order: "Order (/order)", other: "Older record" };
 const amountOf = (e) => (e.s ? num(e.a) + " shards" : money(e.a));
 const wrap = (text, n = 30) => { const out = []; let line = ""; for (const w of String(text).split(" ")) { if ((line + " " + w).trim().length > n) { out.push(line); line = w; } else line = (line + " " + w).trim(); } if (line) out.push(line); return out; };
 
@@ -931,6 +934,7 @@ function logLine(e, tag) {
   if (e.k === "ord") return "§6§lOrder made " + money(e.a) + "\n§r§f" + num(e.q) + "x " + e.n + "\n§r§7" + e.p + " §8" + t + "- " + stampT(e.t);
   if (e.k === "ordf") return "§a§lSold to order " + money(e.a) + "\n§r§f" + num(e.q) + "x " + e.n + "\n§r§7" + e.p + " §7-> §f" + e.o + "\n§r§8" + t + stampT(e.t);
   if (e.k === "ordc") return "§c§lOrder cancelled " + money(e.a) + "\n§r§f" + num(e.q) + "x " + e.n + "\n§r§7" + e.p + " §8" + t + "- " + stampT(e.t);
+  if (e.k === "sell") return "§a§l+" + amountOf(e) + " §r§7" + (SALE_SRC[e.src] ?? "Sale") + "\n§r§f" + num(e.q) + "x " + e.n + (e.u ? "\n§r§7each §f" + money(e.u) : "") + (e.bn ? " §a(+" + money(e.bn) + " bonus)" : "") + "\n§r§f" + e.p + " §8" + t + "- " + stampT(e.t);
   return (e.k === "sell" ? "§a§l+" : "§c§l-") + amountOf(e) + "\n§r§f" + num(e.q) + "x " + e.n + "\n§r§7" + e.p + " §8" + t + "- " + stampT(e.t);
 }
 const logIcon = (e) => (e.k === "sus" ? ICON.barrier : e.k === "pay" ? ICON.book : e.k === "ahl" || e.k === "ahb" || isOrd(e) ? (ICONS.get(e.x) ?? ICONS.get(String(e.x).replace("minecraft:", "")) ?? ahIcon(e.x) ?? ICON.item) : ICONS.get(e.x) ?? ICONS.get(String(e.x).replace("minecraft:", "")) ?? ICON.item);
@@ -990,6 +994,7 @@ function logsPage(player, back) {
 
 function logCatPage(player, cat, back, st, pg = 0) {
   if (!guard(player, "logs")) return;
+  if (cat === "sell") return salesPage(player, back);
   if (!st) { st = { fi: 0, seen: seenAt(player, cat), seen2: cat === "ah" ? seenAt(player, "ord") : 0 }; markSeen(player, cat); if (cat === "ah") markSeen(player, "ord"); }          // "NEW" is remembered for this visit, then everything counts as seen
   const c = LOGCAT[cat], [fname, fms] = FILTERS[st.fi], cut = fms ? Date.now() - fms : 0;
   const list = catEntries(cat).filter((e) => e.t >= cut);
@@ -1014,6 +1019,16 @@ function entryPage(player, e, cat, back) {
   else if (e.k === "ord") { lines.push("§6§lOrder made " + money(e.a)); lines.push("§r§f" + num(e.q) + "x " + e.n); if (e.q > 1) lines.push("§r§7Per item: §f" + money(Math.round(e.a / e.q))); lines.push("§r§7Buyer: §f" + e.p); }
   else if (e.k === "ordf") { lines.push("§a§lSold to order " + money(e.a)); lines.push("§r§f" + num(e.q) + "x " + e.n); if (e.q > 1) lines.push("§r§7Per item: §f" + money(Math.round(e.a / e.q))); lines.push("§r§7Seller: §f" + e.p); lines.push("§r§7Order owner: §f" + e.o); }
   else if (e.k === "ordc") { lines.push("§c§lOrder cancelled " + money(e.a)); lines.push("§r§f" + num(e.q) + "x " + e.n + " §7(not filled)"); lines.push("§r§7Order owner: §f" + e.p); }
+  else if (e.k === "sell") {
+    lines.push("§a§lSale +" + amountOf(e)); lines.push("§r§f" + num(e.q) + "x " + e.n);
+    lines.push("§r§7How: §f" + (SALE_SRC[e.src] ?? "Sale (older record)"));
+    if (e.u) lines.push("§r§7Normal price each: §f" + money(e.u) + " §8(= " + money(e.u * e.q) + ")");
+    lines.push("§r§7He got each: §f" + money(Math.round(e.a / Math.max(1, e.q))));
+    if (e.bn) lines.push("§r§7Bonus (rank / skill): §a+" + money(e.bn));
+    if (e.wh) lines.push("§r§7From: §f" + e.wh);
+    if (e.at) lines.push("§r§7" + (e.src === "chest" ? "Chest" : e.src === "spawner" ? "Spawner" : "Block") + " at: §f" + e.at);
+    lines.push("§r§7Seller: §f" + e.p);
+  }
   else { lines.push((e.k === "sell" ? "§a§lSale " : "§c§lPurchase ") + amountOf(e)); lines.push("§r§f" + num(e.q) + "x " + e.n); if (e.q > 1) lines.push("§r§7Per item: §f" + (e.s ? num(e.a / e.q) + " shards" : money(Math.round(e.a / e.q)))); lines.push("§r§7Player: §f" + e.p); }
   set(f, 0 * COLS + 4, hdr(1, e.k === "sus" && e.l > 1 ? "r" : "c") + lines.join("\n"), logIcon(e), null);
   set(f, 1 * COLS + 2, hdr(1) + "§e§l" + (e.k === "ahl" || e.k === "ordf" ? "Seller" : e.k === "ahb" || e.k === "ord" ? "Buyer" : e.k === "ordc" ? "Order owner" : "Player") + ": " + e.p + "\n§r§7Open the operator profile\n§r§7(money, homes, ban...)", ICON.player, { run: () => playerPage(player, e.i, e.p, self) });
@@ -1212,6 +1227,75 @@ function hopperPage(player, r, back) {
   if (!(r.u ?? []).length) set(f, 2 * COLS + 4, hdr(1) + "§7Nobody opened it yet", ICON.paper, null);
   if (r.p?.[1]) set(f, 1 * COLS + 2, hdr(1) + "§e§lPlaced by: " + r.p[0] + "\n§r§7Open his profile", ICON.player, { run: () => playerPage(player, r.p[1], r.p[0], () => hopperPage(player, r, back)) });
   if (r.r?.[1]) set(f, 1 * COLS + 6, hdr(1, "r") + "§c§lBroken by: " + r.r[0] + "\n§r§7Open his profile", ICON.player, { run: () => playerPage(player, r.r[1], r.r[0], () => hopperPage(player, r, back)) });
+  backBtn(f, back); status(player, f);
+  open(player, f);
+}
+
+// ================================================================ SALES (the most important log): every sale from every place, filters, search, overview
+//   one row per sale: the shop, the sell box, the sell slot, chest sell, spawners, potions + what players got from the
+//   auction (the seller) and from orders (the seller).  Filters: time, how it was sold, one player; sort: newest / biggest.
+const SALE_FILTERS = ["all", "shop", "sellbox", "sellslot", "chest", "spawner", "potion", "auction", "order"];
+const SALE_SORTS = ["Newest first", "Biggest first", "Most items first"];
+/** every sale as one list: { e (the record), c (its log), src, pid, pn, a, q, n, x, t } newest first */
+function allSales() {
+  const out = [];
+  for (const e of entries("sell")) out.push({ e, c: "sell", src: e.src ?? "other", pid: e.i, pn: e.p, a: e.a, q: e.q, n: e.n, x: e.x, t: e.t });
+  for (const e of entries("ord")) if (e.k === "ordf") out.push({ e, c: "ord", src: "order", pid: e.i, pn: e.p, a: e.a, q: e.q, n: e.n, x: e.x, t: e.t });
+  for (const e of entries("ah")) if (e.k === "ahb" && e.oi) out.push({ e, c: "ah", src: "auction", pid: e.oi, pn: e.o, a: e.g ?? e.a, q: e.q, n: e.n, x: e.x, t: e.t });
+  return out.sort((a, b) => b.t - a.t);
+}
+export function salesPage(player, back, st, pg = 0) {
+  if (!guard(player, "logs")) return;
+  if (!st) { st = { fi: 0, src: 0, sort: 0, q: "", seen: seenAt(player, "sell") }; markSeen(player, "sell"); }
+  const [fname, fms] = FILTERS[st.fi], cut = fms ? Date.now() - fms : 0, src = SALE_FILTERS[st.src], ql = st.q.toLowerCase();
+  let list = allSales().filter((v) => v.t >= cut && (src === "all" || v.src === src) && (!ql || String(v.pn).toLowerCase().includes(ql)));
+  if (st.sort === 1) list.sort((a, b) => b.a - a.a); else if (st.sort === 2) list.sort((a, b) => b.q - a.q);
+  const sum = list.reduce((a, v) => a + v.a, 0), items = list.reduce((a, v) => a + v.q, 0);
+  const self = (n) => salesPage(player, back, st, n ?? 0), again = (ch) => salesPage(player, back, { ...st, ...ch }, 0);
+  const rows = list.map((v) => () => ({
+    zone: v.t > st.seen && v.pid !== player.id ? "g" : "c", icon: logIcon(v.e),
+    text: "§a§l+" + money(v.a) + " §r§7" + (SALE_SRC[v.src] ?? "Sale") + "\n§r§f" + num(v.q) + "x " + v.n + "\n§r§7each §f" + money(Math.round(v.a / Math.max(1, v.q))) + (v.e.bn ? " §a(+" + money(v.e.bn) + " bonus)" : "") + "\n§r§fSeller: " + v.pn + (v.src === "auction" ? " §7<- buyer §f" + v.e.p : v.src === "order" ? " §7-> order of §f" + v.e.o : "") + "\n§r§8" + stampT(v.t),
+    run: () => entryPage(player, v.e, v.c, () => salesPage(player, back, st, pg)),
+  }));
+  listPage(player, "§aSales §8- " + fname + (src !== "all" ? " - " + (SALE_SRC[src] ?? src) : "") + (st.q ? " - " + st.q : "") + " §8(" + money(sum) + ")", rows, pg, back, self, [
+    [2, hdr(1) + "§b§lTime\n§r§7Now: §f" + fname + "\n§r§eClick to change", ICON.search, () => again({ fi: (st.fi + 1) % FILTERS.length })],
+    [6, hdr(1) + "§a§lHow it was sold\n§r§7Now: §f" + (src === "all" ? "Everything" : SALE_SRC[src]) + "\n§r§eClick to change", ICON.gold, () => again({ src: (st.src + 1) % SALE_FILTERS.length })],
+    [7, hdr(1) + "§e§lSort\n§r§7Now: §f" + SALE_SORTS[st.sort] + "\n§r§eClick to change", ICON.paper, () => again({ sort: (st.sort + 1) % SALE_SORTS.length })],
+    [8, hdr(1, "g") + "§6§lOverview + search\n§r§7Shown now: §f" + num(list.length) + " sales, " + num(items) + " items\n§r§7Money: §a" + money(sum) + "\n§r§7Top sellers, top items, find a seller\n§r§eClick to open", ICON.book, () => salesTools(player, back, st, pg)],
+  ]);
+}
+function salesTools(player, back, st, pg) {
+  if (!guard(player, "logs")) return;
+  const f = make("Sales: tools", SHORT_ROWS); f.self = () => salesTools(player, back, st, pg); f.glass = true;
+  const toList = () => salesPage(player, back, st, pg);
+  set(f, 0 * COLS + 4, hdr(1) + "§a§lSales\n§r§7Time: §f" + FILTERS[st.fi][0] + "\n§r§7How: §f" + (SALE_FILTERS[st.src] === "all" ? "Everything" : SALE_SRC[SALE_FILTERS[st.src]]) + "\n§r§7Sort: §f" + SALE_SORTS[st.sort] + "\n§r§7Seller: §f" + (st.q || "everybody"), ICON.gold, null);
+  set(f, 2 * COLS + 2, hdr(1, "g") + "§6§lSales overview\n§r§7Top sellers, top items,\n§r§7how things were sold, totals\n§r§eClick to open", ICON.book, { run: () => salesOverview(player, () => salesTools(player, back, st, pg), st.fi === 0 ? 4 : st.fi) });
+  set(f, 2 * COLS + 4, hdr(1) + "§b§lFind a seller\n§r§7" + (st.q ? "Now: §f" + st.q : "Type a part of the name") + "\n§r§eClick", ICON.player, { run: () => {
+    const form = new OprForm().title("Find a seller"); textField(form, "§fPart of the name (empty = everybody)", "e.g. steve", st.q);
+    showModal(player, form, (v) => salesPage(player, back, { ...st, q: v ? String(v[0] ?? "").trim() : st.q }, 0));
+  } });
+  set(f, 2 * COLS + 6, hdr(1, "r") + "§c§lClear all filters\n§r§7Every sale, newest first", NAV.no, { run: () => salesPage(player, back, { fi: 0, src: 0, sort: 0, q: "", seen: st.seen }, 0) });
+  backBtn(f, toList); status(player, f);
+  open(player, f);
+}
+export function salesOverview(player, back, fi = 4) {
+  if (!guard(player, "logs")) return;
+  const [fname, fms] = FILTERS[fi], cut = fms ? Date.now() - fms : 0;
+  const list = allSales().filter((v) => v.t >= cut);
+  const f = make("Sales overview §8- " + fname, 6); f.self = () => salesOverview(player, back, fi); f.glass = true;
+  const sum = list.reduce((a, v) => a + v.a, 0), items = list.reduce((a, v) => a + v.q, 0), bonus = list.reduce((a, v) => a + (v.e.bn ?? 0), 0);
+  const bySeller = new Map(), byItem = new Map(), bySrc = new Map();
+  for (const v of list) {
+    const s = bySeller.get(v.pid) ?? { n: v.pn, a: 0, q: 0, c: 0 }; s.a += v.a; s.q += v.q; s.c++; bySeller.set(v.pid, s);
+    const k = String(v.x || v.n), it = byItem.get(k) ?? { n: v.n, e: v.e, a: 0, q: 0 }; it.a += v.a; it.q += v.q; byItem.set(k, it);
+    const r = bySrc.get(v.src) ?? { a: 0, c: 0 }; r.a += v.a; r.c++; bySrc.set(v.src, r);
+  }
+  set(f, 0 * COLS + 4, hdr(Math.min(99, Math.max(1, list.length)), "g") + "§6§lSales §8- " + fname + "\n§r§7Sales: §f" + num(list.length) + "\n§r§7Items sold: §f" + num(items) + "\n§r§7Money paid out: §a" + money(sum) + "\n§r§7Of it bonus (ranks / skills): §a" + money(bonus) + "\n§r§7Sellers: §f" + bySeller.size, ICON.gold, null);
+  set(f, 0 * COLS + 8, hdr(1) + "§b§lTime\n§r§7Now: §f" + fname + "\n§r§eClick to change", ICON.search, { run: () => salesOverview(player, back, (fi + 1) % FILTERS.length) });
+  [...bySeller.entries()].sort((a, b) => b[1].a - a[1].a).slice(0, 9).forEach(([id, s], i) => set(f, 1 * COLS + i, hdr(i + 1, i < 3 ? "g" : "c") + "§6#" + (i + 1) + " §f§l" + s.n + "\n§r§7Got: §a" + money(s.a) + "\n§r§7Sales: §f" + num(s.c) + " §7| items §f" + num(s.q) + "\n§r§eClick: all his logs", ICON.player, { run: () => playerLogsPage(player, id, s.n, () => salesOverview(player, back, fi)) }));
+  [...byItem.values()].sort((a, b) => b.a - a.a).slice(0, 9).forEach((it, i) => set(f, 2 * COLS + i, hdr(Math.min(99, Math.max(1, it.q)), "c") + "§f§l" + it.n + "\n§r§7Sold: §f" + num(it.q) + "\n§r§7Money: §a" + money(it.a), logIcon(it.e), null));
+  [...bySrc.entries()].sort((a, b) => b[1].a - a[1].a).slice(0, 9).forEach(([k, r], i) => set(f, 3 * COLS + i, hdr(Math.min(99, Math.max(1, r.c)), "c") + "§a§l" + (SALE_SRC[k] ?? k) + "\n§r§7Sales: §f" + num(r.c) + "\n§r§7Money: §a" + money(r.a), ICON.chest, null));
+  set(f, 4 * COLS + 4, hdr(1) + "§7§lRows\n§r§7Row 1: top sellers (money)\n§r§7Row 2: top items (money)\n§r§7Row 3: how things were sold", ICON.paper, null);
   backBtn(f, back); status(player, f);
   open(player, f);
 }
