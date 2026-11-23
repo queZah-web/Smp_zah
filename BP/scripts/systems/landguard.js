@@ -29,7 +29,8 @@ safe("leave", () => world.afterEvents.playerLeave.subscribe(({ playerId }) => { 
 
 // ---------------------------------------------------------------- blocks: break
 safe("break", () => world.beforeEvents.playerBreakBlock.subscribe((ev) => {
-  const b = ev.block, c = claimAt(b.dimension.id, b.x, b.y, b.z);
+  const b = ev.block; if (String(b.typeId).startsWith("smp:spawner_")) return;     // spawners: everybody may break them (spawners.js)
+  const c = claimAt(b.dimension.id, b.x, b.y, b.z);
   if (c && stranger(c, ev.player)) { ev.cancel = true; deny(ev.player, c, "You can't break blocks here."); }
 }));
 
@@ -57,6 +58,7 @@ function nearStrangerColumn(p, dimId, x, y, z, m) {
 safe("interact", () => world.beforeEvents.playerInteractWithBlock.subscribe((ev) => {
   const p = ev.player;
   const b = ev.block, d = b.dimension.id, f = FACE[String(ev.blockFace)] ?? [0, 0, 0];
+  if (String(b.typeId).startsWith("smp:spawner_") && !p.isSneaking) return;           // spawners: everybody may open them (spawners.js)
   const px = b.x + f[0], py = b.y + f[1], pz = b.z + f[2];       // where a placed block / liquid / fire would go
   let c = claimAt(d, b.x, b.y, b.z) ?? claimAt(d, px, py, pz);
   if (c && stranger(c, p)) { ev.cancel = true; return deny(p, c, "You can't build or use things here."); }

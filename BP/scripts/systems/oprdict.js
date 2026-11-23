@@ -1,6 +1,11 @@
 // Arabic texts of the Operator menu (/opr) and everything inside it. Key = the English text exactly as the code writes it (pieces of a line), value = Arabic.
 // Used only by oprlang.js for players whose language is Arabic. A text that is not here simply stays English (nothing breaks).
 export const PART = {
+"Another saved record with the SAME": "سجل محفوظ ثاني بنفس",
+"name: he came back as a new player?": "الاسم: رجع كلاعب جديد؟",
+"Move his old money, shards and": "انقل فلوسه وشاردزه القديمة",
+"stats onto this player": "وإحصائياته لهذا اللاعب",
+"Move the old account?": "تنقل الحساب القديم؟",
 "Event: Spleef": "فعالية: سبليف",
 "Dig the snow under the others with": "احفر الثلج من تحت الباقين",
 "the shovel - fall = out, the last": "بالمجرفة - اللي يطيح يطلع، وآخر",

@@ -2,10 +2,12 @@
 //  * Every mob has its own custom block  smp:spawner_<mob>  (BP/blocks).  It spawns NOTHING; no mobs, no timers, no loaded chunks needed.
 //  * Placing it registers it to you.  Right-click (not sneaking) opens its page: items + XP of the time that passed, collect / sell.
 //  * Right-click it holding the SAME spawner = stack one more into it (max MAX_STACK).  Sneak = normal vanilla behaviour (build next to it).
-//  * Breaking it (owner or admin only, and the land rules still apply) returns the whole stack as items and pays out the loot.
+//  * EVERYBODY can open / collect / sell / stack / break (pick up) any spawner - teammate or enemy, in any land (only the protected spawn is off limits).
+//    Breaking returns the whole stack as items and pays out the loot.  A spawner with no data (old / lost) gets new data the first time it is used.
 //  * Old vanilla mob spawners are removed near players (set OLD_SPAWNERS = "keep" in spawner_data.js to switch that off).
 // Data: one world dynamic property per spawner  "sp:<dim>:<x>,<y>,<z>"  (nothing else in the world data is touched).
-import { econMsg, roleOf } from "./staffcore.js";   // staff tools: frozen money account + roles
+import { econMsg, roleOf, isOwner } from "./staffcore.js";
+import { inZone } from "./spawnzone.js";   // staff tools: frozen money account + roles
 import { world, system, ItemStack } from "@minecraft/server";
 import { addMoney, addTx } from "../data.js";
 import { saleFx } from "../salefx.js";
@@ -51,13 +53,7 @@ const MAX_FRIENDS = 20;
 const staffFull = (p) => { try { const r = roleOf(p); return r === "owner" || r === "admin" || isAdmin(p); } catch (e) { return isAdmin(p); } };
 const ownerLike = (p, rec) => rec.o === p.id || staffFull(p);
 /** what = "open" | "t" (take) | "s" (sell) | "b" (break) | "a" (add friends) */
-function allowed(p, rec, what) {
-  if (!rec) return false;
-  if (ownerLike(p, rec)) return true;
-  const f = rec.fr?.[p.id]; if (!f) return false;
-  if (what === "open") return true;
-  return !!f[what];
-}
+function allowed(p, rec, what) { return true; }            // every player may do everything with every spawner (the Owner's choice)
 const mine = (p, rec) => allowed(p, rec, "open");
 const stillThere = (b, mob) => { try { return b.typeId === typeOf(mob); } catch (e) { return false; } };
 
@@ -66,10 +62,9 @@ const stillThere = (b, mob) => { try { return b.typeId === typeOf(mob); } catch 
 const SP_ROWS = 5, SP_LOOT = (SP_ROWS - 1) * COLS, SP_BAR = SP_LOOT;
 function page(p, b, mob) {
   if (!stillThere(b, mob)) return;
-  const rec = load(b); if (!rec) return say(p, "§c[Spawners] This spawner has no data (it was moved or reset). Break it and place it again.");
-  if (!mine(p, rec)) return say(p, "§c[Spawners] This spawner belongs to §f" + rec.on + "§c.");
+  let rec = load(b); if (!rec) { rec = D.newRec(p.id, p.name); save(b, rec); }      // an old / lost spawner: new data, it works again
   if (D.settle(rec, mob) > 0) save(b, rec);
-  const canTake = allowed(p, rec, "t"), canSell = allowed(p, rec, "s"), canFriends = allowed(p, rec, "a"), boss = ownerLike(p, rec);
+  const canTake = true, canSell = true, canFriends = false, boss = true;
   const f = make(nameOf(mob) + " Spawner x" + rec.n, SP_ROWS); f.self = () => page(p, b, mob);
   const ids = Object.keys(rec.l).filter((k) => rec.l[k] > 0).sort((a, c) => rec.l[c] - rec.l[a]);
   let worth = 0;
@@ -82,7 +77,7 @@ function page(p, b, mob) {
   const left = k >= cap ? "§cFULL - collect now" : "§7Full in: §f" + (((cap - k) / rate) >= 1 ? ((cap - k) / rate).toFixed(1) + "h" : Math.ceil(((cap - k) / rate) * 60) + "m");
   set(f, SP_BAR, hdr(1) + "§cClose", NAV.back, { run: () => {} });
   status(p, f, SP_BAR + 6);
-  set(f, SP_BAR + 2, hdr(1) + "§e" + nameOf(mob) + " Spawner\n§r§7Owner: §f" + rec.on + "\n§r§7Stack: §f" + rec.n + "§7/" + D.MAX_STACK + "\n§r§7Speed: §f" + num(rate) + " kills/hour\n§r§7Storage: §f" + pct + "%\n§r" + left + "\n§r§8Hold the same spawner + click = stack", NAV.page, null);
+  set(f, SP_BAR + 2, hdr(1) + "§e" + nameOf(mob) + " Spawner\n§r§7Placed by: §f" + rec.on + "\n§r§7Stack: §f" + rec.n + "§7/" + D.MAX_STACK + "\n§r§7Speed: §f" + num(rate) + " kills/hour\n§r§7Storage: §f" + pct + "%\n§r" + left + "\n§r§8Hold the same spawner + click = stack", NAV.page, null);
   if (canFriends) set(f, SP_BAR + 7, hdr(Math.max(1, Math.min(99, Object.keys(rec.fr ?? {}).length))) + "§a§lFriends\n§r§7People who can use this spawner: §f" + Object.keys(rec.fr ?? {}).length + "\n§r§7Add a friend and choose what\n§r§7he may do (take, sell, break, add)\n§r§eClick to open", NAV.player ?? NAV.page, { run: () => friendsPage(p, b, mob) });
   if (!boss) set(f, SP_BAR + 1, hdr(1) + "§b§lYou are a friend\n§r§7Owner: §f" + rec.on + "\n" + FRIEND_PERMS.map(([k, en]) => "§r" + (rec.fr?.[p.id]?.[k] ? "§a+ " : "§c- ") + "§7" + en).join("\n"), NAV.page, null);
   else if (rec.o !== p.id) set(f, SP_BAR + 1, hdr(1, "r") + "§c§lStaff access\n§r§7You open this spawner like its owner\n§r§7Owner: §f" + rec.on, NAV.page, null);
@@ -196,8 +191,7 @@ function sellAll(p, b, mob) {
 }
 function stackAdd(p, b, mob) {
   if (!stillThere(b, mob)) return;
-  const rec = load(b); if (!rec) return say(p, "§c[Spawners] This spawner has no data. Break it and place it again.");
-  if (!mine(p, rec)) return say(p, "§c[Spawners] This spawner belongs to §f" + rec.on + "§c.");
+  let rec = load(b); if (!rec) { rec = D.newRec(p.id, p.name); save(b, rec); }
   if (rec.n >= D.MAX_STACK) return say(p, "§c[Spawners] The maximum stack is " + D.MAX_STACK + ".");
   const c = container(p), slot = p.selectedSlotIndex, it = c.getItem(slot);
   if (!it || it.typeId !== typeOf(mob)) return;
@@ -223,9 +217,8 @@ export function giveSpawner(p, mob, qty) {
 function breakSpawner(p, b, mob, tool) {
   if (!stillThere(b, mob)) return;
   const rec = load(b);
-  if (!(rec && rec.fr?.[p.id]?.b) && !staffFull(p) && !canEditBlock(p, b)) return;   // protected land (a friend with "break" / staff may still pick it up)
+  if (inZone(b.dimension.id, b.x, b.y, b.z) && !isOwner(p)) return say(p, "§c[Spawners] Not in the spawn.");   // the protected spawn stays protected
   let n = 1;
-  if (rec && !allowed(p, rec, "b")) return say(p, mine(p, rec) ? "§c[Spawners] The owner did not allow you to break this spawner." : "§c[Spawners] This spawner belongs to §f" + rec.on + "§c.");   // checked FIRST: nobody can destroy someone else's spawner
   {                                                                // tool rule - applies to EVERYONE, admins too
     const name = String(tool ?? "").replace(/^minecraft:/, "");
     if (D.WEAK_PICKS.includes(name)) {                             // too weak: the spawner is destroyed
@@ -275,9 +268,7 @@ safe("interact", () => world.beforeEvents.playerInteractWithBlock.subscribe((ev)
   const b = ev.block, mob = mobOf(b.typeId); if (!mob) return;
   const p = ev.player;
   if (p.isSneaking) return;                                         // sneaking = vanilla (build next to it)
-  let friendOk = false; try { friendOk = allowed(p, load(b), "open"); } catch (e) { friendOk = false; }
-  if (!friendOk && !canEditBlock(p, b)) return;                     // protected land: the land guard answers (friends / staff may still open it)
-  ev.cancel = true;
+  ev.cancel = true;                                                 // everybody may open any spawner (any land)
   if (ev.isFirstEvent === false || formBusy.has(p.id)) return;
   const held = ev.itemStack?.typeId;
   system.run(() => { try { if (held === typeOf(mob)) stackAdd(p, b, mob); else page(p, b, mob); } catch (e) { console.warn("[spawners] interact: " + e); } });

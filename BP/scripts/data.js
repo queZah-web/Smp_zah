@@ -15,19 +15,31 @@ export const onTx = (fn) => txListeners.push(fn);      // called after every sho
 
 const blank = (name) => ({ name, money: STARTER_MONEY, shards: 0, kills: 0, deaths: 0, dw: 0, play: 0, spent: 0, earned: 0, bxp: 0, sxp: 0, tx: [], lim: {}, joined: Date.now() });
 
+// A saved record is NEVER replaced by an empty one because of a read problem:
+//   * the read failed (world not ready yet, engine busy)  -> the player gets a temporary record that is NOT saved; the real one
+//     is read again every 5 s and then used (nothing is overwritten)
+//   * the saved text is broken (not JSON)                 -> it is copied to "pbad:<id>" first, then a new record starts
+let readFailed = false;
 function readRaw(id) {
-  try { const raw = world.getDynamicProperty(PFX + id); if (typeof raw === "string") return JSON.parse(raw); } catch (e) { /* ignore */ }
-  return null;
+  readFailed = false;
+  let raw;
+  try { raw = world.getDynamicProperty(PFX + id); } catch (e) { readFailed = true; return null; }
+  if (typeof raw !== "string") return null;
+  try { return JSON.parse(raw); } catch (e) { try { world.setDynamicProperty("pbad:" + id, raw); } catch (x) { /* ignore */ } console.warn("[data] broken record of " + id + " kept in pbad:" + id); return null; }
 }
+const MAX_LEN = 30000;                     // a world property holds at most 32767 characters
 function write(id, s) {
-  try { world.setDynamicProperty(PFX + id, JSON.stringify(s)); } catch (e) { console.warn("save failed " + id + " " + e); }
+  let txt = JSON.stringify(s);
+  if (txt.length > MAX_LEN && Array.isArray(s.tx)) { s.tx.length = Math.min(s.tx.length, 40); txt = JSON.stringify(s); }   // too long: keep fewer transactions, never lose the money
+  try { world.setDynamicProperty(PFX + id, txt); } catch (e) { console.warn("save failed " + id + " " + e); }
 }
 function entry(id, name) {
   let e = cache.get(id);
   if (!e) {
-    const s = readRaw(id) ?? blank(name);
+    const got = readRaw(id), unsafe = readFailed;
+    const s = got ?? blank(name);
     s.tx ??= []; s.lim ??= {}; s.spent ??= 0; s.earned ??= 0; s.bxp ??= 0; s.sxp ??= 0; s.dw ??= 0; s.hud ??= "panel";
-    e = { s, session: Date.now() };
+    e = { s, session: Date.now(), unsafe };
     cache.set(id, e);
   }
   if (name) e.s.name = name;
@@ -76,15 +88,25 @@ export function allRecords() {
 }
 
 // ---- persistence ----------------------------------------------------------------
-system.runInterval(() => { for (const [id, e] of cache) { settle(e); write(id, e.s); } }, 100);   // every 5 s
+system.runInterval(() => {
+  for (const [id, e] of cache) {
+    if (e.unsafe) {                                                // the first read failed: try again, never write over the saved record
+      const got = readRaw(id);
+      if (readFailed) continue;
+      if (got) { got.tx ??= []; got.lim ??= {}; got.spent ??= 0; got.earned ??= 0; got.bxp ??= 0; got.sxp ??= 0; got.dw ??= 0; got.hud ??= "panel"; if (e.s.name) got.name = e.s.name; e.s = got; }
+      e.unsafe = false; e.session = Date.now();
+    }
+    settle(e); write(id, e.s);
+  }
+}, 100);   // every 5 s
 
 world.afterEvents.playerSpawn.subscribe(({ player, initialSpawn }) => {
-  if (initialSpawn) { const e = entry(player.id, player.name); e.session = Date.now(); write(player.id, e.s); touch(player); }
+  if (initialSpawn) { const e = entry(player.id, player.name); e.session = Date.now(); if (!e.unsafe) write(player.id, e.s); touch(player); }
 });
 world.afterEvents.playerLeave.subscribe(({ playerId }) => {          // exact final playtime, then forget
   const e = cache.get(playerId);
   if (!e) return;
-  settle(e); write(playerId, e.s); cache.delete(playerId);
+  if (!e.unsafe) { settle(e); write(playerId, e.s); } cache.delete(playerId);
 });
 
 // ---- PvP: kills / deaths / shards ------------------------------------------------
@@ -143,4 +165,27 @@ export function addShardsById(id, n) {
 export function recordOf(id) {
   const live = cache.get(id);
   return live ? live.s : readRaw(id);
+}
+
+// ---- account recovery: a player came back with a NEW id (new account / the server forgot him) -> the Owner moves his old
+//      record onto the new one (/opr > Players > the player > "Old account").  Numbers are ADDED, the old record is removed.
+const SUM_KEYS = ["money", "shards", "kills", "deaths", "dw", "play", "spent", "earned", "bxp", "sxp", "tw", "tl", "sw", "sl", "dr", "pw", "pl", "qw", "ql", "cw", "cl", "spw", "spl"];
+/** other saved records with the same name (not this id): [{ id, name, money }] */
+export function sameNameRecords(id, name) {
+  const n = String(name ?? "").toLowerCase(), out = [];
+  for (const r of allRecords()) if (r.id !== id && String(r.name ?? "").toLowerCase() === n) out.push(r);
+  return out;
+}
+export function mergeRecord(fromId, toId) {
+  if (!fromId || !toId || fromId === toId) return { err: "Wrong accounts." };
+  const from = cache.get(fromId)?.s ?? readRaw(fromId); if (!from) return { err: "The old record was not found." };
+  const live = cache.get(toId), to = live ? live.s : readRaw(toId); if (!to) return { err: "The new player has no record yet (he must join once)." };
+  for (const k of SUM_KEYS) if (typeof from[k] === "number") to[k] = (Number(to[k]) || 0) + from[k];
+  if (Array.isArray(from.tx)) to.tx = [...(to.tx ?? []), ...from.tx].sort((a, b) => (b.t ?? 0) - (a.t ?? 0)).slice(0, MAX_TX);
+  if (from.joined && (!to.joined || from.joined < to.joined)) to.joined = from.joined;
+  if (!live) write(toId, to);
+  try { world.setDynamicProperty("pold:" + fromId, JSON.stringify(from)); } catch (e) { /* backup of the old record */ }
+  cache.delete(fromId);
+  try { world.setDynamicProperty(PFX + fromId, undefined); } catch (e) { /* ignore */ }
+  return { ok: true, money: Number(from.money) || 0 };
 }

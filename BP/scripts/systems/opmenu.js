@@ -8,7 +8,7 @@ import { world, EquipmentSlot } from "@minecraft/server";
 import { ModalFormData } from "@minecraft/server-ui";
 import { makeOpr as make, set, open, hdr, COLS, NAV, SHORT_ROWS, backBtn, status } from "../smp/ui.js";
 import { showModal, textField, dropdown, confirmOpr as confirm } from "./forms.js";
-import { knownPlayers, recordOf, addMoneyById, touch, playSeconds } from "../data.js";
+import { knownPlayers, recordOf, addMoneyById, touch, playSeconds, sameNameRecords, mergeRecord } from "../data.js";
 import { exOf } from "../smp/store.js";
 import { money, num, playtime, ago } from "../format.js";
 import { progress } from "../xp.js";
@@ -583,6 +583,7 @@ export function playerPage(player, id, name, back) {
   // staff tools for this player
   perm(f, 3 * COLS + 1, player, "inspect", "§b§lInspector\n§r§7Everything about " + name + " on one page:\n§r§7position, punishments, notes", "textures/items/spyglass", () => inspectPage(player, id, name, self));
   perm(f, 3 * COLS + 3, player, "warn", "§e§lDiscipline\n§r§7Mute, kick, warn, freeze, TP here,\n§r§7notes, frozen money, staff role", "textures/items/iron_sword", () => disciplinePage(player, id, name, self), muteOf(id) || freezeOf(id) || econOf(id) ? "r" : "c");
+  if (isOwner(player)) { const olds = sameNameRecords(id, name); if (olds.length) set(f, 3 * COLS + 7, hdr(olds.length, "g") + "§6§lOld account (" + olds.length + ")\n§r§7Another saved record with the SAME\n§r§7name: he came back as a new player?\n§r§7Move his old money, shards and\n§r§7stats onto this player\n§r§eClick to open", ICON.gold, { run: () => oldAccountPage(player, id, name, olds, self) }); }
   perm(f, 3 * COLS + 5, player, "shards", "§d§lGive & fix\n§r§7Shards, levels, an item, or give back\n§r§7his last inventory after a bug", "textures/ui/shop/ic_gift", () => givePage(player, id, name, self));
   backBtn(f, back); status(player, f);
   open(player, f);
@@ -1156,4 +1157,21 @@ function statuePage(player, st, back) {
   set(f, 2 * COLS + 5, hdr(1, "r") + "§c§lRemove this statue", ICON.barrier, { run: () => confirm(player, "Remove the statue?", ["§f" + nm], () => { removeStatue(st.k); say(player, "§e[Ranks] Statue removed."); back(); }, self) });
   backBtn(f, back); status(player, f);
   open(player, f);
+}
+
+// ---- account recovery (Owner): the old record of a player who came back with a new id (data.js mergeRecord)
+function oldAccountPage(player, id, name, olds, back) {
+  if (!isOwner(player)) return back();
+  const items = olds.map((r) => ({ zone: "g", icon: ICON.gold, text: "§f§l" + r.name + "\n§r§7Money: §a" + money(r.money ?? 0) + " §8| §7Shards: §d" + num(r.shards ?? 0) + "\n§r§7Kills §f" + num(r.kills ?? 0) + " §7| Playtime §f" + playtime(r.play ?? 0) + "\n§r§8id " + r.id + "\n§r§eClick to move it to " + name,
+    run: () => confirm(player, "Move the old account?", ["§7Money, shards, kills, deaths, playtime and", "§7stats of the old record are ADDED to §f" + name + "§7.", "§7His rank moves too. The old record is removed", "§7(a copy is kept). Items / levels can't be moved."], () => {
+      if (!isOwner(player)) return back();
+      const res = mergeRecord(r.id, id);
+      if (res.err) { say(player, "§c[Operator] " + res.err); return back(); }
+      try { const oi = rankIndexOf(r.id); if (oi >= 0 && rankIndexOf(id) < 0) { setRank(id, oi); setRank(r.id, -1); } } catch (e) { /* ignore */ }
+      try { slog(player, "recover", { id, name }, "old account " + r.id + " moved ($" + res.money + ")"); } catch (e) { /* ignore */ }
+      say(player, "§a[Operator] The old account was moved to " + name + " §7(+" + money(res.money) + ")§a.");
+      const t = online(id); if (t) { try { touch(t); t.sendMessage(oprMsg(t, "§a[Operator] Your old account data (money, stats) was given back to you.")); } catch (e) { /* ignore */ } }
+      back();
+    }, back) }));
+  listPage(player, "Old account of " + name, items, 0, back, () => oldAccountPage(player, id, name, sameNameRecords(id, name), back));
 }
