@@ -36,8 +36,8 @@ system.afterEvents.scriptEventReceive.subscribe((ev) => {
   const w = waiting.get(r.req); if (!w) return;
   waiting.delete(r.req); w.done(r);
 });
-system.runInterval(() => { const t = system.currentTick; for (const [k, w] of waiting) if (t - w.t > 20) { waiting.delete(k); w.done(null); } }, 5);
-/** asks the helper; cb(answer) - answer = null when the helper did not answer within 1 s */
+system.runInterval(() => { const t = system.currentTick; for (const [k, w] of waiting) if (t - w.t > 40) { waiting.delete(k); w.done(null); } }, 5);
+/** asks the helper; cb(answer) - answer = null when the helper did not answer within 2 s */
 function ask(op, data, cb) {
   const req = "ec" + ++seq + "_" + system.currentTick;
   waiting.set(req, { done: cb, t: system.currentTick });
@@ -107,4 +107,69 @@ function takePage(player, id, name, it, back) {
   } });
   backBtn(f, back);
   open(player, f);
+}
+
+// ===================================================================================================================
+// EVERYTHING HE OWNS (/opr > Players > a player > Everything he owns)  -  Admin / Owner
+//   one page: the backpack (3 rows) + the hotbar + armour + off hand + his levels + his ENDER CHEST (3 rows)
+//   * online  = live (the ender chest through the helper pack SMP Ender View)
+//   * offline = the last saved copy (inventory: saved every 30 s and when he leaves; ender chest: saved by the helper pack)
+//   click an ender chest item (online) = take it; "Take items" opens the take page of the inventory
+// ===================================================================================================================
+const INVS = "invs:";
+const desc = (s) => { let ench = [], dur = null; try { ench = (s.getComponent("minecraft:enchantable")?.getEnchantments() ?? []).map((e) => [e.type.id ?? String(e.type), e.level]); } catch (e) { /* ignore */ } try { const d = s.getComponent("minecraft:durability"); if (d) dur = [d.maxDurability - d.damage, d.maxDurability]; } catch (e) { /* ignore */ } return { id: s.typeId, n: s.amount, name: s.nameTag ?? "", ench, dur }; };
+const EQ = ["Head", "Chest", "Legs", "Feet", "Offhand"];
+function invSnap(p) {
+  const out = { t: Date.now(), n: p.name, inv: [], eq: [], lv: 0 };
+  try { const c = p.getComponent("minecraft:inventory").container; for (let i = 0; i < c.size; i++) { const it = c.getItem(i); if (it) out.inv.push({ slot: i, ...desc(it) }); } } catch (e) { /* ignore */ }
+  try { const eq = p.getComponent("minecraft:equippable"); EQ.forEach((k, j) => { const it = eq?.getEquipment(k); if (it) out.eq.push({ slot: j, ...desc(it) }); }); } catch (e) { /* ignore */ }
+  try { out.lv = p.level; } catch (e) { /* ignore */ }
+  return out;
+}
+const lastInv = new Map();
+function saveInv(id, snap) { try { const txt = JSON.stringify(snap); const key = txt.slice(txt.indexOf(',"inv"')); if (lastInv.get(id) === key) return; lastInv.set(id, key); world.setDynamicProperty(INVS + id, txt.length < 30000 ? txt : JSON.stringify({ ...snap, inv: snap.inv.slice(0, 30) })); } catch (e) { /* ignore */ } }
+const readInv = (id) => { try { const v = world.getDynamicProperty(INVS + id); return typeof v === "string" ? JSON.parse(v) : null; } catch (e) { return null; } };
+system.runInterval(() => { for (const p of world.getAllPlayers()) { try { saveInv(p.id, invSnap(p)); } catch (e) { /* ignore */ } } }, 600);
+try { world.beforeEvents.playerLeave.subscribe(({ player }) => { try { const s = invSnap(player), id = player.id; system.run(() => saveInv(id, s)); } catch (e) { /* ignore */ } }); } catch (e) { /* ignore */ }
+
+const agoTxt = (t) => { const s = Math.max(0, Math.floor((Date.now() - t) / 1000)); return s < 60 ? s + "s ago" : s < 3600 ? Math.floor(s / 60) + " min ago" : s < 86400 ? Math.floor(s / 3600) + " h ago" : Math.floor(s / 86400) + " days ago"; };
+function itemText(it, tail) {
+  let lines = "";
+  if (it.name) lines += "\n§r§7Name: §f" + it.name;
+  if (it.ench?.length) lines += "\n§r§b" + it.ench.slice(0, 6).map(([e, l]) => pretty(e) + " " + l).join("§7, §b");
+  if (it.dur) lines += "\n§r§7Durability: §f" + it.dur[0] + "§7/§f" + it.dur[1];
+  return hdr(Math.max(1, Math.min(99, it.n)), it.ench?.length ? "x" : "c") + "§f§l" + pretty(it.id) + "\n§r§7x" + it.n + lines + (tail ?? "");
+}
+export function ownsPage(player, id, name, back, takeInv) {
+  if (!isAdminRole(player)) { say(player, "§c[Operator] Only an Admin or the Owner can see this."); return back(); }
+  const self = () => ownsPage(player, id, name, back, takeInv), t = online(id);
+  const inv = t ? invSnap(t) : readInv(id);
+  if (t) saveInv(id, inv);
+  ask(t ? "get" : "snap", { target: id }, (r) => system.run(() => {
+    const f = make(name + " §8- everything he owns", 9); f.self = self; f.glass = true;
+    if (inv) {
+      for (const it of inv.inv ?? []) { const slot = it.slot >= 9 ? it.slot - 9 : 27 + it.slot; if (slot >= 0 && slot < 36) set(f, slot, itemText(it, it.slot < 9 ? "\n§r§8hotbar " + (it.slot + 1) : ""), iconOf(it.id), null); }
+      for (const it of inv.eq ?? []) set(f, 4 * COLS + [1, 2, 3, 4, 6][it.slot], itemText(it, "\n§r§8" + ["helmet", "chestplate", "leggings", "boots", "off hand"][it.slot]), iconOf(it.id), null);
+    }
+    set(f, 4 * COLS + 0, hdr(1) + "§e§lArmour + off hand\n§r§7Rows 1-4 above: backpack + hotbar\n§r§7Rows 6-8 below: ENDER CHEST", NAV.shield, null);
+    set(f, 4 * COLS + 8, hdr(Math.max(1, Math.min(99, inv?.lv ?? 0)), "g") + "§a§lLevels: §f" + (inv?.lv ?? 0) + "\n§r" + (t ? "§aOnline - live" : inv ? "§7Offline - saved §f" + agoTxt(inv.t) : "§cOffline - nothing saved yet"), "textures/items/experience_bottle", null);
+    const ok = r && r.ok, items = ok ? r.items ?? [] : [];
+    for (const it of items) { if (it.slot < 0 || it.slot > 26) continue; set(f, 5 * COLS + it.slot, itemText(it, t && !r.saved ? "\n§r§eClick to take" : "\n§r§8ender chest"), iconOf(it.id), t && !r.saved ? { run: () => takePage(player, id, name, it, self) } : null); }
+    const ecInfo = !r ? "§cThe helper pack SMP Ender View\n§r§cdid not answer: turn it on in the\n§r§cworld's behavior packs" : !ok ? (r.err === "offline" || r.err === "nosnap" ? "§7No saved copy yet (it is saved\n§r§7every 30 s while he plays)" : "§cCould not read: " + r.err) : r.saved ? "§7Saved copy: §f" + agoTxt(r.t) : "§aLive §7- " + items.length + " stacks";
+    set(f, 4 * COLS + 7, hdr(Math.max(1, Math.min(99, items.length)), ok ? "g" : "r") + "§5§lEnder chest\n§r" + ecInfo, "textures/blocks/ender_chest_front", null);
+    if (!items.length) set(f, 6 * COLS + 4, hdr(1) + "§5Ender chest\n§r" + (ok ? "§7Empty" : ecInfo), "textures/blocks/ender_chest_front", null);
+    if (t) {
+      if (takeInv) set(f, 8 * COLS + 6, hdr(1, "g") + "§a§lTake items\n§r§7Take from his inventory / armour\n§r§7or his levels\n§r§eClick to open", NAV.chest, { run: () => takeInv(self) });
+      clearBtn2(f, player, id, name, self, items.length);
+    }
+    backBtn(f, back); status(player, f);
+    open(player, f);
+  }));
+}
+function clearBtn2(f, player, id, name, self, n) {
+  set(f, 8 * COLS + 7, hdr(Math.max(1, Math.min(99, n || 1)), "r") + "§c§lClear the ender chest\n§r§7Deletes EVERYTHING in it\n§r§eClick", "textures/ui/shop/ic_fire", { run: () => confirm(player, "Clear " + name + "'s ender chest?", ["§cEverything in it is deleted.", "§7This can not be undone."], () => {
+    const t = online(id), why = blocked(player, t); if (why) { say(player, "§c[Operator] " + why); return self(); }
+    const done = (cnt, how) => { slog(player, "enderclear", { id, name }, "ender chest cleared (" + cnt + " stacks, " + how + ")"); say(player, "§a[Operator] " + name + "'s ender chest was cleared §7(" + cnt + " stacks)."); system.run(self); };
+    ask("clear", { target: id }, (r) => { if (r && r.ok) done(r.n, "helper"); else done(clearByCommand(t), "command"); });
+  }, self) });
 }

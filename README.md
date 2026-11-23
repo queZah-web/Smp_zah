@@ -401,3 +401,6 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
   most kills wins.
 - Loot records (Admin / Owner): /opr > Players > a player > Sky Wars loot, or the Sky Wars page: every item a player had
   before each game; "Give back from the locker" (the real items) or (Owner) "Make the items again" if they were lost.
+
+## Everything he owns (/opr > Players > a player) - Admin / Owner
+- One page: backpack + hotbar + armour + off hand + levels + the ENDER CHEST. Online = live, offline = the last saved copy (inventory saved every 30 s and when he leaves by the SMP pack; ender chest saved by the helper pack SMP Ender View 1.1.0). Click an ender item to take it, clear the ender chest, open "Take items".

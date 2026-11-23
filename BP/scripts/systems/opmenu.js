@@ -43,7 +43,7 @@ import { activeCount as eventsRunning } from "./events.js";
 import { buildingPage } from "./spawnbuild.js";
 import { fastHealOn, setFastHeal } from "./fastheal.js";
 import { itemTimerOn, setItemTimer } from "./itemtimer.js";
-import { enderPage, isAdminRole } from "./enderchest.js";
+import { enderPage, isAdminRole, ownsPage } from "./enderchest.js";
 import { RANKS, rankOf, rankIndexOf, setRank, rankLabel, rankedIds } from "./viprank.js";
 import { statues, placeStatue, placeAll, removeStatue, removeAllStatues } from "./rankstatue.js";
 import { hopperList, hopperDim, lastLogout } from "./hopperlog.js";
@@ -585,7 +585,8 @@ export function playerPage(player, id, name, back) {
   if (bl.length) set(f, 2 * COLS + 5, hdr(1, "g") + "§a§lUnban\n§r§7Lift every ban he has", NAV.ok, { run: () => confirm(player, "Unban " + name, ["§f" + name, "§7Lifts all of his bans (" + bl.map((b) => SRC[b.src]).join(", ") + ")."], () => { if (!guard(player, "unban")) return; const n = liftAll(id); say(player, n ? "§a[Operator] §f" + name + " §aunbanned." : "§7[Operator] No ban found."); if (n) { opAlert("§f" + player.name + " §7unbanned §f" + name, { chat: false }); slog(player, "unban", { id, name }); } self(); }, self) });
   else if (t && isStaff(t)) set(f, 2 * COLS + 5, hdr(1, "r") + "§7§lBan\n§r§7Operators can't be banned", NAV.no, null);
   else set(f, 2 * COLS + 5, hdr(1, "r") + "§c§lBan\n§r§7Choose how long and why", "textures/ui/shop/ic_gavel", { run: () => banForm(player, id, name, self) });
-  set(f, 2 * COLS + 7, hdr(1) + "§5§lEnder chest\n§r§7Bedrock scripts can't read\n§r§7an ender chest (game limit)", ICON.ender, null);
+  if (isAdminRole(player)) set(f, 2 * COLS + 7, hdr(1, "g") + "§5§lEverything he owns\n§r§7Inventory, armour, levels AND his\n§r§7ender chest on one page\n§r§7" + (t ? "§aOnline: live" : "§7Offline: the last saved copy") + "\n§r§eClick to open", ICON.ender, { run: () => ownsPage(player, id, name, self, t ? (bk) => invAdminPage(player, id, name, bk) : null) });
+  else set(f, 2 * COLS + 7, hdr(1, "r") + "§5§lEverything he owns\n§r§7Admin / Owner only", ICON.ender, null);
 
   if (bl.length) set(f, 3 * COLS + 4, hdr(1, "r") + "§c§lBANNED\n§r" + bl.map((b) => "§7" + SRC[b.src] + ": §e" + leftText(b.u) + (b.why ? "\n§r§7" + b.why : "")).join("\n§r"), NAV.no, null);
   // staff tools for this player
@@ -711,7 +712,7 @@ function inventoryPage(player, id, name, back) {
     [[1, E.Head], [2, E.Chest], [3, E.Legs], [4, E.Feet], [6, E.Offhand]].forEach(([col, slot]) => cell(5 * COLS + col, eq.getEquipment(slot)));
     set(f, 5 * COLS + 0, hdr(1) + "§e§lArmor + off-hand\n§r§7Helmet, chestplate, leggings,\n§r§7boots | off-hand", NAV.shield, null);
   } catch (e) { /* ignore */ }
-  if (isAdminRole(player)) set(f, 7 * COLS + 4, hdr(1, "g") + "§5§lEnder chest\n§r§7See his ender chest, take items\n§r§7or clear it (cheaters)\n§r§8Admin / Owner only\n§r§eClick to open", ICON.ender, { run: () => enderPage(player, id, name, f.self) });
+  if (isAdminRole(player)) set(f, 7 * COLS + 4, hdr(1, "g") + "§5§lEnder chest\n§r§7See his ender chest, take items\n§r§7or clear it (cheaters)\n§r§8Admin / Owner only\n§r§eClick to open", ICON.ender, { run: () => ownsPage(player, id, name, f.self, (bk) => invAdminPage(player, id, name, bk)) });
   else set(f, 7 * COLS + 4, hdr(1, "r") + "§5§lEnder chest\n§r§7Admin / Owner only", ICON.ender, null);
   backBtn(f, back); status(player, f);
   open(player, f);
@@ -798,7 +799,7 @@ function invAdminPage(player, id, name, back) {
   } catch (e) { say(player, "§c[Operator] Could not read the inventory."); }
   set(f, 5 * COLS + 0, hdr(1) + "§e§lArmor + off-hand\n§r§7Helmet, chestplate, leggings,\n§r§7boots | off-hand", NAV.shield, null);
   [["Head", 1], ["Chest", 2], ["Legs", 3], ["Feet", 4], ["Offhand", 6]].forEach(([nm, col]) => cell(5 * COLS + col, { k: "e", e: EquipmentSlot[nm] }, EQ_NAME[nm]));
-  if (isAdminRole(player)) set(f, 7 * COLS + 7, hdr(1, "g") + "§5§lEnder chest\n§r§7See it, take items, clear it\n§r§8Admin / Owner only\n§r§eClick to open", ICON.ender, { run: () => enderPage(player, id, name, self) });
+  if (isAdminRole(player)) set(f, 7 * COLS + 7, hdr(1, "g") + "§5§lEnder chest\n§r§7See it, take items, clear it\n§r§8Admin / Owner only\n§r§eClick to open", ICON.ender, { run: () => ownsPage(player, id, name, self, (bk) => invAdminPage(player, id, name, bk)) });
   let lvl = 0; try { lvl = t.level; } catch (e) { /* ignore */ }
   const nStacks = (() => { let n = 0; for (const sp of allSpecs(t)) { try { if (readSpec(t, sp)) n++; } catch (e) { /* ignore */ } } return n; })();
   if (canTake) {
