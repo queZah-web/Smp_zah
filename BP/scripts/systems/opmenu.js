@@ -47,6 +47,7 @@ import { enderPage, isAdminRole } from "./enderchest.js";
 import { RANKS, rankOf, rankIndexOf, setRank, rankLabel, rankedIds } from "./viprank.js";
 import { statues, placeStatue, placeAll, removeStatue, removeAllStatues } from "./rankstatue.js";
 import { hopperList, hopperDim, lastLogout } from "./hopperlog.js";
+import { lootListPage, lootRecords } from "./skywars.js";
 
 const SYM = OPMENU.symbol;
 const ICON = {
@@ -568,6 +569,7 @@ export function playerPage(player, id, name, back) {
   set(f, 0 * COLS + 4, hdr(1, t ? "g" : "c") + "§e§l" + name + "\n§r" + (t ? "§aOnline §7- " + dimLabel(t.dimension.id) : "§7Offline") + "\n§r§7Money: §a" + money(r.money ?? 0) + " §8| §7Shards: §d" + num(r.shards ?? 0)
     + "\n§r§7Kills §f" + num(r.kills ?? 0) + " §7| Deaths §f" + num(r.deaths ?? 0) + "\n§r§7Playtime: §f" + playtime(play) + "\n§r§7Buyer Lv §f" + progress(r.bxp ?? 0).level + " §7| Seller Lv §f" + progress(r.sxp ?? 0).level + statusLine(id), ICON.player, null);
 
+  if (isAdminRole(player)) { const nr = lootRecords(id).length; if (nr) set(f, 0 * COLS + 0, hdr(Math.min(99, nr), "g") + "§6§lSky Wars loot\n§r§7What he had before each Sky Wars\n§r§7game - give it back if needed\n§r§7Records: §f" + nr + "\n§r§eClick to open", "textures/ui/shop/i3d_barrel", { run: () => lootListPage(player, self, id, name) }); }
   { const lp = lastLogout(id);
     if (lp) set(f, 0 * COLS + 8, hdr(1, "g") + "§b§lLast logout place\n§r§7" + dimLabel(lp.d) + " §f" + Math.floor(lp.x) + " " + Math.floor(lp.y) + " " + Math.floor(lp.z) + "\n§r§7" + (lp.out ? "Left the game " : "Last seen ") + "§f" + ago(lp.t) + "\n§r§eClick to go there", "textures/items/compass_item", { run: () => tpTo(player, { x: lp.x, y: lp.y, z: lp.z }, lp.d, name + "'s last logout place") });
     else set(f, 0 * COLS + 8, hdr(1, "r") + "§7§lLast logout place\n§r§7Not saved yet (he has not\n§r§7left the game since this update)", NAV.no, null); }

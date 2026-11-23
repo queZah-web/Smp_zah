@@ -387,3 +387,17 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
 - Every sale keeps how it was sold (shop item page, sell box, sell slot, chest sell + chest place, spawner + which spawner, potions), the normal price each, what he got each, the rank / skill bonus, where he stood, his money after, the exact time.
 - /opr > Logs > Sales: one list of ALL sales incl. auction sales (seller) and order sales; filters: time, how it was sold, one seller; sort: newest / biggest / most items; Overview: totals, bonus paid, top 9 sellers, top 9 items, money per way of selling.
 - Fixed: the time filter of every log list was hidden under the Back / balance buttons.
+
+## Sky Wars (event) - /opr > Building / Events > Sky Wars (Owner), /skywars - `systems/skywars.js`, `skywarsdesign.js`
+- Build for 10 or 20 players: a centre island (4 stone spires with ladders, a raised middle, 8 chests, enchanting table,
+  anvil, crafting table, furnace) and a ring of player islands 32 blocks apart (grass, dirt, hanging rock with terracotta
+  bands, a tree, a rock spire, 2 chests), 60 blocks over the ground. Lockers (2 barrels per player) buried in barriers.
+- Start: the islands are rebuilt and every chest gets NEW random loot (island: swords, axes, armour, blocks, food, bows,
+  pearls, buckets, TNT, splash potions...; centre: diamond / enchanted gear, golden apples, power bows, knockback stick,
+  strong potions, rarely an enchanted golden apple / totem). Own things + XP go into the locker and into a LOOT RECORD.
+- Everything allowed (fight, break, build); placed TNT lights itself; buying / selling / /pay are off for the players.
+- Out = dying, the void, leaving the arena / the game: game things gone, own things + XP back exactly, teleported to his
+  first /home (no home = where he was). Winner: prize + stats, game things gone, back to where he was. Time limit: the
+  most kills wins.
+- Loot records (Admin / Owner): /opr > Players > a player > Sky Wars loot, or the Sky Wars page: every item a player had
+  before each game; "Give back from the locker" (the real items) or (Owner) "Make the items again" if they were lost.

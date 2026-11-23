@@ -500,7 +500,10 @@ export function econUnfreeze(actor, target) {
   return r;
 }
 /** text to show a player whose account is frozen (null = he may trade).  Every trade entry point asks this BEFORE anything happens. */
+/** players of an event that turns buying / selling off (Sky Wars): id set by the event */
+export const econLocks = new Set();
 export function econMsg(p) {
+  try { if (econLocks.has(p.id)) return "§c[Economy] Buying and selling is off while you play Sky Wars."; } catch (e) { /* ignore */ }
   try { const r = activeOf("eco", p.id); return r ? "§c[Economy] Your money account is frozen by the staff (" + left(r.u) + "). Reason: §f" + r.r : null; } catch (e) { return null; }
 }
 

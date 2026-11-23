@@ -48,7 +48,8 @@ import "./fastheal.js";     // fast healing, Java style (Admin / Owner: /opr > W
 import "./afkhall.js";     // the AFK Hall (Owner: /opr > Building > AFK Hall) - becomes the AFK area
 import "./football.js";    // Football event: the stadium (Owner: /opr > Building / Events > Football), matches, /football
 import "./tntrun.js";      // TNT Run event: the arena (Owner: /opr > Building / Events > TNT Run), games, /tntrun
-import "./spleef.js";      // Spleef event: the snow arena (Owner: /opr > Building / Events > Spleef), games, /spleef
+import "./spleef.js";
+import "./skywars.js";     // Sky Wars event: sky islands + random loot (Owner: /opr > Building / Events > Sky Wars), /skywars, loot records      // Spleef event: the snow arena (Owner: /opr > Building / Events > Spleef), games, /spleef
 import "./squidgame.js";   // Red Light, Green Light event: the arena + the doll (Owner: /opr > Building / Events > Red Light), /redlight
 import "./dropper.js";     // Dropper event: the tower with 7 stages (Owner: /opr > Building / Events > Dropper), /dropper
 import "./pillars.js";     // Pillars of Fortune event: 16 pillars in the sky (Owner: /opr > Building / Events > Pillars), /pillars
