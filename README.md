@@ -376,3 +376,9 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
 - Spawners: everybody (teammate or enemy) can open, collect, sell, stack and break / pick up any spawner, in any land (not in the protected spawn). Old spawners with no data get new data the first time they are used.
 - Player data: a record is never overwritten by an empty one when the first read fails (it is read again); a broken record is kept in pbad:<id>; very long records drop old transactions instead of failing to save.
 - /opr > Players > a player > Old account (Owner): a saved record with the same name (he came back with a new id) can be moved onto him (money, shards, stats, rank; a copy is kept in pold:<id>).
+
+## Logs v2
+- Every money purchase is logged now (also mining tools, Night Vision, tables, land, cosmetics, random TP, clan, skill unlock). Each record keeps where the player stood (go there) and his money right after; times in Baghdad time + UTC.
+- The logs keep far more records (e.g. 800 purchases / 800 sales), saved in several pieces.
+- Hopper log (/opr > Logs): who placed, opened and broke every hopper, go to it even after it is gone; Admins / Owner looking at a hopper see its tag in the action bar.
+- /opr > Players > a player > Last logout place: go to where he left the game.

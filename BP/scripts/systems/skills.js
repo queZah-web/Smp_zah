@@ -25,7 +25,7 @@
 //    Safety: prices only change for money, shop buy/sell can never loop into profit (see priceperks.js).
 //  * The skill bar shows in the action bar ONLY while you are gaining skill xp.
 import { world, system, GameMode, ItemStack } from "@minecraft/server";
-import { addMoney, addShards, takeMoney, stats } from "../data.js";
+import { addMoney, addShards, takeMoney, stats, addTx } from "../data.js";
 import { num, money } from "../format.js";
 import { ex } from "../smp/store.js";
 import { countOre } from "../smp/track.js";
@@ -419,6 +419,7 @@ export function unlockSkill(p, key) {
   if (d.n[key] < GATE_TOTAL) return { ok: false, text: "§c" + S.name + " must be at least level " + GATE_LEVEL + "." };
   const cost = unlockCost(key);
   if (!takeMoney(p, cost)) return { ok: false, text: "§cNot enough money. You need " + money(cost) + "." };
+  try { addTx(p, { type: "buy", id: "skill_unlock", name: "Skill unlock: " + S.name, qty: 1, total: cost }); } catch (e) { /* ignore */ }
   d.lk[key] = true;
   try { p.playSound("random.totem"); } catch (e) { /* ignore */ }
   try { p.sendMessage(menuMsg(p, "§6[Skills] " + S.color + S.name + " §aunlocked! Levels §f" + (GATE_LEVEL + 1) + "-" + MAX_LEVEL + " §aare open." + (S.tool ? " §aA 2nd tool can now be upgraded." : ""))); } catch (e) { /* ignore */ }

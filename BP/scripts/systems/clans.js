@@ -9,7 +9,7 @@ import { ModalFormData } from "@minecraft/server-ui";
 import { SHORT_ROWS, make, set, open, hdr, COLS, NAV, backBtn, status } from "../smp/ui.js";
 import { notify } from "../smp/notify.js";
 import { UTC_OFFSET_HOURS } from "../smp/config.js";
-import { stats, takeMoney, addShards, addShardsById, knownPlayers, statOf, recordOf, playSeconds } from "../data.js";
+import { stats, takeMoney, addTx, addShards, addShardsById, knownPlayers, statOf, recordOf, playSeconds } from "../data.js";
 import { exOf } from "../smp/store.js";
 import { SKILLS, KEYS, PERK, SPEED, TRADE_TIERS, info as skillLevelInfo } from "./skills.js";
 import { claimsOf, sizeOf, timeLeft as landLeft, dur as landDur } from "./landcore.js";
@@ -148,6 +148,7 @@ function createClan(p, nameRaw, tagRaw) {
   const bal = stats(p).money;
   if (bal < CLAN.createCost) return "Creating a clan costs " + money(CLAN.createCost) + ". You need " + money(CLAN.createCost - bal) + " more.";
   if (!takeMoney(p, CLAN.createCost)) return "Payment failed.";
+  try { addTx(p, { type: "buy", id: "clan_create", name: "Clan created", qty: 1, total: CLAN.createCost }); } catch (e) { /* ignore */ }
   const now = Date.now();
   const c = norm({ id: now.toString(36) + Math.random().toString(36).slice(2, 6), name, tag, owner: p.id, members: { [p.id]: p.name }, joined: { [p.id]: now }, home: null, created: now });
   clans.set(c.id, c); save(c); reindex(); applyTag(p);

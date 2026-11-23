@@ -5,7 +5,7 @@
 import { isVanishedId } from "../systems/staffcore.js";   // staff tools: no trail for a vanished operator
 import { world, system, MolangVariableMap } from "@minecraft/server";
 import { ex } from "./store.js";
-import { takeMoney, addMoney, takeShards, addShards, stats } from "../data.js";
+import { takeMoney, addMoney, takeShards, addShards, stats, addTx } from "../data.js";
 import { buyPrice } from "../priceperks.js";
 import { titleView } from "./titlestate.js";
 import { luxPrefs } from "../lux.js";
@@ -34,6 +34,7 @@ export function buy(p, kind, item, currency) {
   if (!(price > 0)) return { err: "This item cannot be bought." };
   if ((currency === "shards" ? stats(p).shards : stats(p).money) < price) return { err: "Not enough " + (currency === "shards" ? "shards" : "money") + "." };
   if (!(currency === "shards" ? takeShards(p, price) : takeMoney(p, price))) return { err: "Not enough " + (currency === "shards" ? "shards" : "money") + "." };
+  try { addTx(p, { type: "buy", id: "cosmetic_" + kind + "_" + item.id, name: "Cosmetic: " + String(item.name ?? item.id).replace(/§./g, ""), qty: 1, total: price, cur: currency === "shards" ? "shards" : undefined }); } catch (e) { /* the log never stops a purchase */ }
   try { cos(p).own[kind + ":" + item.id] = Date.now(); }
   catch (e) { if (currency === "shards") addShards(p, price); else addMoney(p, price); return { err: "Could not save - you were not charged." }; }
   return { ok: true, price };

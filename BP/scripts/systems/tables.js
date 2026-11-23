@@ -8,7 +8,7 @@
 import { world, system, BlockTypes } from "@minecraft/server";
 import { sendBar } from "../barsend.js";
 import { ex } from "../smp/store.js";
-import { stats, takeMoney, addMoney } from "../data.js";
+import { stats, takeMoney, addMoney, addTx } from "../data.js";
 import { buyPrice } from "../priceperks.js";
 const my = (p, n) => buyPrice(p, n, 0);                  // the rank / Trading discount of this player
 import { money } from "../format.js";
@@ -123,7 +123,7 @@ function usedExtra(tk, snap, now) {
 }
 const posKey = (b) => b.dimension.id + ":" + b.x + "," + b.y + "," + b.z;
 const needMore = (p, cost) => { p.sendMessage(shopMsg(p, "§c[Tables] You don't have enough money! You need §f" + money(cost - stats(p).money) + " §cmore.")); return false; };
-function charge(p, cost) { if (stats(p).money < cost) return needMore(p, cost); return takeMoney(p, cost); }
+function charge(p, cost, what) { if (stats(p).money < cost) return needMore(p, cost); const ok = takeMoney(p, cost); if (ok) { try { addTx(p, { type: "buy", id: "table_use", name: what ?? "Table", qty: 1, total: cost }); } catch (e) { /* ignore */ } } return ok; }
 
 /** forces the open table screen to close: the screen shuts when the player is far from the table, so the player is lifted a few blocks for 3 ticks and put back exactly where he was.
  *  Safe: only when there is free air above, slow falling protects against any fall, and nothing is done to a player who is riding something. Returns true when the lift was done. */
@@ -173,14 +173,14 @@ function spent(p, tk) {
 function buyUse(p, key, block) {
   if (pay(p)) settle(p, "new");                      // an older unused paid use is refunded first (never lose or double count money)
   const { price, extra } = singlePrice(p, key);
-  if (!charge(p, price)) return;
+  if (!charge(p, price, "Table use: " + TABLES[key].name)) return;
   ex(p).tpay = { key, k: posKey(block), dim: block.dimension.id, pos: [block.x, block.y, block.z], price, extra, snap: null, lvl: 0, open: false, closeAt: Date.now() + REFUND_MS, t: Date.now() };
   p.sendMessage(shopMsg(p, "§a[Tables] Paid §e" + money(price) + " §afor one use of the §f" + TABLES[key].name + "§a. §fRight-click it again now §7(if you don't use it, you get your money back " + (REFUND_MS / 1000) + "s after you close it)"));
   luxDing(p); luxShop(p);
 }
 function buyPass(p, key) {
   const cost = my(p, key === "all" ? ALL_PASS.pass : TABLES[key].pass), name = key === "all" ? ALL_PASS.name : TABLES[key].name + " pass";
-  if (!charge(p, cost)) return false;
+  if (!charge(p, cost, "Table pass: " + name)) return false;
   addPass(p, key);
   p.sendMessage(shopMsg(p, "§a[Tables] §f" + name + " §abought for §e" + money(cost) + " §a- §f" + PASS_MINUTES + " minutes §7(" + (key === "all" ? "all tables" : "this table") + " open freely now)"));
   luxDing(p); luxShop(p);

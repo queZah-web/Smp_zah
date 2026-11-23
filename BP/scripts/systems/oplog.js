@@ -4,14 +4,14 @@
 // Hooks: data.js onTx (every shop transaction), pay.js logPay (every payment).  Settings: OPLOG in systems/config.js.
 // Everything is wrapped in try/catch: a problem here can never break a purchase, a sale or a payment.
 import { world, system } from "@minecraft/server";
-import { onTx, recordOf } from "../data.js";
+import { onTx, recordOf, stats } from "../data.js";
 import { isStaff, opAlert } from "./opcore.js";
 import { OPLOG as C } from "./config.js";
 import { money, num } from "../format.js";
 import { oprMsg } from "./oprlang.js";
 
 export const CATS = ["sus", "buy", "sell", "spawner", "pay", "big", "shard", "ah", "ord"];
-const CAP = { sus: 120, buy: 150, sell: 150, spawner: 80, pay: 80, big: 80, shard: 60, ah: 150, ord: 150 };
+const CAP = { sus: 300, buy: 800, sell: 800, spawner: 300, pay: 400, big: 300, shard: 300, ah: 500, ord: 500 };   // kept in several saved pieces (see load / flush)
 const KEY = (c) => "opl:" + c, MAXLEN = 28000;
 export const RULES = {
   same10: "Same product again and again", same30: "Same product again and again", loop: "Bought AND sold the same product", earn: "Fast money from sales",
@@ -23,13 +23,20 @@ export const RULES = {
 const logs = {};
 let loaded = false, saveT = null;
 const dirty = new Set();
+// one category = several world properties ("opl:buy", "opl:buy#1", "opl:buy#2" ...), each one under MAXLEN characters
+const pieces = {};                                               // category -> how many pieces are saved now
 function load() {
   if (loaded) return true;
   try {
     for (const c of CATS) {
-      const raw = world.getDynamicProperty(KEY(c));
-      let a = []; try { a = typeof raw === "string" ? JSON.parse(raw) : []; } catch (e) { a = []; }
-      logs[c] = Array.isArray(a) ? a : [];
+      let a = [], i = 0;
+      for (;;) {
+        const raw = world.getDynamicProperty(i ? KEY(c) + "#" + i : KEY(c));
+        if (typeof raw !== "string") break;
+        try { const part = JSON.parse(raw); if (Array.isArray(part)) a = a.concat(part); } catch (e) { /* a broken piece is skipped */ }
+        i++;
+      }
+      logs[c] = a; pieces[c] = i;
     }
     loaded = true;
   } catch (e) { return false; }                                  // world not ready yet: never overwrite what is saved
@@ -39,9 +46,13 @@ function flush() {
   saveT = null;
   for (const c of dirty) {
     try {
-      const arr = logs[c]; let s = JSON.stringify(arr);
-      while (s.length > MAXLEN && arr.length > 1) { arr.length = Math.floor(arr.length * 0.9); s = JSON.stringify(arr); }
-      world.setDynamicProperty(KEY(c), s);
+      const arr = logs[c], parts = [];
+      let cur = [], len = 2;
+      for (const e of arr) { const t = JSON.stringify(e); if (len + t.length + 1 > MAXLEN && cur.length) { parts.push(cur); cur = []; len = 2; } cur.push(e); len += t.length + 1; }
+      if (cur.length || !parts.length) parts.push(cur);
+      parts.forEach((part, i) => world.setDynamicProperty(i ? KEY(c) + "#" + i : KEY(c), JSON.stringify(part)));
+      for (let i = parts.length; i < (pieces[c] ?? 0); i++) { try { world.setDynamicProperty(KEY(c) + "#" + i, undefined); } catch (e) { /* ignore */ } }
+      pieces[c] = parts.length;
     } catch (e) { console.warn("[oplog] save failed (" + c + "): " + e); }
   }
   dirty.clear();
@@ -124,6 +135,13 @@ function flag(p, ruleKey, level, text) {
   opAlert((level > 1 ? "§c" : "§e") + "[Logs] §f" + p.name + " §7- " + text + " §8(Operator > Logs > Suspicious)");
 }
 const watched = (p) => C.watchStaff === true || !isStaff(p);
+const DS = { "minecraft:overworld": "o", "minecraft:nether": "n", "minecraft:the_end": "e" };
+/** where the player stood + his money after the deal (added to every record) */
+function where(p, e) {
+  try { const l = p.location; e.w = (DS[p.dimension.id] ?? "o") + " " + Math.floor(l.x) + " " + Math.floor(l.y) + " " + Math.floor(l.z); } catch (x) { /* ignore */ }
+  try { e.b = Math.floor(stats(p).money); } catch (x) { /* ignore */ }
+  return e;
+}
 
 function catOf(rec) {
   const id = String(rec.id ?? ""), nm = String(rec.name ?? "");
@@ -179,7 +197,7 @@ try {
       if (C.enabled === false || !rec) return;
       const cat = catOf(rec), shard = rec.cur === "shards", k = rec.type === "sell" ? "sell" : "buy";
       const q = Math.max(1, Math.floor(rec.qty ?? 1)), a = Math.max(0, Math.floor(rec.total ?? 0)), now = Date.now();
-      const e = { t: now, k, i: p.id, p: p.name, x: String(rec.id ?? ""), n: String(rec.name ?? "?").slice(0, 40), q, a };
+      const e = where(p, { t: now, k, i: p.id, p: p.name, x: String(rec.id ?? ""), n: String(rec.name ?? "?").slice(0, 48), q, a });
       if (shard) e.s = 1;
       push(cat, e);
       const lim = shard ? C.big?.shards : k === "sell" ? C.big?.sell : C.big?.buy;
@@ -197,7 +215,7 @@ export function logAh(x) {
   try {
     if (C.enabled === false || !x || !x.actor) return;
     const now = Date.now(), a = Math.max(0, Math.floor(Number(x.price) || 0)), q = Math.max(1, Math.floor(Number(x.qty) || 1));
-    const e = { t: now, k: x.k === "ahb" ? "ahb" : "ahl", i: x.actor.id, p: x.actor.name, x: String(x.typeId ?? ""), n: String(x.name ?? "?").replace(/§./g, "").slice(0, 40), q, a };
+    const e = where(x.actor, { t: now, k: x.k === "ahb" ? "ahb" : "ahl", i: x.actor.id, p: x.actor.name, x: String(x.typeId ?? ""), n: String(x.name ?? "?").replace(/§./g, "").slice(0, 40), q, a });
     if (e.k === "ahb") { e.oi = String(x.sellerId ?? ""); e.o = String(x.sellerName ?? "?"); e.g = Math.max(0, Math.floor(Number(x.gain) || a)); }
     push("ah", e);
     if (e.k === "ahb" && C.big?.buy && a >= C.big.buy) push("big", { ...e });
@@ -216,7 +234,7 @@ export function logOrder(x) {
     if (C.enabled === false || !x || !x.actor) return;
     const now = Date.now(), a = Math.max(0, Math.floor(Number(x.total) || 0)), q = Math.max(1, Math.floor(Number(x.qty) || 1));
     const k = x.k === "ordf" ? "ordf" : x.k === "ordc" ? "ordc" : "ord";
-    const e = { t: now, k, i: x.actor.id, p: x.actor.name, x: String(x.typeId ?? ""), n: String(x.name ?? "?").replace(/§./g, "").slice(0, 40), q, a };
+    const e = where(x.actor, { t: now, k, i: x.actor.id, p: x.actor.name, x: String(x.typeId ?? ""), n: String(x.name ?? "?").replace(/§./g, "").slice(0, 40), q, a });
     if (k === "ordf") { e.oi = String(x.ownerId ?? ""); e.o = String(x.ownerName ?? "?"); }
     push("ord", e);
     if (k !== "ordc" && C.big?.[k === "ordf" ? "sell" : "buy"] && a >= C.big[k === "ordf" ? "sell" : "buy"]) push("big", { ...e });
@@ -232,7 +250,7 @@ export function logPay(p, t, amount) {
   try {
     if (C.enabled === false) return;
     const now = Date.now(), a = Math.floor(amount);
-    const e = { t: now, k: "pay", i: p.id, p: p.name, oi: t.id, o: t.name, a };
+    const e = where(p, { t: now, k: "pay", i: p.id, p: p.name, oi: t.id, o: t.name, a });
     push("pay", e);
     if (C.big?.pay && a >= C.big.pay) push("big", { ...e });
     live(p.id, "§8[Log] §f" + p.name + " §e" + money(a) + " §7sent to §f" + t.name);

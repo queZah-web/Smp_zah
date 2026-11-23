@@ -46,6 +46,7 @@ import { itemTimerOn, setItemTimer } from "./itemtimer.js";
 import { enderPage, isAdminRole } from "./enderchest.js";
 import { RANKS, rankOf, rankIndexOf, setRank, rankLabel, rankedIds } from "./viprank.js";
 import { statues, placeStatue, placeAll, removeStatue, removeAllStatues } from "./rankstatue.js";
+import { hopperList, hopperDim, lastLogout } from "./hopperlog.js";
 
 const SYM = OPMENU.symbol;
 const ICON = {
@@ -565,6 +566,9 @@ export function playerPage(player, id, name, back) {
   set(f, 0 * COLS + 4, hdr(1, t ? "g" : "c") + "§e§l" + name + "\n§r" + (t ? "§aOnline §7- " + dimLabel(t.dimension.id) : "§7Offline") + "\n§r§7Money: §a" + money(r.money ?? 0) + " §8| §7Shards: §d" + num(r.shards ?? 0)
     + "\n§r§7Kills §f" + num(r.kills ?? 0) + " §7| Deaths §f" + num(r.deaths ?? 0) + "\n§r§7Playtime: §f" + playtime(play) + "\n§r§7Buyer Lv §f" + progress(r.bxp ?? 0).level + " §7| Seller Lv §f" + progress(r.sxp ?? 0).level + statusLine(id), ICON.player, null);
 
+  { const lp = lastLogout(id);
+    if (lp) set(f, 0 * COLS + 8, hdr(1, "g") + "§b§lLast logout place\n§r§7" + dimLabel(lp.d) + " §f" + Math.floor(lp.x) + " " + Math.floor(lp.y) + " " + Math.floor(lp.z) + "\n§r§7" + (lp.out ? "Left the game " : "Last seen ") + "§f" + ago(lp.t) + "\n§r§eClick to go there", "textures/items/compass_item", { run: () => tpTo(player, { x: lp.x, y: lp.y, z: lp.z }, lp.d, name + "'s last logout place") });
+    else set(f, 0 * COLS + 8, hdr(1, "r") + "§7§lLast logout place\n§r§7Not saved yet (he has not\n§r§7left the game since this update)", NAV.no, null); }
   if (t && t.id !== player.id) set(f, 1 * COLS + 1, hdr(1, "g") + "§a§lGo to " + name + "\n§r§7Teleport to him now", "textures/items/ender_pearl", { run: () => { const now = online(id); if (!now) { say(player, "§c[Operator] " + name + " went offline."); return self(); } tpTo(player, now.location, now.dimension.id, name); } });
   else set(f, 1 * COLS + 1, hdr(1, "r") + "§7§lGo to " + name + "\n§r§7" + (t ? "That is you" : "He is offline"), NAV.no, null);
   set(f, 1 * COLS + 3, hdr(Math.max(1, homes.length)) + "§b§lHomes §7(" + homes.length + ")\n§r§7See every home he saved\n§r§7and go to it", ICON.bed, { run: () => homesPage(player, id, name, self) });
@@ -916,16 +920,18 @@ const amountOf = (e) => (e.s ? num(e.a) + " shards" : money(e.a));
 const wrap = (text, n = 30) => { const out = []; let line = ""; for (const w of String(text).split(" ")) { if ((line + " " + w).trim().length > n) { out.push(line); line = w; } else line = (line + " " + w).trim(); } if (line) out.push(line); return out; };
 
 /** the text of one entry in a list */
+/** "5m ago | 23-11 14:05" (Baghdad time, UTC+3) */
+const stampT = (t) => { const d = new Date(t + 3 * 3600000), z = (n) => String(n).padStart(2, "0"); return ago(t) + " §8| " + z(d.getUTCDate()) + "-" + z(d.getUTCMonth() + 1) + " " + z(d.getUTCHours()) + ":" + z(d.getUTCMinutes()); };
 function logLine(e, tag) {
   const t = tag ? "§8" + tag + " " : "";
-  if (e.k === "sus") return (e.l > 1 ? "§c§l" : "§e§l") + (RULES[e.r] ?? "Suspicious") + "\n§r§f" + e.p + "\n§r§8" + ago(e.t);
-  if (e.k === "pay") return "§e§l" + money(e.a) + " §r§7sent\n§r§f" + e.p + " §7-> §f" + e.o + "\n§r§8" + t + ago(e.t);
-  if (e.k === "ahl") return "§6§lListed " + money(e.a) + "\n§r§f" + num(e.q) + "x " + e.n + "\n§r§7" + e.p + " §8" + t + "- " + ago(e.t);
-  if (e.k === "ahb") return "§a§lAuction sale " + money(e.a) + "\n§r§f" + num(e.q) + "x " + e.n + "\n§r§7" + e.p + " §7<- §f" + e.o + "\n§r§8" + t + ago(e.t);
-  if (e.k === "ord") return "§6§lOrder made " + money(e.a) + "\n§r§f" + num(e.q) + "x " + e.n + "\n§r§7" + e.p + " §8" + t + "- " + ago(e.t);
-  if (e.k === "ordf") return "§a§lSold to order " + money(e.a) + "\n§r§f" + num(e.q) + "x " + e.n + "\n§r§7" + e.p + " §7-> §f" + e.o + "\n§r§8" + t + ago(e.t);
-  if (e.k === "ordc") return "§c§lOrder cancelled " + money(e.a) + "\n§r§f" + num(e.q) + "x " + e.n + "\n§r§7" + e.p + " §8" + t + "- " + ago(e.t);
-  return (e.k === "sell" ? "§a§l+" : "§c§l-") + amountOf(e) + "\n§r§f" + num(e.q) + "x " + e.n + "\n§r§7" + e.p + " §8" + t + "- " + ago(e.t);
+  if (e.k === "sus") return (e.l > 1 ? "§c§l" : "§e§l") + (RULES[e.r] ?? "Suspicious") + "\n§r§f" + e.p + "\n§r§8" + stampT(e.t);
+  if (e.k === "pay") return "§e§l" + money(e.a) + " §r§7sent\n§r§f" + e.p + " §7-> §f" + e.o + "\n§r§8" + t + stampT(e.t);
+  if (e.k === "ahl") return "§6§lListed " + money(e.a) + "\n§r§f" + num(e.q) + "x " + e.n + "\n§r§7" + e.p + " §8" + t + "- " + stampT(e.t);
+  if (e.k === "ahb") return "§a§lAuction sale " + money(e.a) + "\n§r§f" + num(e.q) + "x " + e.n + "\n§r§7" + e.p + " §7<- §f" + e.o + "\n§r§8" + t + stampT(e.t);
+  if (e.k === "ord") return "§6§lOrder made " + money(e.a) + "\n§r§f" + num(e.q) + "x " + e.n + "\n§r§7" + e.p + " §8" + t + "- " + stampT(e.t);
+  if (e.k === "ordf") return "§a§lSold to order " + money(e.a) + "\n§r§f" + num(e.q) + "x " + e.n + "\n§r§7" + e.p + " §7-> §f" + e.o + "\n§r§8" + t + stampT(e.t);
+  if (e.k === "ordc") return "§c§lOrder cancelled " + money(e.a) + "\n§r§f" + num(e.q) + "x " + e.n + "\n§r§7" + e.p + " §8" + t + "- " + stampT(e.t);
+  return (e.k === "sell" ? "§a§l+" : "§c§l-") + amountOf(e) + "\n§r§f" + num(e.q) + "x " + e.n + "\n§r§7" + e.p + " §8" + t + "- " + stampT(e.t);
 }
 const logIcon = (e) => (e.k === "sus" ? ICON.barrier : e.k === "pay" ? ICON.book : e.k === "ahl" || e.k === "ahb" || isOrd(e) ? (ICONS.get(e.x) ?? ICONS.get(String(e.x).replace("minecraft:", "")) ?? ahIcon(e.x) ?? ICON.item) : ICONS.get(e.x) ?? ICONS.get(String(e.x).replace("minecraft:", "")) ?? ICON.item);
 
@@ -957,6 +963,7 @@ function logsHubPage(player, back) {
   set(f, 3 * COLS + 7, hdr(1) + "§b§lHeart Logs\n§r§7Buyers, purchases, pickups, uses,\n§r§7destroyed / repaired\n§r§eClick to open", "textures/ui/shop/ic_heart", { run: () => { if (!guard(player)) return; if (heartLogsHook) heartLogsHook(player, self); else say(player, "§c[Operator] Heart Logs are not ready yet."); } });
   { const nc = creativeEntries().length;
     perm(f, 4 * COLS + 2, player, "logs", "§d§lCreative log\n§r§7Who used Creative mode and\n§r§7which items they took\n§r§7Saved: §f" + nc + "\n§r§eClick to open", ICON.chest, () => creativeLogPage(player, self), "c", Math.min(99, Math.max(1, nc))); }
+  { const nh = hopperList().length; perm(f, 4 * COLS + 6, player, "logs", "§6§lHopper log\n§r§7Every hopper: who placed it, who\n§r§7used it, who broke it - go to it\n§r§7(even when it is gone)\n§r§7Saved: §f" + nh + "\n§r§eClick to open", "textures/blocks/hopper_outside_top|textures/items/hopper", () => hopperLogPage(player, self), "c", Math.min(99, Math.max(1, nh))); }
   set(f, 4 * COLS + 4, hdr(Math.min(99, Math.max(1, nNew)), nNew ? "g" : "c") + "§d§lAlerts\n§r" + (nNew ? "§e" + nNew + " new" : "§7No new alerts") + "\n§r§7Notices for the staff\n§r§eClick to open", "textures/ui/shop/ic_mail", { run: () => alertsPage(player, self) });
   backBtn(f, back); status(player, f);
   open(player, f);
@@ -1010,8 +1017,11 @@ function entryPage(player, e, cat, back) {
   else { lines.push((e.k === "sell" ? "§a§lSale " : "§c§lPurchase ") + amountOf(e)); lines.push("§r§f" + num(e.q) + "x " + e.n); if (e.q > 1) lines.push("§r§7Per item: §f" + (e.s ? num(e.a / e.q) + " shards" : money(Math.round(e.a / e.q)))); lines.push("§r§7Player: §f" + e.p); }
   set(f, 0 * COLS + 4, hdr(1, e.k === "sus" && e.l > 1 ? "r" : "c") + lines.join("\n"), logIcon(e), null);
   set(f, 1 * COLS + 2, hdr(1) + "§e§l" + (e.k === "ahl" || e.k === "ordf" ? "Seller" : e.k === "ahb" || e.k === "ord" ? "Buyer" : e.k === "ordc" ? "Order owner" : "Player") + ": " + e.p + "\n§r§7Open the operator profile\n§r§7(money, homes, ban...)", ICON.player, { run: () => playerPage(player, e.i, e.p, self) });
-  set(f, 1 * COLS + 4, hdr(1) + "§b§lWhen\n§r§f" + ago(e.t) + "\n§r§8" + new Date(e.t).toISOString().replace("T", " ").slice(0, 19) + " UTC", ICON.compass, null);
+  set(f, 1 * COLS + 4, hdr(1) + "§b§lWhen\n§r§f" + ago(e.t) + "\n§r§7" + new Date(e.t + 3 * 3600000).toISOString().replace("T", " ").slice(0, 19) + " §8(Baghdad)\n§r§8" + new Date(e.t).toISOString().replace("T", " ").slice(0, 19) + " UTC", ICON.compass, null);
   set(f, 1 * COLS + 6, hdr(1) + "§f§lAll logs of " + e.p + "\n§r§7Everything this player did", ICON.paper, { run: () => playerLogsPage(player, e.i, e.p, self) });
+  if (e.w) { const [ds, wx, wy, wz] = String(e.w).split(" "), dimId = ds === "n" ? "minecraft:nether" : ds === "e" ? "minecraft:the_end" : "minecraft:overworld";
+    set(f, 2 * COLS + 2, hdr(1, "g") + "§b§lWhere he was\n§r§7" + dimLabel(dimId) + " §f" + wx + " " + wy + " " + wz + "\n§r§eClick to go there", "textures/items/ender_pearl", { run: () => tpTo(player, { x: Number(wx) + 0.5, y: Number(wy), z: Number(wz) + 0.5 }, dimId, e.p + "'s log spot") }); }
+  if (typeof e.b === "number") set(f, 2 * COLS + 6, hdr(1) + "§a§lHis money after\n§r§a" + money(e.b) + "\n§r§7(balance right after this deal)", ICON.gold, null);
   if ((e.k === "pay" || e.k === "ahb" || e.k === "ordf") && e.oi) set(f, 2 * COLS + 4, hdr(1) + "§e§l" + (e.k === "ahb" ? "Seller" : e.k === "ordf" ? "Order owner" : "Receiver") + ": " + e.o + "\n§r§7Open the operator profile", ICON.player, { run: () => playerPage(player, e.oi, e.o, self) });
   if (isOwner(player)) set(f, 3 * COLS + 4, hdr(1, "r") + "§c§lDelete this record\n§r§7Removes only this one record\n§r§7from the log for good\n§r§7Only the Owner sees this button", ICON.barrier, { run: () => {
     if (!isOwner(player)) return self();                                                      // checked again
@@ -1174,4 +1184,34 @@ function oldAccountPage(player, id, name, olds, back) {
       back();
     }, back) }));
   listPage(player, "Old account of " + name, items, 0, back, () => oldAccountPage(player, id, name, sameNameRecords(id, name), back));
+}
+
+// ================================================================ HOPPER LOG (hopperlog.js): who placed / used / broke every hopper
+function hopperLogPage(player, back, pg = 0, mode = 0) {
+  if (!guard(player, "logs")) return;
+  const MODES = ["All", "Still there", "Removed"];
+  const all = hopperList().filter((r) => mode === 0 || (mode === 1 ? !r.r : !!r.r));
+  const self = (n) => hopperLogPage(player, back, n ?? 0, mode);
+  const items = all.map((r) => () => ({
+    zone: r.r ? "r" : "g", icon: "textures/blocks/hopper_outside_top|textures/items/hopper",
+    text: "§6§lHopper " + (r.r ? "§c(removed)" : "§a(there)") + "\n§r§7Placed by: " + (r.p ? "§f" + r.p[0] + " §8" + stampT(r.p[2]) : "§8unknown (older)") + "\n§r§7" + dimLabel(hopperDim(r)) + " §f" + r.x + " " + r.y + " " + r.z
+      + (r.u?.length ? "\n§r§7Used by: §f" + r.u.slice(0, 3).map((u) => u[0]).join("§7, §f") : "") + (r.r ? "\n§r§7Broken by: §f" + r.r[0] + " §8" + stampT(r.r[2]) : "") + "\n§r§eClick for details",
+    run: () => hopperPage(player, r, () => hopperLogPage(player, back, pg, mode)),
+  }));
+  listPage(player, "Hopper log §8- " + MODES[mode], items, pg, back, self, [
+    [0, hdr(1) + "§b§lShow\n§r§7Now: §f" + MODES[mode] + "\n§r§eClick to change", ICON.search, () => hopperLogPage(player, back, 0, (mode + 1) % 3)],
+  ]);
+}
+function hopperPage(player, r, back) {
+  if (!guard(player, "logs")) return;
+  const f = make("Hopper " + r.x + " " + r.y + " " + r.z, SHORT_ROWS); f.self = () => hopperPage(player, r, back);
+  const dimId = hopperDim(r);
+  set(f, 0 * COLS + 4, hdr(1, r.r ? "r" : "g") + "§6§lHopper " + (r.r ? "§c(removed)" : "§a(still there)") + "\n§r§7" + dimLabel(dimId) + " §f" + r.x + " " + r.y + " " + r.z + "\n§r§7Placed by: " + (r.p ? "§f" + r.p[0] + "\n§r§8" + stampT(r.p[2]) : "§8unknown (placed before the log)") + (r.r ? "\n§r§7Broken by: §f" + r.r[0] + "\n§r§8" + stampT(r.r[2]) : ""), "textures/blocks/hopper_outside_top|textures/items/hopper", null);
+  set(f, 1 * COLS + 4, hdr(1, "g") + "§b§lGo there\n§r§7" + (r.r ? "The place where it was" : "Right next to the hopper") + "\n§r§eClick to go", "textures/items/ender_pearl", { run: () => tpTo(player, { x: r.x + 0.5, y: r.y + 1, z: r.z + 0.5 }, dimId, "hopper " + r.x + " " + r.y + " " + r.z) });
+  (r.u ?? []).slice(0, 6).forEach((u, i) => set(f, 2 * COLS + 1 + i + (i >= 3 ? 1 : 0), hdr(1) + "§f§l" + u[0] + "\n§r§7Opened / used it\n§r§8" + stampT(u[2]) + "\n§r§eClick: his profile", ICON.player, { run: () => playerPage(player, u[1], u[0], () => hopperPage(player, r, back)) }));
+  if (!(r.u ?? []).length) set(f, 2 * COLS + 4, hdr(1) + "§7Nobody opened it yet", ICON.paper, null);
+  if (r.p?.[1]) set(f, 1 * COLS + 2, hdr(1) + "§e§lPlaced by: " + r.p[0] + "\n§r§7Open his profile", ICON.player, { run: () => playerPage(player, r.p[1], r.p[0], () => hopperPage(player, r, back)) });
+  if (r.r?.[1]) set(f, 1 * COLS + 6, hdr(1, "r") + "§c§lBroken by: " + r.r[0] + "\n§r§7Open his profile", ICON.player, { run: () => playerPage(player, r.r[1], r.r[0], () => hopperPage(player, r, back)) });
+  backBtn(f, back); status(player, f);
+  open(player, f);
 }

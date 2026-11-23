@@ -12,7 +12,7 @@
 import { make, set, open, hdr, COLS, NAV, backBtn, status } from "../smp/ui.js";
 import { miningOpts, activeOpts, setMiningOpt, setTimberMode, timeLeft, fitsMin, addMinutes, priceOf, packsOf, maxMinOf, basePriceOf, setPrices, resetPrices, MINING_MAX_PRICE, abilityOff, setAbilityOff, ABILITY_KEYS } from "./mining.js";
 import { VEIN_MAX, MINING_PASS, AREA_DEPTH, MAGNET_RANGE, MAGNET_PAUSE } from "./config.js";
-import { stats, takeMoney } from "../data.js";
+import { stats, takeMoney, addTx } from "../data.js";
 import { buyPrice } from "../priceperks.js";
 const myPrice = (p, key, m) => buyPrice(p, priceOf(key, m), 0);        // the rank / Trading discount of this player
 import { money } from "../format.js";
@@ -59,6 +59,7 @@ function buy(p, key, min) {
   if (!fitsMin(p, key, min)) { p.sendMessage(menuMsg(p, "§c[Mining] You can hold at most " + minLabel(maxMinOf(key)) + " of " + name + (maxMinOf(key) <= 30 ? ". Wait until the time is over." : "."))); return false; }
   if (stats(p).money < cost) { p.sendMessage(menuMsg(p, "§c[Mining] You don't have enough money! You need §f" + money(cost - stats(p).money) + " §cmore.")); return false; }
   if (!takeMoney(p, cost)) return false;
+  try { addTx(p, { type: "buy", id: "mining_" + key, name: "Mining: " + name + " +" + minLabel(min), qty: 1, total: cost }); } catch (e) { /* ignore */ }
   const wasLocked = timeLeft(p, key) <= 0;              // no time before = it was switched off / locked
   addMinutes(p, key, min);
   const turnedOn = wasLocked && autoOn(p, key);         // bought it -> it works right away, no need to switch it on again

@@ -8,7 +8,7 @@ import { world, system } from "@minecraft/server";
 import { ModalFormData } from "@minecraft/server-ui";
 import { SHORT_ROWS, make, set, open, hdr, COLS, NAV, backBtn, status } from "../smp/ui.js";
 import { RTP, RTP_PRICE } from "./config.js";
-import { balance, takeMoney, addMoney } from "../data.js";
+import { balance, takeMoney, addMoney, addTx } from "../data.js";
 import { money } from "../format.js";
 import { ex } from "../smp/store.js";
 import { canTeleport, stamp, valid } from "./util.js";
@@ -91,6 +91,7 @@ export function rtp(player, kind) {
     const t = paid();
     if ((t[key] ?? 0) > 0) { pay = "ticket"; return true; }
     if (!takeMoney(player, price)) return false;
+    try { addTx(player, { type: "buy", id: "rtp", name: "Random teleport (" + key + ")", qty: 1, total: price }); } catch (e) { /* ignore */ }
     t[key] = (t[key] ?? 0) + 1; pay = "money";
     return true;
   };

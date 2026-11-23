@@ -2,7 +2,7 @@
 import { SHORT_ROWS, make, set, open, hdr, COLS, NAV, backBtn, status } from "../smp/ui.js";
 import { NV } from "./config.js";
 import { nvTimeLeft, nvFitsMin, nvAddMinutes, nvPrice, nvClock, nvIsOn, nvToggle, nvNotice, nvBasePrice, nvSetPrices, nvResetPrices, NV_MAX_PRICE } from "./nv.js";
-import { stats, takeMoney } from "../data.js";
+import { stats, takeMoney, addTx } from "../data.js";
 import { buyPrice } from "../priceperks.js";
 const myNv = (p, m) => buyPrice(p, nvPrice(m), 0);                     // the rank / Trading discount of this player
 import { money } from "../format.js";
@@ -23,6 +23,7 @@ function buy(p, min) {
   if (!pk || !nvFitsMin(p, min)) { p.sendMessage(menuMsg(p, "\u00a7c[NV] You can hold at most " + NV.maxHours + " hours of night vision.")); return false; }
   if (stats(p).money < cost) { p.sendMessage(menuMsg(p, "\u00a7c[NV] You don't have enough money! You need \u00a7f" + money(cost - stats(p).money) + " \u00a7cmore.")); return false; }
   if (!takeMoney(p, cost)) return false;
+  try { addTx(p, { type: "buy", id: "night_vision", name: "Night Vision +" + pk[1], qty: 1, total: cost }); } catch (e) { /* ignore */ }
   const wasLocked = nvTimeLeft(p) <= 0;                  // no time before = it was off
   nvAddMinutes(p, min);
   p.sendMessage(menuMsg(p, "\u00a7a[NV] Night vision \u00a7a+" + pk[1] + " for \u00a7e" + money(cost) + " \u00a7a- time left: \u00a7f" + nvClock(nvTimeLeft(p))));

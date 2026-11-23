@@ -6,7 +6,7 @@
 // and even while the server is switched off. When the time is over the claim simply disappears.
 // Every claim is stored in its own world dynamic property  "pr:<claim id>"  (nothing else in the world data is touched).
 import { world, system } from "@minecraft/server";
-import { stats, takeMoney, addMoney, allRecords } from "../data.js";
+import { stats, takeMoney, addMoney, allRecords, addTx } from "../data.js";
 import { buyPrice } from "../priceperks.js";
 import { luxProtect } from "../lux.js";
 import { staffHook } from "./opcore.js";
@@ -276,6 +276,7 @@ export function buyGrow(p, c, lv) {
   const cost = buyPrice(p, growPrice(c, lv), 0);
   if (stats(p).money < cost) return { err: "Not enough money. You need $" + cost.toLocaleString("en-US") + "." };
   if (!takeMoney(p, cost)) return { err: "Not enough money." };
+  try { addTx(p, { type: "buy", id: "land", name: "Land: fast growth level " + lv, qty: 1, total: cost }); } catch (e) { /* ignore */ }
   const old = c.g;
   c.g = { lv, e: Math.max(Date.now(), old?.e ?? 0) + GROW_PACK_H * HOUR };
   if (!save(c)) { c.g = old; addMoney(p, cost); return { err: "Could not save - you were not charged." }; }
@@ -312,6 +313,7 @@ export function createClaim(p, sizeKey, mode) {
     e: Date.now() + ms, t: {}, c: Date.now(), ord: (mine.length ? Math.max(...mine.map((m) => m.ord ?? 0)) : 0) + 1, sp: { x: Math.round(l.x * 10) / 10, y: Math.round(l.y * 10) / 10, z: Math.round(l.z * 10) / 10 },
   };
   if (!takeMoney(p, cost)) return { err: "Not enough money." };
+  try { addTx(p, { type: "buy", id: "land", name: "Land: protection " + size.name + " (new)", qty: 1, total: cost }); } catch (e) { /* ignore */ }
   claims.set(c.id, c);
   if (!save(c)) { claims.delete(c.id); addMoney(p, cost); return { err: "Could not save the protection - you were not charged." }; }
   return { claim: c, cost, ms };
@@ -323,6 +325,7 @@ export function renew(p, c, mode) {
   if (ms <= 0) return { err: "This protection already has " + (mode === "24" || mode === "1" ? "the maximum (" + MAX_HOURS + "h)" : "at least that much time") + "." };
   if (stats(p).money < cost) return { err: "Not enough money. You need $" + cost.toLocaleString("en-US") + "." };
   if (!takeMoney(p, cost)) return { err: "Not enough money." };
+  try { addTx(p, { type: "buy", id: "land", name: "Land: protection time (" + (c.n ?? "land") + ")", qty: 1, total: cost }); } catch (e) { /* ignore */ }
   const old = c.e; c.e = Math.max(Date.now(), c.e) + ms;
   if (!save(c)) { c.e = old; addMoney(p, cost); return { err: "Could not save - you were not charged." }; }
   warned.delete(c.id);
