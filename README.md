@@ -367,3 +367,7 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
 ## Villager egg fix
 - The egg villager is no longer removed and spawned again (that new one had no skin -> invisible / gone, or the spawn failed): the SAME villager now gets the game's "become unskilled" event and stays where it was placed.
 - Clear lag (mobs) never removes villagers, wandering traders, golems, allays, tamed or leashed animals.
+
+## Fixes
+- Football: normal play - no fouls, no warnings, no bench.
+- "Failed to get property name" in the menus (football players, TPA ...): a player who is still joining (downloading the resource pack) or leaving is no longer in the player lists until he is ready (perf.js).

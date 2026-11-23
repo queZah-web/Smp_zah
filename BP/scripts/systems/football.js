@@ -14,7 +14,7 @@
 //   * a countdown, then kick-off.  GOAL: title with the name of the scorer + effects for everybody in the stadium, the point
 //     goes to the team, the ball goes back to the middle, the players go back to their halves, and after 30 s ONLY the team
 //     that conceded can touch the ball first (kick-off).  The clock stops during that pause.
-//   * rules: no hitting players (a foul: 3 fouls = 30 s on the bench), no breaking, nobody leaves the pitch, spectators
+//   * rules: normal play (no fouls, no warnings, no bench), no breaking, nobody leaves the pitch, spectators
 //     who walk onto the pitch are sent to the stands.
 //   * time over: the winner (or a draw) is shown, the goals of the match are listed, the stats are saved (/football).
 //   * the 2 scoreboards in the stadium show the score and the time.
@@ -34,7 +34,7 @@ import { canTeleport, teleportWithFx } from "./util.js";
 const KEY = "fb:std", MKEY = "fb:m", STAT_KEY = "fb:st", PEND_KEY = "fb:pend", CFG_KEY = "fb:cfg";
 const BALL = "smp:football", KIT_LORE = "§8Football match item";
 const SIZES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], MINUTES = [5, 10, 15, 20, 32, 45, 60];
-const KICKOFF_PAUSE = 30, START_COUNT = 10, FOULS_OUT = 3, BENCH_SECS = 30;
+const KICKOFF_PAUSE = 30, START_COUNT = 10;
 const TEAM = {
   // the two kits look completely different (not only a dye colour): BLUE = shiny blue diamond + white iron, RED = black netherite + red
   b: { name: "BLUE", ar: "الأزرق", col: "§9", side: -1, armor: ["minecraft:diamond_helmet", "minecraft:diamond_chestplate", "minecraft:iron_leggings", "minecraft:diamond_boots"], kit: [null, null, null, null] },
@@ -293,8 +293,8 @@ export function startMatch(player) {
   for (const id of ids) {
     const p = online(id), t = M.pl[id].t;
     try { p.onScreenDisplay.setTitle(TEAM[t].col + "§l" + pick(p, TEAM[t].name + " TEAM", "الفريق " + TEAM[t].ar), { subtitle: pick(p, "§7You defend the " + (t === "b" ? "north" : "south") + " goal", "§7تدافع عن مرمى " + (t === "b" ? "الشمال" : "الجنوب")), fadeInDuration: 5, stayDuration: 60, fadeOutDuration: 10 }); } catch (e) { /* ignore */ }
-    tell(p, "§6[Football] §fYou are in the " + TEAM[t].col + "§l" + TEAM[t].name + "§r§f team. §7Hit the ball to kick (sprint = strong, sneak = soft, look up = high), right-click = pass. Don't hit players!",
-      "§6[كرة القدم] §fأنت بالفريق " + TEAM[t].col + "§l" + TEAM[t].ar + "§r§f. §7اضرب الكرة حتى تشوتها (ركض = قوية، انحناء = خفيفة، تباوع فوق = عالية)، كليك يمين = تمريرة. ممنوع تضرب اللاعبين!");
+    tell(p, "§6[Football] §fYou are in the " + TEAM[t].col + "§l" + TEAM[t].name + "§r§f team. §7Hit the ball to kick (sprint = strong, sneak = soft, look up = high), right-click = pass.",
+      "§6[كرة القدم] §fأنت بالفريق " + TEAM[t].col + "§l" + TEAM[t].ar + "§r§f. §7اضرب الكرة حتى تشوتها (ركض = قوية، انحناء = خفيفة، تباوع فوق = عالية)، كليك يمين = تمريرة.");
   }
   const line = (t) => M.teams[t].map((id) => M.pl[id].n).join(", ");
   for (const p of world.getAllPlayers()) tell(p, "§6§l[Football] §r§fA match starts! §9BLUE: §f" + line("b") + " §7vs §cRED: §f" + line("r") + " §7(" + c.min + " min) §e/football",
@@ -361,7 +361,6 @@ function touch(p, mode) {
   if (!M || !alive(M.ball)) return;
   const rec = M.pl[p.id];
   if (!rec) return bar(p, pick(p, "§7You are not playing in this match.", "§7أنت مو لاعب بهذي المباراة."));
-  if (rec.out > system.currentTick) return bar(p, pick(p, "§cYou are on the bench (fouls).", "§cأنت على الدكة (أخطاء)."));
   if (M.phase !== "play") return bar(p, pick(p, "§eWait for the kick-off!", "§eانتظر ضربة البداية!"));
   if (M.kick && rec.t !== M.kick) return bar(p, pick(p, "§eKick-off for " + TEAM[M.kick].col + TEAM[M.kick].name + "§e: wait until they touch the ball.", "§eضربة البداية لـ " + TEAM[M.kick].col + TEAM[M.kick].ar + "§e: انتظر لين يلمسون الكرة."));
   const t = system.currentTick; if (t - (lastKick.get(p.id) ?? -99) < 4) return; lastKick.set(p.id, t);
@@ -373,25 +372,12 @@ function touch(p, mode) {
 safe("hit", () => world.afterEvents.entityHitEntity.subscribe(({ damagingEntity: a, hitEntity: b }) => {
   if (!M || !a || a.typeId !== "minecraft:player" || !b) return;
   if (b.typeId === BALL) return touch(a, "kick");
-  if (b.typeId === "minecraft:player" && M.pl[a.id] && M.pl[b.id] && M.phase !== "end") foul(a, b);
 }));
 safe("pass", () => world.beforeEvents.playerInteractWithEntity.subscribe((ev) => {
   if (ev.target?.typeId !== BALL) return;
   ev.cancel = true;
   const p = ev.player; system.run(() => touch(p, "pass"));
 }));
-function foul(a, b) {
-  const rec = M.pl[a.id]; rec.fouls++;
-  if (rec.fouls < FOULS_OUT) {
-    tell(a, "§e[Football] Foul! §7Don't hit players (" + rec.fouls + "/" + FOULS_OUT + ").", "§e[كرة القدم] خطأ! §7ممنوع تضرب اللاعبين (" + rec.fouls + "/" + FOULS_OUT + ").");
-    toAll((q) => q.sendMessage("§e⚠ §f" + a.name + " §7" + pick(q, "fouled", "سوّى خطأ على") + " §f" + b.name));
-    return;
-  }
-  rec.fouls = 0; rec.out = system.currentTick + BENCH_SECS * 20;
-  const s = stadium(), dug = S.dug[rec.t === "b" ? "blue" : "red"];
-  try { a.teleport(abs(s, dug), { dimension: dimOf(s), facingLocation: abs(s, S.center) }); } catch (e) { /* ignore */ }
-  toAll((q) => q.sendMessage("§c🟥 §f" + a.name + " §7" + pick(q, "is on the bench for " + BENCH_SECS + " s (3 fouls)", "على الدكة " + BENCH_SECS + " ثانية (3 أخطاء)")));
-}
 
 // the ball can not leave the white line; rolling; goals
 const LIM_U = S.LX + 0.5 - 0.5, LIM_W = S.LZ + 0.5 - 0.5, MOUTH = S.GW + 0.5 - 0.5;
@@ -484,9 +470,6 @@ system.runInterval(() => {
       const p = online(id); if (!p) continue;
       try { p.addEffect("resistance", 30, { amplifier: 4, showParticles: false }); p.addEffect("saturation", 30, { amplifier: 0, showParticles: false }); } catch (e) { /* ignore */ }
       if (M.phase === "end") continue;
-      const benched = rec.out > t, dug = abs(s, S.dug[rec.t === "b" ? "blue" : "red"]);
-      if (benched) { const l = p.location; if (Math.hypot(l.x - dug.x, l.z - dug.z) > 4) try { p.teleport(dug, { dimension: dimOf(s) }); } catch (e) { /* ignore */ } continue; }
-      if (rec.out && rec.out <= t) { rec.out = 0; tell(p, "§a[Football] You are back in the game.", "§a[كرة القدم] رجعت للعب."); try { p.teleport(abs(s, spotOf(rec.t, 0)), { dimension: dimOf(s) }); } catch (e) { /* ignore */ } continue; }
       if (p.dimension.id !== s.d || !onPitch(s, p.location)) { try { p.teleport(abs(s, spotOf(rec.t, M.teams[rec.t].indexOf(id))), { dimension: dimOf(s), facingLocation: abs(s, S.center) }); } catch (e) { /* ignore */ } bar(p, pick(p, "§cStay on the pitch!", "§cخليك داخل الملعب!")); }
     }
     // spectators: not on the pitch (the Owner may stay as the referee)

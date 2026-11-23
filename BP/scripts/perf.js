@@ -80,14 +80,18 @@ let allT = -2, allList = null;
 const dimLists = new Map();           // dimension id -> { t, list }
 const dropLists = () => { allT = -2; allList = null; dimLists.clear(); };
 
+// a player who is still joining (e.g. downloading the resource pack) or is leaving is in the game's list, but his
+// name / location can't be read yet ("Failed to get property 'name'") - such a player is left out until he is ready
+const ready = (p) => { try { const v = p.isValid; if (v === false || (typeof v === "function" && !v.call(p))) return false; return typeof p.name === "string" && !!p.location; } catch (e) { return false; } };
 patch(WP, world, "getAllPlayers", (orig) => function () {
   if (this !== world) return orig.call(this);
   const t = tickNow();
-  if (allList === null || allT !== t) { allList = orig.call(this); allT = t; }
+  if (allList === null || allT !== t) { allList = orig.call(this).filter(ready); allT = t; }
   return allList.slice();
 });
 patch(WP, world, "getPlayers", (orig) => function (options) {
-  if (this !== world || options !== undefined) return orig.call(this, options);
+  if (this !== world) return orig.call(this, options);
+  if (options !== undefined) return orig.call(this, options).filter(ready);
   return world.getAllPlayers();
 });
 try {
@@ -95,10 +99,10 @@ try {
   if (DP && typeof DP.getPlayers === "function") {
     const orig = DP.getPlayers;
     DP.getPlayers = function (options) {
-      if (options !== undefined) return orig.call(this, options);
+      if (options !== undefined) return orig.call(this, options).filter(ready);
       const id = this.id, t = tickNow(), c = dimLists.get(id);
       if (c && c.t === t) return c.list.slice();
-      const list = orig.call(this);
+      const list = orig.call(this).filter(ready);
       dimLists.set(id, { t, list });
       return list.slice();
     };
