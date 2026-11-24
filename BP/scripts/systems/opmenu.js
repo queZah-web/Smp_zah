@@ -48,6 +48,7 @@ import { RANKS, rankOf, rankIndexOf, setRank, rankLabel, rankedIds } from "./vip
 import { statues, placeStatue, placeAll, removeStatue, removeAllStatues } from "./rankstatue.js";
 import { hopperList, hopperDim, lastLogout } from "./hopperlog.js";
 import { lootListPage, lootRecords } from "./skywars.js";
+import { combatPage, reachMax } from "./javacombat.js";
 
 const SYM = OPMENU.symbol;
 const ICON = {
@@ -411,6 +412,7 @@ function duelNextForm(player, back) {
 }
 const serverPage = (player, back) => categoryPage(player, back, "Server & staff", (m) => { const c = m.buttons[SLOT.spawnReset] ? [3, 4, 5] : [3, 5]; return [[1 * COLS + c[0], SLOT.bypass], [1 * COLS + c[1], SLOT.spawn], ...(c[2] ? [[1 * COLS + c[2], SLOT.spawnReset]] : []), [2 * COLS + 3, SLOT.shop], [2 * COLS + 4, SLOT.boards], [2 * COLS + 5, SLOT.roles]]; }, (f, self) => {
   const on = mobRewardOn(), dOn = duelOn();
+  if (isOwner(player)) set(f, 3 * COLS + 1, hdr(1, "g") + "§c§lCombat\n§r§7Max hit reach: §f" + reachMax() + " blocks\n§r§7(anti reach-hack) + attack cooldown\n§r§eClick to open", "textures/items/iron_sword", { run: () => combatPage(player, self) });
   perm(f, 3 * COLS + 2, player, "duelset", "§c§l1 vs 1 Duel\n§r§7Duel: " + (dOn ? "§aON" : "§cOFF") + "\n§r§7Every §f" + minutesText(duelEvery()) + "\n§r§eClick to open", "textures/items/diamond_sword", () => duelSettingsPage(player, self), dOn ? "g" : "r");
   perm(f, 3 * COLS + 3, player, "hudname", "§6§lScoreboard name\n§r§7Change the server name shown\n§r§7on the side panel scoreboard\n§r§eClick to open", "textures/items/name_tag", () => hudNamePage(player, self));
   perm(f, 3 * COLS + 4, player, "afkset", "§e§lAFK area\n§r§7Rewards per minute and the area\n§r§7(width, length, height) of /afk\n§r§eClick to open", "textures/items/clock_item", () => afkSettingsPage(player, self));

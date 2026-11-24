@@ -1,6 +1,17 @@
 // Arabic texts of the Operator menu (/opr) and everything inside it. Key = the English text exactly as the code writes it (pieces of a line), value = Arabic.
 // Used only by oprlang.js for players whose language is Arabic. A text that is not here simply stays English (nothing breaks).
 export const PART = {
+"Combat": "القتال",
+"Hit reach (anti-cheat) and the": "مدى الضرب (ضد الهاك) و",
+"Java attack cooldown": "شحن الضربة مثل الجافا",
+"Normal survival reach: 3 blocks": "المدى الطبيعي بالنجاة: 3 بلوكات",
+"A hit from farther than this counts": "الضربة من أبعد من هذا",
+"for NOTHING (no damage, no knockback)": "ما تنحسب (لا ضرر ولا دفع)",
+"Measured from the eyes to the body": "تنقاس من العين للجسم",
+"+ the charge bar under the crosshair": "+ بار الشحن تحت علامة التصويب",
+"The staff is told when a player hits": "الستاف يوصلهم تنبيه إذا لاعب ضرب",
+"from too far 3 times in a minute": "من بعيد 3 مرات بدقيقة",
+"(anti reach-hack) + attack cooldown": "(ضد هاك المدى) + شحن الضربة",
 "Event: Sky Wars": "فعالية: سكاي وارز",
 "Islands in the sky, random loot in": "جزر بالسماء، لوت عشوائي",
 "the chests, last one alive wins.": "بالصناديق، آخر واحد عايش يفوز.",

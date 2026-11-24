@@ -420,3 +420,4 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
   smp_cd_bg / smp_cd_fill). Panel styles: marker "QQC" + bars at the end of the board text; bottom-line style: own title "cd:".
 - The uploaded "Java Combat" pack was not merged: it replaces the player entity (like the SMP pack) and uses the same
   title channel as the SMP scoreboard, so the two would break each other.
+- REACH (anti reach-hack): a melee hit from farther than the max reach (default 4 blocks, measured from the eyes to the nearest point of the body, best of this tick and the last one) counts for nothing: the damage is given back and the knockback is taken back. 3 far hits in a minute = a staff alert. Owner: /opr > Server & staff > Combat (max reach 3 - 8 blocks, cooldown on / off, alerts on / off).
