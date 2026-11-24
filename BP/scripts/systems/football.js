@@ -20,7 +20,7 @@
 //   * the 2 scoreboards in the stadium show the score and the time.
 // No lag: one ball, one 1-tick loop only while a match runs (a few math lines), the rest every 0.5 s / 1 s.
 // ===================================================================================================================
-import { world, system, ItemStack, EquipmentSlot, ItemLockMode, GameMode, BlockVolume, StructureSaveMode, CommandPermissionLevel, CustomCommandStatus } from "@minecraft/server";
+import { world, system, ItemStack, EnchantmentTypes, EquipmentSlot, ItemLockMode, GameMode, BlockVolume, StructureSaveMode, CommandPermissionLevel, CustomCommandStatus } from "@minecraft/server";
 import { makeOpr, set, open, hdr, COLS, SHORT_ROWS, backBtn, status } from "../smp/ui.js";
 import { confirmOpr as confirm } from "./forms.js";
 import { isOwner, slog } from "./staffcore.js";
@@ -190,9 +190,20 @@ function spear(team) {
   let it = null;
   for (const id of ["minecraft:wooden_spear", "minecraft:wooden_sword"]) { try { it = new ItemStack(id, 1); break; } catch (e) { it = null; } }
   if (!it) return null;
-  try { it.nameTag = TEAM[team].col + "§lMatch spear"; it.setLore([KIT_LORE, "§7Hit the ball to kick it"]); it.keepOnDeath = true; it.lockMode = ItemLockMode.inventory; } catch (e) { /* ignore */ }
+  try { it.nameTag = TEAM[team].col + "§lMatch spear"; it.setLore([KIT_LORE, "§7Hit the ball to kick it", "§7Never breaks"]); it.keepOnDeath = true; it.lockMode = ItemLockMode.inventory; } catch (e) { /* ignore */ }
+  try { it.getComponent("minecraft:enchantable")?.addEnchantment({ type: EnchantmentTypes.get("unbreaking"), level: 3 }); } catch (e) { /* ignore */ }
   return it;
 }
+// the spear and the kit never break: every second their wear is set back to 0 (only the match items, only during a match)
+function repairKit(p) {
+  try {
+    const inv = p.getComponent("minecraft:inventory")?.container;
+    if (inv) for (let i = 0; i < inv.size; i++) { const it = inv.getItem(i); if (!isKit(it)) continue; const d = it.getComponent("minecraft:durability"); if (d && d.damage > 0) { d.damage = 0; inv.setItem(i, it); } }
+    const eq = p.getComponent("minecraft:equippable");
+    for (const slot of SLOTS()) { const it = eq?.getEquipment(slot); if (!isKit(it)) continue; const d = it.getComponent("minecraft:durability"); if (d && d.damage > 0) { d.damage = 0; eq.setEquipment(slot, it); } }
+  } catch (e) { /* ignore */ }
+}
+system.runInterval(() => { if (!M) return; for (const id of Object.keys(M.pl)) { const p = online(id); if (p) repairKit(p); } }, 20);
 const SLOTS = () => [EquipmentSlot.Head, EquipmentSlot.Chest, EquipmentSlot.Legs, EquipmentSlot.Feet, EquipmentSlot.Offhand];
 const lockerBox = (n) => { const s = stadium(); if (!s) return null; try { const l = lockerAt(n); return dimOf(s).getBlock({ x: s.cx + l.x, y: s.cy + l.y, z: s.cz + l.z })?.getComponent("minecraft:inventory")?.container ?? null; } catch (e) { return null; } };
 const mem = new Map();                    // fallback when a locker can not be used: player id -> ItemStack[] (kept in memory)

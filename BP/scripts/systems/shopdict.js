@@ -1015,7 +1015,8 @@ export const EXACT = {
 "Fast Growth": "النمو السريع",
 "Small": "صغيرة",
 "Medium": "متوسطة",
-"Large": "كبيرة"
+"Large": "كبيرة",
+"Huge": "ضخمة"
 };
 export const CATNAMES = {
 "Stone & Terrain": "الحجر والتضاريس",

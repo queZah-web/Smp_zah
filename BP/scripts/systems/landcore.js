@@ -1,6 +1,6 @@
 // LAND PROTECTION - core: data, prices, real-time timers, permission checks. (No menus here, so every other system can import it safely.)
 //
-// A protection ("claim") is a box of blocks: 10x10x10, 20x20x20 or 40x40x40, centred on the player who buys it.
+// A protection ("claim") is a box of blocks: 10x10x10, 20x20x20, 40x40x40 or 150x150 (80 high), centred on the player who buys it.
 // Every size is open for every player (no clan needed). Each player can own DEFAULT_CLAIMS protections; an admin can change that per player.
 // It lasts for REAL time (an absolute end date saved with the claim), so it keeps running while the player is offline
 // and even while the server is switched off. When the time is over the claim simply disappears.
@@ -14,9 +14,10 @@ import { zoneOverlaps } from "./spawnzone.js";
 
 // ---------------------------------------------------------------- settings you can edit safely
 export const SIZES = [
-  { key: "s", name: "Small",  w: 10, h: 10, rate: 999 },       // rate = price of ONE hour
-  { key: "m", name: "Medium", w: 20, h: 20, rate: 2999 },
-  { key: "l", name: "Large",  w: 40, h: 40, rate: 5999 },
+  { key: "s", name: "Small",  w: 10, h: 10, rate: 249 },        // rate = price of ONE hour   (24 h = $5,976)
+  { key: "m", name: "Medium", w: 20, h: 20, rate: 749 },        //                            (24 h = $17,976)
+  { key: "l", name: "Large",  w: 40, h: 40, rate: 1749 },       //                            (24 h = $41,976)
+  { key: "x", name: "Huge",   w: 150, h: 80, rate: 100000 / 24 },  // 150 x 150, 80 high: $100,000 for a whole day
 ];
 export const HOUR = 3600000;
 export const MAX_HOURS = 24;                                    // the most protection time one claim can hold
@@ -244,15 +245,16 @@ export const priceFor = (size, ms) => (ms <= 0 ? 0 : Math.max(1, Math.ceil((size
 
 // ---------------------------------------------------------------- FAST GROWTH (paid upgrade of one land, only the crops INSIDE that land grow faster)
 // claim.g = { lv: 1..4, e: end time (ms epoch) }.  Time is bought in packs of GROW_PACK_H hours, a land can hold at most GROW_MAX_H hours.
-// price = $ per hour for a Small land; every bigger size adds GROW_SIZE_STEP.  The pack price = 6 hours.  A level can only be changed when no growth time is left.
-export const GROW_SIZE_STEP = 2999;
-const gr = (b) => [b, b + GROW_SIZE_STEP, b + 2 * GROW_SIZE_STEP];
+// price = $ per hour for a Small land; bigger lands pay more (x1.5 Medium, x2.2 Large, x3.5 Huge).  The pack price = 6 hours.  A level can only be changed when no growth time is left.
+export const GROW_SIZE_STEP = 0;                                 // (old setting, not used any more)
+const SIZE_X = [1, 1.5, 2.2, 3.5];
+const gr = (b) => SIZE_X.map((m) => Math.round((b * m) / 10) * 10 - 1);
 export const GROW = [
-  { lv: 1, name: "Grow I",   x: 2, rates: gr(4999) },
-  { lv: 2, name: "Grow II",  x: 3, rates: gr(8999) },
-  { lv: 3, name: "Grow III", x: 4, rates: gr(11999) },
-  { lv: 4, name: "Grow IV",  x: 6, rates: gr(17999) },
-  { lv: 5, name: "Grow V",   x: 8, rates: gr(22999) },
+  { lv: 1, name: "Grow I",   x: 2, rates: gr(1500) },          // Small: $1,499 / h  (6 h = $8,994) ... Huge: $5,249 / h
+  { lv: 2, name: "Grow II",  x: 3, rates: gr(2500) },
+  { lv: 3, name: "Grow III", x: 4, rates: gr(4000) },
+  { lv: 4, name: "Grow IV",  x: 6, rates: gr(6000) },
+  { lv: 5, name: "Grow V",   x: 8, rates: gr(8500) },
 ];
 export const GROW_PACK_H = 6, GROW_MAX_H = 24;
 export const growOf = (lv) => GROW.find((g) => g.lv === lv) ?? null;

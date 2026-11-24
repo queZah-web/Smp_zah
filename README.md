@@ -404,3 +404,8 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
 
 ## Everything he owns (/opr > Players > a player) - Admin / Owner
 - One page: backpack + hotbar + armour + off hand + levels + the ENDER CHEST. Online = live, offline = the last saved copy (inventory saved every 30 s and when he leaves by the SMP pack; ender chest saved by the helper pack SMP Ender View 1.1.0). Click an ender item to take it, clear the ender chest, open "Take items".
+
+## Land + Sky Wars + Football (v47 fixes)
+- New land size Huge 150 x 150, 80 high: $100,000 a day. New prices per hour: Small $249, Medium $749, Large $1,749 (a day = 24 x). Fast growth per hour (Small / Medium / Large / Huge): I $1,499 / 2,249 / 3,299 / 5,249 ... V $8,499 / 12,749 / 18,699 / 29,749 (packs of 6 h).
+- Sky Wars: during a game every placed block stays (no removal, any speed), everybody in the game can break anything; when the game ends the whole sky over the arena is cleared and the islands are rebuilt.
+- Football: the match spear (and the kit) never break.

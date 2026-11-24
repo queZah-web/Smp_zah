@@ -16,7 +16,7 @@ import { anchor, isOff, setShown, moveHere, nudge, recentre, dropBoard } from ".
 import { can } from "./staffcore.js";           // admins (staff role) can change how many protections a player may own
 import { shopMsg, ShopForm } from "./shoplang.js";
 
-const ICON = { s: "textures/ui/shop/i3d_iron_block", m: "textures/ui/shop/i3d_gold_block", l: "textures/ui/shop/i3d_diamond_block", shield: "textures/ui/shop/ic_shield", player: NAV.player,
+const ICON = { s: "textures/ui/shop/i3d_iron_block", m: "textures/ui/shop/i3d_gold_block", l: "textures/ui/shop/i3d_diamond_block", x: "textures/blocks/netherite_block", shield: "textures/ui/shop/ic_shield", player: NAV.player,
   paper: "textures/items/paper", tag: "textures/items/name_tag", compass: "textures/items/compass_item", book: "textures/items/book_writable", star: "textures/items/nether_star", eye: "textures/items/ender_eye" };
 const dimOf = (id) => dimLabel(id);
 const size = (c) => sizeOf(c.s);
@@ -36,7 +36,7 @@ export function landPage(player, back) {
   set(f, 0 * COLS + 6, hdr(1) + "§e§lHow it works\n§r§71) Stand in the middle of your base\n§r§72) Pick a size and how many hours\n§r§73) Add friends from 'Allowed players'\n§r§7Time runs in REAL time, even offline.\n§r§7When it ends the protection disappears.", "textures/ui/shop/ic_help", null);
 
   SIZES.forEach((s, i) => {
-    set(f, 1 * COLS + 2 + i * 2, hdr(1) + "§" + ["f", "6", "b"][i] + "§l" + s.name + " §r§7" + s.w + "x" + s.w + "x" + s.h + "\n§r§7Price: §a" + money(s.rate) + " §7per hour\n§r§7Full " + MAX_HOURS + "h: §a" + money(s.rate * MAX_HOURS) + "\n§r§eClick to buy", ICON[s.key], { run: () => durationPage(player, s, back) });
+    set(f, 1 * COLS + [1, 3, 5, 7][i], hdr(1) + "§" + ["f", "6", "b", "d"][i] + "§l" + s.name + " §r§7" + s.w + "x" + s.w + "x" + s.h + "\n§r§7Price: §a" + money(Math.ceil(s.rate)) + " §7per hour\n§r§7Full " + MAX_HOURS + "h: §a" + money(Math.ceil(s.rate * MAX_HOURS)) + "\n§r§eClick to buy", ICON[s.key], { run: () => durationPage(player, s, back) });
   });
 
   set(f, 4 * COLS + 3, hdr(1) + "§f§lYour protections §7(" + mine.length + "/" + lim + ")\n§r§7" + (mine.length ? "Click one to manage it" : "You have none yet - buy one above"), NAV.shield, null);
@@ -51,7 +51,7 @@ export function landPage(player, back) {
       shared.slice(0, 9).forEach((c, i) => set(f, 3 * COLS + i, hdr(1) + "§f§l" + c.n + "\n§r§7Owner: §f" + c.on + "\n§r§7" + dims(c) + "\n§r§7Time left: " + colour(timeLeft(c)) + dur(timeLeft(c)) + "\n§r§eClick for details", ICON[c.s], { run: () => managePage(player, c.id, back) }));
     }
   }
-  if (canSetLimits(player)) set(f, 0 * COLS + 0, hdr(1) + "§6§lLand prices\n§r§7Small: §a" + money(SIZES[0].rate) + "\n§r§7Medium: §a" + money(SIZES[1].rate) + "\n§r§7Large: §a" + money(SIZES[2].rate) + "\n§r§7(per hour, for ALL lands)\n§r§eAdmins only - click to change", "textures/ui/shop/hud_money", { run: () => priceForm(player, back) });
+  if (canSetLimits(player)) set(f, 0 * COLS + 0, hdr(1) + "§6§lLand prices\n§r§7Small: §a" + money(Math.ceil(SIZES[0].rate)) + "\n§r§7Medium: §a" + money(Math.ceil(SIZES[1].rate)) + "\n§r§7Large: §a" + money(Math.ceil(SIZES[2].rate)) + "\n§r§7Huge: §a" + money(Math.ceil(SIZES[3].rate)) + "\n§r§7(per hour, for ALL lands)\n§r§eAdmins only - click to change", "textures/ui/shop/hud_money", { run: () => priceForm(player, back) });
   if (canSetLimits(player)) set(f, 0 * COLS + 8, hdr(1) + "§6§lProtection limits\n§r§7How many protections each\n§r§7player can own (now: §f" + defaultLimit() + " §7for everybody)\n§r§eAdmins only - click to open", ICON.star, { run: () => limitsPage(player, back) });
   if (back) backBtn(f, back);
   status(player, f);
@@ -69,7 +69,7 @@ function here(p) {
 function durationPage(player, sz, back) {
   const f = make("Buy " + sz.name + " Protection", SHORT_ROWS); f.self = () => durationPage(player, sz, back);
   const err = checkSpot(player, sz), b = boxAt(sz, player.location);
-  set(f, 0 * COLS + 4, hdr(1) + "§" + (err ? "c" : "a") + "§l" + sz.name + " §r§7" + sz.w + "x" + sz.w + "x" + sz.h + "\n§r§7Price: §a" + money(sz.rate) + " §7per hour\n§r" +
+  set(f, 0 * COLS + 4, hdr(1) + "§" + (err ? "c" : "a") + "§l" + sz.name + " §r§7" + sz.w + "x" + sz.w + "x" + sz.h + "\n§r§7Price: §a" + money(Math.ceil(sz.rate)) + " §7per hour\n§r" +
     (err ? "§c" + err : "§7It will be centred on your position:\n§r§7X " + b.x1 + " to " + b.x2 + "\n§r§7Y " + b.y1 + " to " + b.y2 + "\n§r§7Z " + b.z1 + " to " + b.z2), ICON[sz.key], null);
   if (!err) {
     [["1", "1 hour"], ["12", "12 hours"], ["24", "24 hours"]].forEach(([mode, label], i) => {
@@ -328,7 +328,7 @@ function allLimitForm(player, back) {
 function priceForm(player, back) {
   if (!canSetLimits(player)) return landPage(player, back);
   const form = new ShopForm().title("Land prices");
-  SIZES.forEach((z) => textField(form, "§f" + z.name + " " + z.w + "x" + z.w + "x" + z.h + " §7- price per hour\n§7Now: §a" + money(z.rate) + " §7| normal: §f" + money(defaultRate(z.key)) + "\n§7Whole number, 1 to " + MAX_LAND_PRICE, String(z.rate)));
+  SIZES.forEach((z) => textField(form, "§f" + z.name + " " + z.w + "x" + z.w + "x" + z.h + " §7- price per hour\n§7Now: §a" + money(Math.ceil(z.rate)) + " §7| normal: §f" + money(defaultRate(z.key)) + "\n§7Whole number, 1 to " + MAX_LAND_PRICE, String(z.rate)));
   try { form.toggle("§eReset all three to the normal prices", { defaultValue: false }); } catch (e) { form.toggle("§eReset all three to the normal prices", false); }
   showModal(player, form, (v) => {
     if (!v) return landPage(player, back);
@@ -344,7 +344,7 @@ function priceForm(player, back) {
     for (const z of SIZES) if (!/^[0-9]{1,8}$/.test(String(next[z.key]))) { fail(player, "Prices must be whole numbers from 1 to " + MAX_LAND_PRICE + "."); return landPage(player, back); }
     const err = setSizePrices(next);
     if (err) fail(player, err);
-    else player.sendMessage(shopMsg(player, "§a[Protection] New land prices (per hour): " + SIZES.map((z) => "§f" + z.name + " §a" + money(z.rate)).join("§7, ") + "§a."));
+    else player.sendMessage(shopMsg(player, "§a[Protection] New land prices (per hour): " + SIZES.map((z) => "§f" + z.name + " §a" + money(Math.ceil(z.rate))).join("§7, ") + "§a."));
     landPage(player, back);
   });
 }

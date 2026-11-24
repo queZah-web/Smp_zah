@@ -143,7 +143,7 @@ export function undoSky(player) {
 function* resetJob(a) {
   const dim = dimOf(a); if (!dim) return;
   const Ly = layout(a.n);
-  yield* clearSky(a, dim, Ly.voidY - 4, Ly.UP);
+  yield* clearSky(a, dim, 1, Ly.UP);                                               // everything the players built (bridges, towers ...) goes
   const d = yield* getDesign(a.n);
   yield* placeCanvas(a, dim, d.canvas);
   try { for (const e of dim.getEntities({ location: abs(a, { x: 0, y: TOP, z: 0 }), maxDistance: Ly.HX + 20 })) { if (["minecraft:item", "minecraft:xp_orb", "minecraft:arrow", "minecraft:tnt", "minecraft:snowball", "minecraft:egg", "minecraft:ender_pearl", "minecraft:falling_block"].includes(e.typeId)) { try { e.remove(); } catch (x) { /* ignore */ } } } } catch (e) { /* ignore */ }
@@ -449,14 +449,15 @@ function deny(p, en, ar) { system.run(() => { const now = Date.now(); if (now - 
 const playing = (p) => !!(G && G.alive.includes(p.id) && G.phase === "run");
 safe("break", () => world.beforeEvents.playerBreakBlock.subscribe((ev) => {
   const b = ev.block, a = skyAt(b.dimension.id, b.x, b.y, b.z); if (!a) return;
-  if (playing(ev.player) && b.y - a.cy >= layout(a.n).voidY - 6) return;          // in the game: break anything on the islands
+  if (G && (G.pl[ev.player.id] || owner(ev.player))) return;                       // in a game: break anything (the arena is rebuilt after the game)
   if (owner(ev.player) && !G) return;
   ev.cancel = true; deny(ev.player, "§c[Sky Wars] You can't break the arena now.", "§c[سكاي وارز] ما تقدر تكسر الساحة هسه.");
 }));
 safe("place", () => world.afterEvents.playerPlaceBlock.subscribe(({ player, block }) => {
   try {
     const a = skyAt(block.dimension.id, block.x, block.y, block.z); if (!a) return;
-    if (!playing(player)) { if (owner(player) && !G) return; system.run(() => { try { block.setType("minecraft:air"); } catch (e) { /* ignore */ } }); return deny(player, "§c[Sky Wars] You can't build here now.", "§c[سكاي وارز] ما تقدر تبني هنا هسه."); }
+    if (!G) { if (owner(player)) return; system.run(() => { try { block.setType("minecraft:air"); } catch (e) { /* ignore */ } }); return deny(player, "§c[Sky Wars] You can't build here when no game runs.", "§c[سكاي وارز] ما تقدر تبني هنا وماكو لعبة."); }
+    // a game runs: every block stays exactly as placed (any speed); the whole sky is cleared when the game ends
     if (block.typeId === "minecraft:tnt") {                                       // TNT lights itself at once
       const at = { x: block.x + 0.5, y: block.y, z: block.z + 0.5 }, dim = block.dimension;
       system.run(() => { try { dim.getBlock(block.location)?.setType("minecraft:air"); dim.spawnEntity("minecraft:tnt", at); } catch (e) { /* ignore */ } });
@@ -466,7 +467,7 @@ safe("place", () => world.afterEvents.playerPlaceBlock.subscribe(({ player, bloc
 safe("explosion", () => world.beforeEvents.explosion.subscribe((ev) => {
   const a = arena(); if (!a) return;
   const d = ev.dimension.id, all = ev.getImpactedBlocks();
-  const keep = all.filter((b) => !skyAt(d, b.x, b.y, b.z) || (G && G.phase === "run" && b.y - a.cy >= layout(a.n).voidY - 6));
+  const keep = all.filter((b) => !skyAt(d, b.x, b.y, b.z) || (G && G.phase === "run" && b.y - a.cy >= 1));
   if (keep.length !== all.length) ev.setImpactedBlocks(keep);
 }));
 
