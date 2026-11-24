@@ -7,7 +7,7 @@
    },
    {
     "binding_type": "view",
-    "source_property_name": "((#hud_title_text_string - 'sb:') = #hud_title_text_string)",
+    "source_property_name": "(((#hud_title_text_string - 'sb:') = #hud_title_text_string) and ((#hud_title_text_string - 'cd:') = #hud_title_text_string))",
     "target_property_name": "#visible"
    }
   ]
@@ -29,6 +29,9 @@
      },
      {
       "smp_sale@smp_hud.sale": {}
+     },
+     {
+      "smp_cd@smp_hud.cooldown": {}
      }
     ]
    }

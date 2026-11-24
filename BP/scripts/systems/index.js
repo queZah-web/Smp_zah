@@ -57,6 +57,7 @@ import "./colorrush.js";   // Color Rush event: the colour floor hall (Owner: /o
 import "./villagerrestock.js"; // villager trades come back 20 min after trading (timer above the villager within 5 blocks)
 import "./netherportal.js";  // portals inside the built spawn -> a random safe place in the Nether
 import "./rankstatue.js";   // statues of the players who have a server rank (Owner: /opr > Ranks > Rank statues)
+import "./javacombat.js";   // Java style attack cooldown (no spam clicking) + the charge indicator under the crosshair
 import "./hopperlog.js";    // hopper log (who placed / used / broke every hopper) + the last logout place of every player
 import "./nv.js";
 import "./newgift.js";

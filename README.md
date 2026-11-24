@@ -409,3 +409,13 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
 - New land size Huge 150 x 150, 80 high: $100,000 a day. New prices per hour: Small $249, Medium $749, Large $1,749 (a day = 24 x). Fast growth per hour (Small / Medium / Large / Huge): I $1,499 / 2,249 / 3,299 / 5,249 ... V $8,499 / 12,749 / 18,699 / 29,749 (packs of 6 h).
 - Sky Wars: during a game every placed block stays (no removal, any speed), everybody in the game can break anything; when the game ends the whole sky over the arena is cleared and the islands are rebuilt.
 - Football: the match spear (and the kit) never break.
+
+## Java combat (attack cooldown) - `systems/javacombat.js`
+- Java 1.9+ attack speeds: swords 1.6/s, gold / diamond / netherite axe 1.0, iron axe 0.9, wood / stone axe 0.8, trident 1.1,
+  mace 0.6, pickaxes 1.2, shovels 1.0, hoes 1 - 4, spears, hand 4/s. Damage x (0.2 + 0.8 x charge^2): spam clicking = 20 %.
+  The missing damage is given back right after the hit (Bedrock has no before-hurt event without Beta APIs).
+- Switching the item in the hand starts the charge again (like Java).
+- The charge indicator under the crosshair (8 pieces) fills while charging (RP/ui/smp_hud.json "cooldown", textures
+  smp_cd_bg / smp_cd_fill). Panel styles: marker "QQC" + bars at the end of the board text; bottom-line style: own title "cd:".
+- The uploaded "Java Combat" pack was not merged: it replaces the player entity (like the SMP pack) and uses the same
+  title channel as the SMP scoreboard, so the two would break each other.

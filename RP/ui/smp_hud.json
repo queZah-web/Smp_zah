@@ -5579,5 +5579,259 @@
     }
    }
   ]
+ },
+ "cooldown": {
+  "type": "panel",
+  "size": [
+   18,
+   6
+  ],
+  "anchor_from": "center",
+  "anchor_to": "center",
+  "offset": [
+   0,
+   12
+  ],
+  "layer": 30,
+  "bindings": [
+   {
+    "binding_name": "#hud_title_text_string"
+   },
+   {
+    "binding_type": "view",
+    "source_property_name": "(not ((#hud_title_text_string - 'QQC') = #hud_title_text_string))",
+    "target_property_name": "#visible"
+   }
+  ],
+  "controls": [
+   {
+    "bg": {
+     "type": "image",
+     "texture": "textures/ui/smp_cd_bg",
+     "size": [
+      18,
+      6
+     ],
+     "layer": 1,
+     "alpha": 0.85
+    }
+   },
+   {
+    "cd1": {
+     "type": "image",
+     "texture": "textures/ui/smp_cd_fill",
+     "size": [
+      2,
+      4
+     ],
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle",
+     "offset": [
+      1,
+      0
+     ],
+     "layer": 2,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQC|') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "cd2": {
+     "type": "image",
+     "texture": "textures/ui/smp_cd_fill",
+     "size": [
+      2,
+      4
+     ],
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle",
+     "offset": [
+      3,
+      0
+     ],
+     "layer": 2,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQC||') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "cd3": {
+     "type": "image",
+     "texture": "textures/ui/smp_cd_fill",
+     "size": [
+      2,
+      4
+     ],
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle",
+     "offset": [
+      5,
+      0
+     ],
+     "layer": 2,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQC|||') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "cd4": {
+     "type": "image",
+     "texture": "textures/ui/smp_cd_fill",
+     "size": [
+      2,
+      4
+     ],
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle",
+     "offset": [
+      7,
+      0
+     ],
+     "layer": 2,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQC||||') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "cd5": {
+     "type": "image",
+     "texture": "textures/ui/smp_cd_fill",
+     "size": [
+      2,
+      4
+     ],
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle",
+     "offset": [
+      9,
+      0
+     ],
+     "layer": 2,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQC|||||') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "cd6": {
+     "type": "image",
+     "texture": "textures/ui/smp_cd_fill",
+     "size": [
+      2,
+      4
+     ],
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle",
+     "offset": [
+      11,
+      0
+     ],
+     "layer": 2,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQC||||||') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "cd7": {
+     "type": "image",
+     "texture": "textures/ui/smp_cd_fill",
+     "size": [
+      2,
+      4
+     ],
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle",
+     "offset": [
+      13,
+      0
+     ],
+     "layer": 2,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQC|||||||') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "cd8": {
+     "type": "image",
+     "texture": "textures/ui/smp_cd_fill",
+     "size": [
+      2,
+      4
+     ],
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle",
+     "offset": [
+      15,
+      0
+     ],
+     "layer": 2,
+     "bindings": [
+      {
+       "binding_name": "#hud_title_text_string"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#hud_title_text_string - 'QQC||||||||') = #hud_title_text_string))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   }
+  ]
  }
 }
