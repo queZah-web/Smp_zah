@@ -412,7 +412,8 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
 
 ## Java combat (attack cooldown) - `systems/javacombat.js`
 - Java 1.9+ attack speeds: swords 1.6/s, gold / diamond / netherite axe 1.0, iron axe 0.9, wood / stone axe 0.8, trident 1.1,
-  mace 0.6, pickaxes 1.2, shovels 1.0, hoes 1 - 4, spears, hand 4/s. Damage x (0.2 + 0.8 x charge^2): spam clicking = 20 %.
+  mace 0.6, pickaxes 1.2, shovels 1.0, hoes 1 - 4, spears, hand 4/s. Damage: charged 100 % = full, 80 - 99 % = 10 %,
+  50 - 79 % = 5 %, under 50 % = no damage and no knockback (players are put back where they stood, mobs are stopped).
   The missing damage is given back right after the hit (Bedrock has no before-hurt event without Beta APIs).
 - Switching the item in the hand starts the charge again (like Java).
 - The charge indicator under the crosshair (8 pieces) fills while charging (RP/ui/smp_hud.json "cooldown", textures

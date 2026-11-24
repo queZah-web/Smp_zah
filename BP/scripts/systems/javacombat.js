@@ -4,9 +4,13 @@
 //   Every weapon needs time to "charge" after a hit (or after you switch to it), like in Java:
 //     swords 1.6 hits / s (0.65 s) | gold / diamond / netherite axe 1.0 (1 s) | iron axe 0.9 (1.1 s) | wood / stone / copper
 //     axe 0.8 (1.25 s) | trident 1.1 | mace 0.6 | pickaxes 1.2 | shovels 1.0 | hoes 1 - 4 | spears 0.9 - 1.5 | hand 4 / s
-//   The damage of a hit depends on how charged the weapon was (Java formula):  damage x (0.2 + 0.8 x charge²)
-//     full = 100 %,  half = 40 %,  spam clicking = 20 %.  (Bedrock gives the full damage first, then the missing part
-//     is given back at once to the one who was hit.  Only a hit that already killed can't be given back.)
+//   The damage of a hit depends on how charged the weapon was (the Owner's rules):
+//     charged 100 %      = the full damage
+//     charged 80 - 99 %  = only 10 % of the damage
+//     charged 50 - 79 %  = only 5 % of the damage
+//     less than 50 %     = NO damage and NO knockback (the hit is shown, nothing else)
+//   (Bedrock gives the full damage first, then the missing part is given back at once to the one who was hit, and the
+//    knockback is taken back by putting him where he stood.  Only a hit that already killed can't be given back.)
 //   The indicator under the crosshair (8 pieces) fills while the weapon charges and disappears when it is ready - like
 //   the Java sword icon.  It works with every scoreboard style (right / left panel: inside the board text, bottom line:
 //   its own title).  Nothing else of the SMP pack changes.
@@ -52,11 +56,12 @@ world.afterEvents.entityHurt.subscribe(({ hurtEntity: v, damage, damageSource })
     let gm; try { gm = a.getGameMode(); } catch (e) { gm = null; } if (gm === GameMode.Creative || gm === "Creative" || gm === "creative") return;
     const s = st(a), t = system.currentTick;
     const since = s.last === t ? s.prev : s.last;                  // the hit event of this same tick may already have started a new charge
-    const c = chargeAt(s, since), mult = 0.2 + 0.8 * c * c;
+    const c = chargeAt(s, since), mult = c >= 0.999 ? 1 : c >= 0.8 ? 0.1 : c >= 0.5 ? 0.05 : 0;
     if (s.last !== t) swing(a);
-    if (mult >= 0.999) return;
+    if (mult >= 1) return;
     const h = v.getComponent("minecraft:health"); if (!h || h.currentValue <= 0) return;
     h.setCurrentValue(Math.min(h.effectiveMax, h.currentValue + damage * (1 - mult)));
+    if (c < 0.5) noKnockback(v);
   } catch (e) { /* ignore */ }
 });
 
@@ -72,4 +77,22 @@ system.runInterval(() => {
     } catch (e) { /* ignore */ }
   }
 }, 2);
-world.afterEvents.playerLeave.subscribe(({ playerId }) => S.delete(playerId));
+world.afterEvents.playerLeave.subscribe(({ playerId }) => { S.delete(playerId); POS.delete(playerId); });
+
+// ---- no knockback for a hit under 50 %: the one who was hit is put back where he stood (players) / stopped (mobs)
+const POS = new Map();                                            // player id -> { x, y, z } of the last ticks (only while someone fights)
+let fightUntil = 0;
+world.afterEvents.entityHitEntity.subscribe(() => { fightUntil = system.currentTick + 200; });
+system.runInterval(() => {
+  if (system.currentTick > fightUntil) { if (POS.size) POS.clear(); return; }
+  for (const p of world.getAllPlayers()) { try { const l = p.location; POS.set(p.id, { x: l.x, y: l.y, z: l.z }); } catch (e) { /* ignore */ } }
+}, 1);
+function noKnockback(v) {
+  try {
+    if (v.typeId === "minecraft:player") {
+      const at = POS.get(v.id); if (!at) return;
+      const put = () => { try { v.teleport(at, { keepVelocity: false }); } catch (e) { /* ignore */ } };
+      put(); system.run(put);                                      // twice: the knockback push can arrive one tick later
+    } else { v.clearVelocity(); system.run(() => { try { v.clearVelocity(); } catch (e) { /* ignore */ } }); }
+  } catch (e) { /* ignore */ }
+}
