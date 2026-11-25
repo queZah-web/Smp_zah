@@ -443,3 +443,10 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
   Time over: sudden death (every egg breaks), 5 min later the most kills wins.  Stats: eww / ewl / ewk / ewe.
 - Generator items carry the tag `egw_item` (ClearLag skips them); a generator stops when its stack is full.
 - RP version 1.4.49 (new block model, villager entity, egg texture entry).
+
+## Combat: cooldown per weapon + netherite wind fix (v48b)
+- /opr > Server & staff > Combat, bottom row: the attack cooldown ON / OFF for each kind of weapon (swords, axes, mace,
+  spears, trident, pickaxes, shovels, hoes, hand / other) - `jc:off` (a list of the kinds that are OFF).
+- Combat > Wind charge (`systems/windfix.js`, idea of the "Netherite Armor Fix" pack): players with 3+ netherite pieces
+  and no Blast Protection get the missing wind-charge push (they fly like diamond), height 50 - 300 % (`wf:mult`, 100 % =
+  like diamond), ON / OFF (`wf:on`), mace Wind Burst part ON / OFF (`wf:mace`).  The separate pack is not needed.

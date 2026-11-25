@@ -21,6 +21,7 @@ import { setCharge } from "../hud.js";
 import { makeOpr, set, open, hdr, COLS, SHORT_ROWS, backBtn, status } from "../smp/ui.js";
 import { isOwner, slog } from "./staffcore.js";
 import { opAlert } from "./opcore.js";
+import { wfOn, wfMace, wfMult, wfSet, WF_STEPS } from "./windfix.js";
 
 // ---------------------------------------------------------------- settings (Owner: /opr > Server & staff > Combat)
 const REACHES = [3, 3.5, 4, 4.5, 5, 5.5, 6, 7, 8];
@@ -43,7 +44,16 @@ const FIXED = {
   "minecraft:wooden_spear": 13, "minecraft:stone_spear": 15, "minecraft:copper_spear": 17, "minecraft:iron_spear": 19, "minecraft:golden_spear": 19, "minecraft:diamond_spear": 21, "minecraft:netherite_spear": 23,
 };
 const HAND = 5;                                                   // empty hand / any other item: 4 hits a second
-function cooldownOf(id) { const base = javaTicks(id); return base <= HAND ? base : Math.max(HAND + 1, Math.round((base * chargePct()) / 100)); }
+// the cooldown can be switched off for ONE kind of weapon (the Owner): [key, name, icon]
+export const KINDS = [["sword", "Swords", "textures/items/diamond_sword"], ["axe", "Axes", "textures/items/diamond_axe"], ["mace", "Mace", "textures/items/mace"], ["spear", "Spears", "textures/items/iron_spear"],
+  ["trident", "Trident", "textures/items/trident"], ["pickaxe", "Pickaxes", "textures/items/diamond_pickaxe"], ["shovel", "Shovels", "textures/items/diamond_shovel"], ["hoe", "Hoes", "textures/items/diamond_hoe"], ["hand", "Hand / other", "textures/ui/shop/ic_player"]];
+const kindOf = (id) => { if (!id) return "hand"; const n = String(id).replace(/^.*:/, ""); if (n === "mace" || n === "trident") return n; for (const k of ["pickaxe", "shovel", "sword", "spear", "hoe", "axe"]) if (n.endsWith("_" + k)) return k; return "hand"; };
+let offCache = null, offAt = -1;
+export const kindsOff = () => { if (offAt !== system.currentTick) { offAt = system.currentTick; const v = getW("jc:off", "[]"); try { offCache = new Set(JSON.parse(v)); } catch (e) { offCache = new Set(); } } return offCache; };
+export const setKindOff = (k, off) => { const s = new Set(kindsOff()); if (off) s.add(k); else s.delete(k); setW("jc:off", JSON.stringify([...s])); offAt = -1; };
+const freeOf = (id) => kindsOff().has(kindOf(id));                // no cooldown for this weapon
+function cooldownOf(id) { if (freeOf(id)) return 0; return cooldownBase(id); }
+function cooldownBase(id) { const base = javaTicks(id); return base <= HAND ? base : Math.max(HAND + 1, Math.round((base * chargePct()) / 100)); }
 function javaTicks(id) {
   if (!id) return HAND;
   const f = FIXED[id]; if (f) return f;
@@ -79,7 +89,7 @@ world.afterEvents.entityHurt.subscribe(({ hurtEntity: v, damage, damageSource })
       const h0 = v.getComponent("minecraft:health"); if (h0 && h0.currentValue > 0) h0.setCurrentValue(Math.min(h0.effectiveMax, h0.currentValue + damage));
       noKnockback(v); reachFlag(a, v, far); return;
     }
-    if (!cooldownOn()) return;
+    if (!cooldownOn() || freeOf(held(a))) return;
     const c = chargeAt(s, since), mult = c >= 0.999 ? 1 : c >= 0.8 ? 0.1 : c >= 0.5 ? 0.05 : 0;
     if (mult >= 1) return;
     const h = v.getComponent("minecraft:health"); if (!h || h.currentValue <= 0) return;
@@ -158,6 +168,20 @@ world.afterEvents.entityHitEntity.subscribe(({ damagingEntity: a, hitEntity: v }
 });
 
 // ---------------------------------------------------------------- the Owner's page
+function windPage(player, back) {
+  if (!isOwner(player)) return back();
+  const self = () => windPage(player, back), on = wfOn(), m = wfMult(), mace = wfMace();
+  const f = makeOpr("Wind charge", SHORT_ROWS); f.self = self; f.glass = true;
+  const log = (t) => { try { slog(player, "combat", null, t); } catch (e) { /* ignore */ } };
+  set(f, 0 * COLS + 4, hdr(1, "g") + "§b§lNetherite wind fix\n§r§7Netherite armour is pushed much less\n§r§7by a wind charge (knockback resistance).\n§r§7This gives the push back: it flies\n§r§7like diamond (3+ netherite pieces,\n§r§7no Blast Protection)", "textures/items/wind_charge", null);
+  set(f, 2 * COLS + 2, hdr(1, on ? "g" : "r") + "§b§lWind fix: " + (on ? "§aON" : "§cOFF") + "\n§r§7OFF = the normal game (netherite\n§r§7flies low)\n§r§eClick to turn " + (on ? "OFF" : "ON"), "textures/items/wind_charge", { run: () => { wfSet.on(!on); log("wind fix " + (on ? "off" : "on")); self(); } });
+  const nx = WF_STEPS[(WF_STEPS.indexOf(m) + 1) % WF_STEPS.length], pv = WF_STEPS[(WF_STEPS.indexOf(m) + WF_STEPS.length - 1) % WF_STEPS.length];
+  set(f, 2 * COLS + 4, hdr(Math.max(1, Math.round(m * 10)), on ? "g" : "c") + "§e§lLaunch height: §f" + Math.round(m * 100) + " %" + (m === 1 ? " §7(like diamond)" : m > 1 ? " §a(higher)" : " §c(lower)") + "\n§r§7How high netherite players fly\n§r§7with a wind charge\n§r§eClick: " + Math.round(nx * 100) + " %", "textures/ui/shop/ic_confirm", { run: () => { wfSet.mult(nx); log("wind height " + Math.round(nx * 100) + "%"); self(); } });
+  set(f, 2 * COLS + 3, hdr(1) + "§7§lLower: " + Math.round(pv * 100) + " %\n§r§eClick", "textures/ui/shop/ic_cancel", { run: () => { wfSet.mult(pv); log("wind height " + Math.round(pv * 100) + "%"); self(); } });
+  set(f, 2 * COLS + 6, hdr(1, mace ? "g" : "r") + "§d§lMace Wind Burst: " + (mace ? "§aON" : "§cOFF") + "\n§r§7A mace smash with Wind Burst throws\n§r§7the netherite player up like diamond\n§r§eClick to turn " + (mace ? "OFF" : "ON"), "textures/items/mace", { run: () => { wfSet.mace(!mace); log("wind mace " + (mace ? "off" : "on")); self(); } });
+  backBtn(f, back); status(player, f);
+  open(player, f);
+}
 export function combatPage(player, back) {
   if (!isOwner(player)) return back();
   const self = () => combatPage(player, back), r = reachMax(), ro = reachOn(), cd = cooldownOn(), al = alertsOn(), sp = chargePct();
@@ -173,6 +197,13 @@ export function combatPage(player, back) {
   const sword = Math.max(HAND + 1, Math.round((13 * sp) / 100)), axe = Math.max(HAND + 1, Math.round((20 * sp) / 100));
   const next = SPEEDS[(SPEEDS.indexOf(sp) + 1) % SPEEDS.length];
   set(f, 2 * COLS + 3, hdr(1, cd ? "g" : "c") + "§b§lCharge time: §f" + sp + " %" + (sp === 100 ? " §7(Java)" : sp < 100 ? " §a(faster)" : " §c(slower)") + "\n§r§7Sword: §f" + (sword / 20).toFixed(2) + " s §7| diamond axe: §f" + (axe / 20).toFixed(2) + " s\n§r§7Less = charges faster, more = slower\n§r§eClick: " + next + " %", "textures/items/clock_item", { run: () => { setW("jc:speed", next); for (const v of S.values()) v.cd = cooldownOf(v.item); log("charge time " + next + "%"); self(); } });
+  // row 3: the cooldown for each kind of weapon (on / off)
+  const off = kindsOff();
+  KINDS.forEach(([k, name, icon], i) => {
+    const on = !off.has(k);
+    set(f, 3 * COLS + i, hdr(1, on ? "g" : "r") + "§f§l" + name + ": " + (on ? "§aON" : "§cOFF") + "\n§r§7The attack cooldown for this\n§r§7weapon only" + (on ? "" : "\n§r§7OFF = every hit full, no charge bar") + "\n§r§eClick to turn " + (on ? "OFF" : "ON"), icon, { run: () => { setKindOff(k, on); for (const v of S.values()) v.cd = cooldownOf(v.item); log("cooldown " + k + " " + (on ? "off" : "on")); self(); } });
+  });
+  set(f, 0 * COLS + 8, hdr(1, wfOn() ? "g" : "r") + "§b§lWind charge (netherite)\n§r§7Netherite flies like diamond with\n§r§7a wind charge / mace: " + (wfOn() ? "§aON" : "§cOFF") + "\n§r§7Height: §f" + Math.round(wfMult() * 100) + " %\n§r§eClick to open", "textures/items/wind_charge", { run: () => windPage(player, self) });
   set(f, 2 * COLS + 5, hdr(1) + "§7§lGood to know\n§r§7Both switches work at once for\n§r§7everybody. The values are saved\n§r§7in the world (a restart keeps them).", "textures/items/book_writable", null);
   backBtn(f, back); status(player, f);
   open(player, f);
