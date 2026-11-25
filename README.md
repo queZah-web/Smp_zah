@@ -450,3 +450,10 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
 - Combat > Wind charge (`systems/windfix.js`, idea of the "Netherite Armor Fix" pack): players with 3+ netherite pieces
   and no Blast Protection get the missing wind-charge push (they fly like diamond), height 50 - 300 % (`wf:mult`, 100 % =
   like diamond), ON / OFF (`wf:on`), mace Wind Burst part ON / OFF (`wf:mace`).  The separate pack is not needed.
+- (v48c) Egg Wars needs NO resource pack any more: the egg is a real `minecraft:dragon_egg` (one hit / tap of an enemy
+  breaks it; it never jumps away: every dragon egg it jumped to is removed and the living eggs are put back, also checked
+  every second), the shop is a normal villager (`minecraft:villager_v2`, tag "egw", slowness / resistance, held in place,
+  comes back if missing, trading is cancelled -> our shop).  A BEACON on each shrine roof (iron base + glass in the
+  player's colour) shines while the egg lives and is removed when it breaks.  Generator iron / gold / diamonds carry the
+  "Egg Wars item" lore: they can't be sold (shop sell, chest sell, sell slot, auction) and are removed from anybody who
+  is not playing (every 10 s).

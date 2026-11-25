@@ -68,6 +68,7 @@ function readItem(s) {
     try { if (s.lockMode && String(s.lockMode).toLowerCase() !== "none") return "locked items can not be sold here"; } catch (e) { /* ignore */ }
     try { if (s.keepOnDeath) return "this item can not be sold here"; } catch (e) { /* ignore */ }
     try { if ((s.getCanPlaceOn() ?? []).length || (s.getCanDestroy() ?? []).length) return "this item can not be sold here"; } catch (e) { /* ignore */ }
+    try { if (customLore(s).some((l) => /(Egg|Sky) Wars item/.test(String(l).replace(/§./g, "")))) return "event items can not be sold here"; } catch (e) { /* ignore */ }
     const it = { t, a: s.amount };
     if (s.nameTag) it.n = s.nameTag;
     const lore = customLore(s); if (lore.length) it.l = lore;

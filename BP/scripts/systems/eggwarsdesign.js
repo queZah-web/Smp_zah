@@ -6,7 +6,8 @@
 //         - a stone-brick floor with a cross of the player's colour, grass corners with flowers, a hanging rock under it
 //           with a band of the player's colour
 //         - at the back the EGG SHRINE: a black pedestal for the egg, 4 coloured pillars with sea lanterns, a coloured
-//           glass roof (the egg itself is put there when a game starts)
+//           glass roof with a beacon base on top (the dragon egg + the beacon are put there when a game starts: the beam
+//           in the player's colour shows from far away that his egg is alive)
 //         - the IRON generator (iron block) and the GOLD generator (gold block) in the front, the SHOP (a villager under a
 //           coloured market roof) on one side, a small tree on the other side, the spawn in the middle
 //     * 4 MIDDLE islands with a DIAMOND generator each (between the ring and the centre)
@@ -52,7 +53,7 @@ export function layout(n) {                              // n = 10 or 20 players
     const w = (u, y, v) => ({ x: x + o[0] * v - o[1] * u, y: TOP + y, z: z + o[1] * v + o[0] * u });
     islands.push({
       i, x, z, a, o, col: COLORS[i % COLORS.length][0],
-      spawn: w(0, 1, -1), egg: w(0, 2, 4), eggHolo: w(0, 6.6, 4),
+      spawn: w(0, 1, -1), egg: w(0, 2, 4), beacon: w(0, 7, 4), eggHolo: w(0, 9.9, 4),
       iron: w(-4, 1, -4), gold: w(4, 1, -4), trader: w(5, 1, 1), look: w(0, 1, -7),
     });
   }
@@ -106,6 +107,9 @@ export function* eggGen(n) {
     for (let u = -1; u <= 1; u++) for (let v = 3; v <= 5; v++) P(u, 1, v, u === 0 && v === 4 ? "obsidian" : "polished_blackstone_bricks");
     for (const [u, v] of [[-2, 2], [2, 2], [-2, 6], [2, 6]]) { for (let y = 1; y <= 4; y++) P(u, y, v, y === 4 ? "sea_lantern" : c[3]); }
     for (let u = -2; u <= 2; u++) for (let v = 2; v <= 6; v++) P(u, 5, v, Math.abs(u) === 2 || v === 2 || v === 6 ? c[3] : c[5]);
+    // on the roof: the base of the BEACON (the beacon itself is put there when a game starts: its beam in the player's colour = the egg is alive)
+    for (let u = -1; u <= 1; u++) for (let v = 3; v <= 5; v++) P(u, 6, v, "iron_block");
+    P(0, 8, 4, c[5]);
     // the generators (front): iron left, gold right, a lantern on a post next to each
     P(-4, 1, -4, "iron_block"); P(4, 1, -4, "gold_block");
     P(-5, 1, -5, "polished_blackstone_wall|cobblestone_wall"); P(-5, 2, -5, "lantern", { hanging: false }, true);

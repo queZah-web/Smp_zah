@@ -21,7 +21,7 @@
 //     the most kills wins.  Buying / selling (shop, /sell, auction, /pay ...) is OFF for the players of the game.
 // No lag: the generators spawn at most a few stacks each (a full generator stops), one loop every 5 ticks.
 // ===================================================================================================================
-import { world, system, ItemStack, GameMode, BlockVolume, BlockPermutation, StructureSaveMode, EquipmentSlot, EnchantmentTypes, CommandPermissionLevel, CustomCommandStatus } from "@minecraft/server";
+import { world, system, ItemStack, GameMode, BlockVolume, StructureSaveMode, EquipmentSlot, EnchantmentTypes, CommandPermissionLevel, CustomCommandStatus } from "@minecraft/server";
 import { makeOpr, set, open, hdr, COLS, SHORT_ROWS, backBtn, status } from "../smp/ui.js";
 import { confirmOpr as confirm } from "./forms.js";
 import { isOwner, slog, econLocks } from "./staffcore.js";
@@ -35,7 +35,7 @@ import { ranking } from "./ranks.js";
 import { stats, addMoney, touch } from "../data.js";
 import { exOf } from "../smp/store.js";
 
-const KEY = "egw:arena", CFG_KEY = "egw:cfg", MKEY = "egw:m", PEND_KEY = "egw:pend", AREA = "smp_egw_", HOLO = "shop:holo", TRADER = "smp:ew_trader", EGG = "smp:ew_egg";
+const KEY = "egw:arena", CFG_KEY = "egw:cfg", MKEY = "egw:m", PEND_KEY = "egw:pend", AREA = "smp_egw_", HOLO = "shop:holo", TRADER = "minecraft:villager_v2", EGG = "minecraft:dragon_egg";
 const TAG = "egw", ITEM_TAG = "egw_item";
 const PRIZES = [0, 2500, 5000, 10000, 25000, 50000], MINUTES = [15, 20, 30, 45, 60], COUNT = 10, RESPAWN = 5, SUDDEN_MIN = 5;
 const LORE = ["§8Egg Wars item", "§7(disappears after the game)"];
@@ -90,7 +90,7 @@ function clearEntities(a) {
   const dim = dimOf(a); if (!dim) return;
   try {
     for (const e of dim.getEntities({ location: abs(a, { x: 0, y: TOP, z: 0 }), maxDistance: halfOf(a) * 1.5 + 20 })) {
-      let mine = false; try { mine = e.hasTag(TAG) || e.typeId === TRADER; } catch (x) { mine = false; }
+      let mine = false; try { mine = e.hasTag(TAG) || e.typeId === "smp:ew_trader"; } catch (x) { mine = false; }
       if (mine || ["minecraft:item", "minecraft:xp_orb", "minecraft:arrow", "minecraft:tnt", "minecraft:snowball", "minecraft:egg", "minecraft:ender_pearl", "minecraft:falling_block", "minecraft:fireball", "minecraft:small_fireball", "minecraft:wind_charge_projectile"].includes(e.typeId)) { try { e.remove(); } catch (x) { /* ignore */ } }
     }
   } catch (e) { /* ignore */ }
@@ -262,7 +262,7 @@ function runGens(a, t) {
     try {
       let n = 0; for (const e of dim.getEntities({ type: "minecraft:item", location: at, maxDistance: 1.6 })) { try { const it = e.getComponent("minecraft:item")?.itemStack; if (it?.typeId === d.item) n += it.amount; } catch (x) { /* ignore */ } }
       if (n >= d.cap) continue;
-      const e = dim.spawnItem(new ItemStack(d.item, 1), at);
+      const e = dim.spawnItem(mark(new ItemStack(d.item, 1)), at);
       try { e.clearVelocity(); e.addTag(ITEM_TAG); } catch (x) { /* ignore */ }
     } catch (e) { /* not loaded */ }
   }
@@ -460,12 +460,11 @@ export function startEgg(player) {
       }
       if (G.alive.length < 2) { say(player, "§c[Egg Wars] Not enough players."); for (const id of G.alive) giveBackOrKeep(id, G.pl[id]); G = null; saveG(); removeAreas(dim, AREA); return; }
       // eggs, villagers, signs, generators
-      const egg = (() => { try { return BlockPermutation.resolve(EGG); } catch (e) { return perm("dragon_egg"); } })();
       for (const [i] of Object.entries(G.owner)) {
         const is = Ly.islands[i];
-        try { dim.getBlock(absB(a, is.egg))?.setPermutation(egg); } catch (e) { /* ignore */ }
+        putEgg(a, +i, true);
         holo(a, abs(a, is.eggHolo), eggText(+i), "egg" + i);
-        try { const v = dim.spawnEntity(TRADER, abs(a, is.trader)); v.nameTag = "§e§lSHOP\n§r§7" + pick(online(G.owner[i]) ?? player, "tap me", "اضغط عليّ"); v.addTag(TAG); v.teleport(abs(a, is.trader), { facingLocation: abs(a, is.spawn) }); } catch (e) { console.warn("[eggwars] trader: " + e); }
+        spawnTrader(a, +i);
       }
       G.gens = makeGens(a, Ly);
       G.phase = "count"; G.until = system.currentTick + COUNT * 20;
@@ -478,13 +477,70 @@ export function startEgg(player) {
   return { ok: true };
 }
 
+// ---------------------------------------------------------------- the egg (a real dragon egg) + the beacon over the shrine (its beam = egg alive)
+/** puts (on = true) or removes the dragon egg and the beacon of island i */
+function putEgg(a, i, on) {
+  const dim = dimOf(a), is = layout(a.n).islands[i]; if (!dim || !is) return;
+  try { dim.getBlock(absB(a, is.egg))?.setPermutation(perm(on ? "dragon_egg" : "air")); } catch (e) { /* ignore */ }
+  try { dim.getBlock(absB(a, is.beacon))?.setPermutation(perm(on ? "beacon" : "air")); } catch (e) { /* ignore */ }
+}
+/** a dragon egg jumps away when it is hit / used: every dragon egg around is removed and the eggs that are alive are put back */
+function fixEggs(a, at) {
+  const dim = dimOf(a); if (!dim || !G) return;
+  try { dim.fillBlocks(new BlockVolume({ x: at.x - 16, y: Math.max(a.cy + 1, at.y - 8), z: at.z - 16 }, { x: at.x + 16, y: Math.min(a.cy + layout(a.n).UP, at.y + 8), z: at.z + 16 }), perm("air"), { blockFilter: { includeTypes: [EGG] } }); } catch (e) { /* not loaded */ }
+  const Ly = layout(a.n);
+  for (const [i] of Object.entries(G.owner)) if (G.egg[i]) { try { const b = dim.getBlock(absB(a, Ly.islands[i].egg)); if (b && b.typeId !== EGG) b.setPermutation(perm("dragon_egg")); } catch (e) { /* ignore */ } }
+}
+/** a player hits / uses the egg of island i */
+function eggTouched(p, i) {
+  if (!G || !G.egg[i]) return;
+  if (!playing(p)) return;
+  if (G.owner[i] === p.id) return deny(p, "§c[Egg Wars] This is YOUR egg - defend it!", "§c[حرب البيض] هذي بيضتك انت - دافع عنها!");
+  destroyEgg(i, p.id);
+}
+// the shop villager (a normal villager that can't move, can't be hurt and does not trade: tapping it opens the shop)
+function spawnTrader(a, i) {
+  const dim = dimOf(a), is = layout(a.n).islands[i]; if (!dim || !is) return null;
+  try {
+    const at = abs(a, is.trader);
+    let v = null;
+    try { v = dim.spawnEntity(TRADER, at); } catch (e) { v = null; }
+    if (!v) {                                                                      // a game version where a villager can't be spawned by a script: the summon command
+      try { dim.runCommand(`summon villager ${at.x} ${at.y} ${at.z}`); } catch (e) { /* ignore */ }
+      try { v = dim.getEntities({ type: TRADER, location: at, maxDistance: 2 }).find((e) => !e.hasTag(TAG)) ?? null; } catch (e) { v = null; }
+      if (!v) return null;
+    }
+    try { v.triggerEvent("minecraft:spawn_armorer"); } catch (e) { /* ignore */ }
+    v.addTag(TAG); v.addTag("egw_tr" + i);
+    v.nameTag = "§e§lSHOP §r§7/ §e§lالمتجر";
+    holdTrader(a, v, is);
+    return v;
+  } catch (e) { console.warn("[eggwars] trader: " + e); return null; }
+}
+function holdTrader(a, v, is) {
+  try { v.teleport(abs(a, is.trader), { facingLocation: abs(a, is.spawn) }); } catch (e) { /* ignore */ }
+  for (const [fx, amp] of [["slowness", 255], ["resistance", 4], ["fire_resistance", 0], ["weakness", 255]]) { try { v.addEffect(fx, 200, { amplifier: amp, showParticles: false }); } catch (e) { /* ignore */ } }
+  try { v.getComponent("minecraft:health")?.resetToMaxValue(); } catch (e) { /* ignore */ }
+}
+/** every second: the villagers stay in their place (a dead / missing one comes back), the eggs stay where they are */
+function keepArena(a) {
+  const dim = dimOf(a), Ly = layout(a.n); if (!dim) return;
+  for (const [i] of Object.entries(G.owner)) {
+    const is = Ly.islands[i];
+    let v = null; try { v = dim.getEntities({ tags: ["egw_tr" + i] })[0] ?? null; } catch (e) { v = null; }
+    if (!v) spawnTrader(a, +i);
+    else { const l = v.location, w = abs(a, is.trader); if (Math.hypot(l.x - w.x, l.z - w.z) > 0.3 || Math.abs(l.y - w.y) > 0.5 || system.currentTick % 100 < 20) holdTrader(a, v, is); }
+    if (G.egg[i]) { try { if (dim.getBlock(absB(a, is.egg))?.typeId !== EGG) fixEggs(a, absB(a, is.egg)); } catch (e) { /* not loaded */ } }
+  }
+}
+
 // ---------------------------------------------------------------- eggs, deaths, respawns, out
 function destroyEgg(i, by, why) {
   if (!G || !G.egg[i]) return;
   G.egg[i] = false;
   const a = arena(), dim = a && dimOf(a), is = L().islands[i], id = G.owner[i];
   if (dim && is) {
-    try { dim.getBlock(absB(a, is.egg))?.setPermutation(perm("air")); } catch (e) { /* ignore */ }
+    putEgg(a, i, false);
     const at = abs(a, is.egg);
     for (let k = 0; k < 6; k++) { try { dim.spawnParticle("minecraft:dragon_breath_trail", { x: at.x + (Math.random() - 0.5), y: at.y + Math.random(), z: at.z + (Math.random() - 0.5) }); } catch (e) { /* ignore */ } }
     try { dim.playSound("random.explode", at, { volume: 1.5 }); } catch (e) { /* ignore */ }
@@ -593,6 +649,7 @@ system.runInterval(() => {
     if (G.phase === "end") { if (t >= G.until) stopEgg("end"); return; }
     if (G.phase !== "run") return;
     runGens(a, t);
+    if (t % 20 < 5) keepArena(a);
     const H = halfOf(a);
     for (const id of [...G.alive]) {
       const p = online(id); if (!p) { eliminate(id, "left"); continue; }
@@ -638,6 +695,22 @@ system.runInterval(() => {
   });
 }, 10);
 
+// the game things never stay with anybody who is not playing (they can't be sold either: they carry the "Egg Wars item" lore)
+const isGameItem = (it) => { try { return !!it && it.getLore().some((l) => l === LORE[0]); } catch (e) { return false; } };
+system.runInterval(() => {
+  for (const p of world.getAllPlayers()) {
+    try {
+      if (G?.alive.includes(p.id)) continue;
+      const inv = p.getComponent("minecraft:inventory")?.container; if (!inv) continue;
+      let n = 0;
+      for (let i = 0; i < inv.size; i++) { const it = inv.getItem(i); if (isGameItem(it)) { inv.setItem(i, undefined); n++; } }
+      const eq = p.getComponent("minecraft:equippable");
+      for (const sl of [EquipmentSlot.Head, EquipmentSlot.Chest, EquipmentSlot.Legs, EquipmentSlot.Feet, EquipmentSlot.Offhand]) { try { if (isGameItem(eq?.getEquipment(sl))) { eq.setEquipment(sl, undefined); n++; } } catch (e) { /* ignore */ } }
+      if (n) tell(p, "§7[Egg Wars] The game items are gone (they belong to the game only).", "§7[حرب البيض] أغراض اللعبة اختفت (هي بس للعبة).");
+    } catch (e) { /* one player never stops the others */ }
+  }
+}, 200);
+
 // deaths + who hit whom
 safe("die", () => world.afterEvents.entityDie.subscribe(({ deadEntity, damageSource }) => {
   if (!G || deadEntity?.typeId !== "minecraft:player") return;
@@ -674,9 +747,7 @@ safe("break", () => world.beforeEvents.playerBreakBlock.subscribe((ev) => {
     ev.cancel = true;
     if (!G) { if (owner(p)) system.run(() => { try { b.dimension.getBlock(b.location)?.setPermutation(perm("air")); } catch (e) { /* ignore */ } }); return; }
     const i = eggIsle(a, b); if (i < 0) return;
-    if (!playing(p)) return;
-    if (G.owner[i] === p.id) return deny(p, "§c[Egg Wars] This is YOUR egg - defend it!", "§c[حرب البيض] هذي بيضتك انت - دافع عنها!");
-    system.run(() => destroyEgg(i, p.id));
+    system.run(() => { eggTouched(p, i); const aa = arena(); if (aa) fixEggs(aa, b.location); });
     return;
   }
   if (!G) { if (owner(p)) return; ev.cancel = true; return deny(p, "§c[Egg Wars] You can't break the arena now.", "§c[حرب البيض] ما تقدر تكسر الساحة هسه."); }
@@ -709,14 +780,25 @@ safe("explosion", () => world.beforeEvents.explosion.subscribe((ev) => {
   if (keep.length !== all.length) ev.setImpactedBlocks(keep);
   if (G) system.run(() => { for (const b of keep) G?.placed.delete(K(b.x, b.y, b.z)); });
 }));
+// one hit (hand, pickaxe, anything) on an enemy egg breaks it.  A dragon egg jumps away when it is hit: it is put back at once.
+safe("egg hit", () => world.afterEvents.entityHitBlock.subscribe(({ damagingEntity: p, hitBlock: b }) => {
+  try {
+    if (!G || p?.typeId !== "minecraft:player" || !b) return;
+    const a = eggAt(b.dimension.id, b.x, b.y, b.z); if (!a) return;
+    const i = eggIsle(a, b); if (i < 0) return;
+    eggTouched(p, i);
+    fixEggs(a, { x: b.x, y: b.y, z: b.z });
+  } catch (e) { /* ignore */ }
+}));
 // tap: the villager = the shop, a generator = upgrade, the egg = info
 safe("trader", () => world.beforeEvents.playerInteractWithEntity.subscribe((ev) => {
-  if (ev.target?.typeId !== TRADER) return;
+  let ours = false; try { ours = ev.target?.typeId === TRADER && ev.target.hasTag(TAG); } catch (e) { ours = false; }
+  if (!ours) return;
   ev.cancel = true;
   const p = ev.player; system.run(() => shopPage(p));
 }));
 safe("trader hit", () => world.afterEvents.entityHitEntity.subscribe(({ damagingEntity: p, hitEntity: e }) => {
-  try { if (e?.typeId === TRADER && p?.typeId === "minecraft:player") shopPage(p); } catch (x) { /* ignore */ }
+  try { if (e?.typeId === TRADER && p?.typeId === "minecraft:player" && e.hasTag(TAG)) shopPage(p); } catch (x) { /* ignore */ }
 }));
 safe("use", () => world.beforeEvents.playerInteractWithBlock.subscribe((ev) => {
   if (!G || ev.isFirstEvent === false) return;
@@ -734,11 +816,13 @@ safe("use", () => world.beforeEvents.playerInteractWithBlock.subscribe((ev) => {
     });
     return;
   }
-  if (id === EGG) {
+  if (id === EGG) {                                                               // tapping the egg: an enemy breaks it, the owner gets a hint (it never jumps away)
     ev.cancel = true;
     const i = eggIsle(a, b); if (i < 0) return;
-    system.run(() => tell(p, "§e🥚 " + nameCol(G.owner[i]) + (G.owner[i] === p.id ? " §7- your egg. Protect it with blocks!" : " §7- mine it to break it!"), "§e🥚 " + nameCol(G.owner[i]) + (G.owner[i] === p.id ? " §7- بيضتك. احميها بالبلوكات!" : " §7- اكسرها حتى ما يرجع!")));
+    system.run(() => { if (G?.owner[i] === p.id) tell(p, "§e🥚 §7Your egg. Protect it with blocks!", "§e🥚 §7بيضتك. احميها بالبلوكات!"); else eggTouched(p, i); });
+    return;
   }
+  if (id === "minecraft:beacon") ev.cancel = true;
 }));
 
 // ---------------------------------------------------------------- Owner pages
