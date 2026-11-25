@@ -42,3 +42,7 @@ item.smp:heart_half=Half Heart
 entity.smp:football.name=Football
 entity.smp:sg_doll.name=Doll
 entity.smp:rank_statue.name=Rank Statue
+
+action.interact.ew_shop=Shop / المتجر
+entity.smp:ew_trader.name=Egg Wars Shop
+tile.smp:ew_egg.name=Egg Wars Egg

@@ -430,3 +430,16 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
   turned), 20 players: + 10 more at ~54 between them; 4 small middle islands at 19 (2 chests "mid" loot); centre radius 10.
   An arena built with the old (bigger) layout is still cleared completely (the built bounds are used), so a reset / the
   next game puts the new islands without building again.
+
+## Egg Wars (event) - /opr > Building / Events > Egg Wars (Owner), /eggwars - `systems/eggwars.js`, `eggwarsdesign.js`
+- Arena for 10 (ring r 40, 105 x 105) or 20 players (ring r 70, 165 x 165), floors at +60: every player island has its
+  colour (20 colours), the egg shrine (custom block `smp:ew_egg`, dragon egg model, BP/blocks/ew_egg.json +
+  RP/models/blocks/smp_ew_egg.geo.json), an iron + a gold generator (tap = upgrade, levels 1 - 4), the shop villager
+  (`smp:ew_trader`, vanilla villager model, can't be hurt / moved), a tree; 4 middle islands with a diamond generator;
+  the centre: beacon tower, 2 diamond + 2 gold generators.  Signs (shop:holo) over every egg: colour, name, egg / out, kills.
+- Game: own things into the lockers + loot record (shared with Sky Wars, `g: "egg"`), everybody starts with nothing.
+  Only blocks placed by the players can be broken (also by TNT); placed blocks stay until the game ends.  Death / void
+  with the egg alive: 5 s spectator over the own island, then back (inventory cleared).  Egg broken = next death is OUT.
+  Time over: sudden death (every egg breaks), 5 min later the most kills wins.  Stats: eww / ewl / ewk / ewe.
+- Generator items carry the tag `egw_item` (ClearLag skips them); a generator stops when its stack is full.
+- RP version 1.4.49 (new block model, villager entity, egg texture entry).

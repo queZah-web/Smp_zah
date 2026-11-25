@@ -219,7 +219,7 @@ const enchOf = (it) => { try { return (it.getComponent("minecraft:enchantable")?
 const dmgOf = (it) => { try { return it.getComponent("minecraft:durability")?.damage ?? 0; } catch (e) { return 0; } };
 const describe = (it) => [it.typeId, it.amount, it.nameTag ?? "", enchOf(it), dmgOf(it)];
 /** moves everything of the player into lockers 2n / 2n+1 and writes the loot record. Returns { map, items } or null */
-function storeInv(a, p, n) {
+export function storeInv(a, p, n) {
   const b = [boxOf(a, 2 * n), boxOf(a, 2 * n + 1)]; if (!b[0] || !b[1]) return null;
   for (const box of b) for (let i = 0; i < box.size; i++) { try { if (box.getItem(i)) return null; } catch (e) { return null; } }
   const inv = p.getComponent("minecraft:inventory")?.container, eq = p.getComponent("minecraft:equippable"), map = [], items = [];
@@ -232,16 +232,16 @@ function storeInv(a, p, n) {
 // the loot record: one world property per entry + an index (newest first)
 const hIndex = () => readJson(HIDX, []);
 export const lootRecords = (pid) => hIndex().map((id) => readJson(HREC + id, null)).filter((r) => r && (!pid || r.pid === pid));
-function addRecord(r) {
+export function addRecord(r) {
   writeJson(HREC + r.id, r);
   const idx = [r.id, ...hIndex().filter((x) => x !== r.id)];
   while (idx.length > HIST_MAX) { const old = idx.pop(); writeJson(HREC + old, null); }
   writeJson(HIDX, idx);
 }
-function markRecord(id, st, by) { const r = readJson(HREC + id, null); if (!r) return; r.st = st; r.when = Date.now(); if (by) r.by = by; writeJson(HREC + id, r); }
+export function markRecord(id, st, by) { const r = readJson(HREC + id, null); if (!r) return; r.st = st; r.when = Date.now(); if (by) r.by = by; writeJson(HREC + id, r); }
 
 /** removes everything the player has now (all from the game) and gives his own things back. false = the locker is not loaded */
-function giveBack(a, p, rec) {
+export function giveBack(a, p, rec) {
   if (!a) return false;
   for (const [, , bx] of rec.map ?? []) if (!boxOf(a, bx)) return false;
   const inv = p.getComponent("minecraft:inventory")?.container, eq = p.getComponent("minecraft:equippable");
@@ -536,7 +536,7 @@ export function lootListPage(player, back, pid = null, name = null, page = 0) {
   set(f, 0 * COLS + 4, hdr(Math.max(1, Math.min(99, recs.length))) + "§6§lLoot records\n§r§7Everything a player had when he\n§r§7went into a Sky Wars game\n§r§7Records: §f" + recs.length, "textures/ui/shop/i3d_barrel", null);
   list.forEach((r, i) => {
     const d = new Date(r.t + 3 * 3600000), z = (n) => String(n).padStart(2, "0");
-    set(f, 1 * COLS + i, hdr(Math.max(1, Math.min(99, r.items.length)), r.st === "locked" ? "r" : "c") + "§f§l" + r.n + "\n§r§7" + z(d.getUTCDate()) + "-" + z(d.getUTCMonth() + 1) + " " + z(d.getUTCHours()) + ":" + z(d.getUTCMinutes()) + " §8(Baghdad)\n§r§7Stacks: §f" + r.items.length + " §7| Levels: §f" + (r.lv ?? 0) + "\n§r" + (ST[r.st] ?? r.st) + "\n§r§eClick to see", "textures/ui/shop/i3d_barrel", { run: () => lootPage(player, r.id, self) });
+    set(f, 1 * COLS + i, hdr(Math.max(1, Math.min(99, r.items.length)), r.st === "locked" ? "r" : "c") + "§f§l" + r.n + "\n§r§7" + (r.g === "egg" ? "Egg Wars" : "Sky Wars") + " §8| §7" + z(d.getUTCDate()) + "-" + z(d.getUTCMonth() + 1) + " " + z(d.getUTCHours()) + ":" + z(d.getUTCMinutes()) + " §8(Baghdad)\n§r§7Stacks: §f" + r.items.length + " §7| Levels: §f" + (r.lv ?? 0) + "\n§r" + (ST[r.st] ?? r.st) + "\n§r§eClick to see", "textures/ui/shop/i3d_barrel", { run: () => lootPage(player, r.id, self) });
   });
   if (recs.length > (page + 1) * per) set(f, 5 * COLS + 8, hdr(1) + "Next page", "textures/ui/shop/nav_next", { run: () => lootListPage(player, back, pid, name, page + 1) });
   if (page > 0) set(f, 5 * COLS + 7, hdr(1) + "Previous page", "textures/ui/shop/nav_prev", { run: () => lootListPage(player, back, pid, name, page - 1) });
@@ -548,7 +548,7 @@ function lootPage(player, rid, back) {
   const r = readJson(HREC + rid, null); if (!r) return back();
   const self = () => lootPage(player, rid, back);
   const f = makeOpr("Loot of " + r.n, 6); f.self = self; f.glass = true;
-  set(f, 0 * COLS + 4, hdr(1, r.st === "locked" ? "r" : "g") + "§6§l" + r.n + " §r§7before Sky Wars\n§r§7" + new Date(r.t + 3 * 3600000).toISOString().replace("T", " ").slice(0, 16) + " §8(Baghdad)\n§r§7Levels: §f" + (r.lv ?? 0) + "\n§r" + (ST[r.st] ?? r.st) + (r.by ? "\n§r§7By: §f" + r.by : ""), "textures/ui/shop/i3d_barrel", null);
+  set(f, 0 * COLS + 4, hdr(1, r.st === "locked" ? "r" : "g") + "§6§l" + r.n + " §r§7before " + (r.g === "egg" ? "Egg Wars" : "Sky Wars") + "\n§r§7" + new Date(r.t + 3 * 3600000).toISOString().replace("T", " ").slice(0, 16) + " §8(Baghdad)\n§r§7Levels: §f" + (r.lv ?? 0) + "\n§r" + (ST[r.st] ?? r.st) + (r.by ? "\n§r§7By: §f" + r.by : ""), "textures/ui/shop/i3d_barrel", null);
   r.items.slice(0, 36).forEach((it, i) => {
     const [kind, slot, id, n, nm, en, dmg] = it;
     set(f, 1 * COLS + i, hdr(Math.min(99, n), en?.length ? "x" : "c") + "§f" + (nm || pretty(id)) + "\n§r§7x" + n + " §8(" + (kind === "e" ? ["helmet", "chest", "legs", "boots", "off hand"][slot] : "slot " + slot) + ")" + (en?.length ? "\n§r§b" + en.slice(0, 5).map(([e, l]) => pretty(e) + " " + l).join("§7, §b") : "") + (dmg ? "\n§r§7Damage: §f" + dmg : ""), "textures/items/" + String(id).replace("minecraft:", ""), null);
@@ -557,6 +557,7 @@ function lootPage(player, rid, back) {
   // 1) the real items, from the locker (safe: they are still there only if they were never given back)
   if (r.st === "locked") set(f, 5 * COLS + 3, hdr(1, "g") + "§a§lGive back from the locker\n§r§7The REAL items (nothing is copied)\n§r§7" + (p ? "He is online" : "§cHe must be online") + "\n§r§eClick", "textures/ui/shop/ic_confirm", { run: () => {
     const now = online(r.pid); if (!now) { say(player, "§c[Sky Wars] " + r.n + " is offline - it is given back when he joins."); return self(); }
+    if (r.g && lootGivers[r.g]) { if (lootGivers[r.g](player, r, now)) say(player, "§a[Events] Given back to " + r.n + "."); return self(); }
     if (G?.alive.includes(r.pid)) { say(player, "§c[Sky Wars] He is playing right now - it comes back when he is out."); return self(); }
     const all = pend(), rec = all[r.pid] ?? (G?.pl[r.pid]);
     if (rec && !rec.done && giveBack(a, now, rec)) { rec.done = 1; delete all[r.pid]; writeJson(PEND_KEY, Object.keys(all).length ? all : null); markRecord(r.id, "returned", player.name); try { slog(player, "skywars", { id: r.pid, name: r.n }, "loot given back from the locker"); } catch (e) { /* ignore */ } say(player, "§a[Sky Wars] Given back to " + r.n + "."); }
@@ -584,6 +585,8 @@ function lootPage(player, rid, back) {
   open(player, f);
 }
 const NAV_NO = "textures/ui/shop/ic_cancel";
+/** other games that use the same lockers + loot records (Egg Wars): { egg: (staff, record) => true if given back } */
+export const lootGivers = {};
 
 // ---------------------------------------------------------------- /skywars (every player)
 export function skyMenu(player) {

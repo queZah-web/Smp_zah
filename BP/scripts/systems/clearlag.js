@@ -93,7 +93,7 @@ export function clearItems() {
     for (const it of items) {
       // Hearts (smp:heart / smp:heart_half / smp:heart_cursed) are NEVER cleared: ClearLag skips them completely.
       // If the item can't be read for any reason, it is skipped too (better to keep one item than to delete a heart).
-      try { const tid = it.getComponent("minecraft:item")?.itemStack?.typeId; if (!tid || isHeart(tid)) continue; if (it.hasTag("death_loot")) continue; } catch (e) { continue; }
+      try { const tid = it.getComponent("minecraft:item")?.itemStack?.typeId; if (!tid || isHeart(tid)) continue; if (it.hasTag("death_loot") || it.hasTag("egw_item")) continue; } catch (e) { continue; }
       try { gone.push({ dim: dimObj, loc: { x: it.location.x, y: it.location.y, z: it.location.z } }); } catch (e) { /* ignore */ }
       try { it.remove(); n++; } catch (e) { try { it.kill(); n++; } catch (e2) { /* already gone */ } }
     }

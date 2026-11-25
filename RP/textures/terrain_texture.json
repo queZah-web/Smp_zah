@@ -262,6 +262,9 @@
         "textures/blocks/observer_side",
         "textures/blocks/observer_side_lit"
       ]
+    },
+    "smp_ew_egg": {
+      "textures": "textures/blocks/dragon_egg"
     }
   }
 }
