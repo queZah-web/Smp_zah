@@ -2,7 +2,7 @@
 // SKY WARS (event)  -  /opr > Building > Sky Wars  or  /opr > Events > Sky Wars  (Owner)   and   /skywars (every player)
 //
 // The Owner builds the arena (skywarsdesign.js) for 10 or 20 players: a centre island and a ring of player islands in the
-// sky, 32 blocks apart.  Then he runs games:
+// sky, ~32 blocks from the middle (+ 4 small middle islands).  Then he runs games:
 //   * chooses the players (2 - 10 / 20), the time limit and the prize
 //   * Start: the islands are built again as new and every chest gets NEW random loot (every game is different):
 //       island chests: swords, axes, armour, blocks, food, bows, pearls, snowballs, eggs, buckets, TNT, splash potions...
@@ -77,8 +77,10 @@ function* placeCanvas(a, dim, canvas, progress) {
     if (++k % 80 === 0) { if (progress) progress(k); yield; }
   }
 }
+/** half the width of the BUILT arena (an arena built with an older, bigger layout is still cleared completely) */
+const halfOf = (a) => Math.max(layout(a.n).HX, Number.isFinite(a.x2) ? a.x2 - a.cx - 1 : 0);
 function* clearSky(a, dim, from, to) {
-  const air = perm("air"), H = layout(a.n).HX;
+  const air = perm("air"), H = halfOf(a);
   for (let x = -H; x <= H; x++) { try { dim.fillBlocks(new BlockVolume({ x: a.cx + x, y: a.cy + from, z: a.cz - H }, { x: a.cx + x, y: a.cy + to, z: a.cz + H }), air); } catch (e) { /* not loaded */ } if (x % 3 === 0) yield; }
 }
 function* buildJob(player, dim, a) {
@@ -146,7 +148,7 @@ function* resetJob(a) {
   yield* clearSky(a, dim, 1, Ly.UP);                                               // everything the players built (bridges, towers ...) goes
   const d = yield* getDesign(a.n);
   yield* placeCanvas(a, dim, d.canvas);
-  try { for (const e of dim.getEntities({ location: abs(a, { x: 0, y: TOP, z: 0 }), maxDistance: Ly.HX + 20 })) { if (["minecraft:item", "minecraft:xp_orb", "minecraft:arrow", "minecraft:tnt", "minecraft:snowball", "minecraft:egg", "minecraft:ender_pearl", "minecraft:falling_block"].includes(e.typeId)) { try { e.remove(); } catch (x) { /* ignore */ } } } } catch (e) { /* ignore */ }
+  try { for (const e of dim.getEntities({ location: abs(a, { x: 0, y: TOP, z: 0 }), maxDistance: halfOf(a) * 1.5 + 20 })) { if (["minecraft:item", "minecraft:xp_orb", "minecraft:arrow", "minecraft:tnt", "minecraft:snowball", "minecraft:egg", "minecraft:ender_pearl", "minecraft:falling_block"].includes(e.typeId)) { try { e.remove(); } catch (x) { /* ignore */ } } } } catch (e) { /* ignore */ }
 }
 
 // ---------------------------------------------------------------- the random loot (new every game)
@@ -180,6 +182,10 @@ function chestPlan(tier, first) {
   if (tier === "island") {
     if (first) { out.push(pickFrom("weapon"), pickFrom("blocks"), pickFrom("armor"), pickFrom("food")); if (Math.random() < 0.6) out.push(pickFrom("armor")); }
     else { out.push(pickFrom("blocks"), pickFrom("util"), pickFrom("util")); if (Math.random() < 0.5) out.push(pickFrom("potion")); if (Math.random() < 0.6) out.push(pickFrom("armor")); if (Math.random() < 0.4) out.push(pickFrom("weapon")); if (Math.random() < 0.5) out.push(pickFrom("food")); }
+  } else if (tier === "mid") {                                    // the small middle islands: between the island loot and the centre loot
+    out.push(pickFrom(Math.random() < 0.5 ? "cweapon" : "weapon"), pickFrom("cutil"), pickFrom("blocks"));
+    if (Math.random() < 0.6) out.push(pickFrom("potion"));
+    if (Math.random() < 0.5) out.push(pickFrom("carmor"));
   } else {
     out.push(pickFrom("cweapon"), pickFrom("carmor"), pickFrom("cutil"), pickFrom("cutil"));
     if (Math.random() < 0.7) out.push(pickFrom("cpotion"));
@@ -195,7 +201,7 @@ function fillChests(a) {
     try {
       const b = dim.getBlock({ x: a.cx + c.x, y: a.cy + c.y, z: a.cz + c.z }), box = b?.getComponent("minecraft:inventory")?.container; if (!box) continue;
       for (let i = 0; i < box.size; i++) box.setItem(i, undefined);
-      const isle = Math.round(Math.atan2(c.z, c.x) * 100), first = c.tier === "island" && !firstOf.has(isle); if (first) firstOf.add(isle);
+      const isle = c.i ?? Math.round(Math.atan2(c.z, c.x) * 100), first = c.tier === "island" && !firstOf.has(isle); if (first) firstOf.add(isle);
       const free = [...Array(box.size).keys()].sort(() => Math.random() - 0.5);
       for (const spec of chestPlan(c.tier, first)) {
         const slot = free.pop(); if (slot === undefined) break;
@@ -403,7 +409,7 @@ system.runInterval(() => {
     for (const id of [...G.alive]) {
       const p = online(id); if (!p) { eliminate(id, "left"); continue; }
       const l = p.location;
-      if (p.dimension.id !== a.d || Math.abs(l.x - a.cx) > Ly.HX + 3 || Math.abs(l.z - a.cz) > Ly.HX + 3 || l.y - a.cy > Ly.UP + 6) { eliminate(id, "away"); continue; }
+      if (p.dimension.id !== a.d || Math.abs(l.x - a.cx) > halfOf(a) + 3 || Math.abs(l.z - a.cz) > halfOf(a) + 3 || l.y - a.cy > Ly.UP + 6) { eliminate(id, "away"); continue; }
       if (l.y - a.cy < Ly.voidY) { eliminate(id, "void"); continue; }
     }
     if (G && G.phase === "run" && t >= G.end) {                                  // time over: the most kills wins
@@ -480,7 +486,7 @@ export function skyPage(player, back) {
   set(f, 0 * COLS + 4, hdr(1, G ? "g" : "c") + "§b§lSky Wars\n§r§7Islands in the sky, random loot in\n§r§7the chests, last one alive wins.\n§r§7Arena: " + (busy ? "§ebeing built" : a ? "§abuilt §7(" + a.n + " islands, " + a.cx + " " + a.cy + " " + a.cz + ")" : "§fnot built") + "\n§r§7Game: " + live + "\n§r§7Players: §f/skywars", "textures/items/diamond_sword", null);
   set(f, 0 * COLS + 8, hdr(Math.min(99, Math.max(1, lootRecords().length))) + "§6§lLoot records\n§r§7What every player had BEFORE a\n§r§7game - give it back if needed\n§r§eClick to open", "textures/ui/shop/i3d_barrel", { run: () => lootListPage(player, self) });
   if (!a) {
-    for (const [col, n] of [[3, 10], [5, 20]]) set(f, 2 * COLS + col, hdr(n, "g") + "§a§lBuild for " + n + " players\n§r§7A centre island + " + n + " islands\n§r§7around it, 32 blocks apart, in the\n§r§7sky (" + (layout(n).HX * 2 + 1) + " x " + (layout(n).HX * 2 + 1) + "). The land is saved\n§r§eClick to build", "textures/ui/shop/ic_confirm",
+    for (const [col, n] of [[3, 10], [5, 20]]) set(f, 2 * COLS + col, hdr(n, "g") + "§a§lBuild for " + n + " players\n§r§7A centre island + " + n + " islands\n§r§7around it, ~32 blocks from the middle,\n§r§7sky (" + (layout(n).HX * 2 + 1) + " x " + (layout(n).HX * 2 + 1) + "). The land is saved\n§r§eClick to build", "textures/ui/shop/ic_confirm",
       { run: () => confirm(player, "Build Sky Wars for " + n + "?", ["§7Middle: §f" + Math.floor(player.location.x) + " " + Math.floor(player.location.y) + " " + Math.floor(player.location.z), "§7The islands float " + TOP + " blocks over you", "§7Everything in " + (layout(n).HX * 2 + 1) + " x " + (layout(n).HX * 2 + 1) + " blocks is replaced (Undo puts it back)."], () => buildSky(player, n), self) });
   } else if (!G) {
     const n = c.roster.filter((id) => online(id)).length, max = layout(a.n).n;

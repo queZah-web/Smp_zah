@@ -421,3 +421,12 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
 - The uploaded "Java Combat" pack was not merged: it replaces the player entity (like the SMP pack) and uses the same
   title channel as the SMP scoreboard, so the two would break each other.
 - REACH (anti reach-hack): a melee hit from farther than the max reach (default 4 blocks, measured from the eyes to the nearest point of the body, best of this tick and the last one) counts for nothing: the damage is given back and the knockback is taken back. 3 far hits in a minute = a staff alert. Owner: /opr > Server & staff > Combat (max reach 3 - 8 blocks, cooldown on / off, alerts on / off).
+
+## Combat switches + Sky Wars islands (v47n)
+- /opr > Server & staff > Combat (Owner): Reach limit ON / OFF (`jc:reachOn`), Max hit reach (3 - 8), Reach alerts,
+  Attack cooldown ON / OFF, Charge time 50 / 60 / 75 / 100 (Java) / 125 / 150 / 200 % of the Java time (`jc:speed`, every
+  weapon; the hand stays instant).
+- Sky Wars islands: 10 player islands ~32 blocks from the middle (radius 31 - 33, heights -4 .. +5, sizes 5 - 6, a little
+  turned), 20 players: + 10 more at ~54 between them; 4 small middle islands at 19 (2 chests "mid" loot); centre radius 10.
+  An arena built with the old (bigger) layout is still cleared completely (the built bounds are used), so a reset / the
+  next game puts the new islands without building again.

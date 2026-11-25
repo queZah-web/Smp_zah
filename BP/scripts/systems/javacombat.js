@@ -28,6 +28,10 @@ const getW = (k, d) => { try { const v = world.getDynamicProperty(k); return v =
 const setW = (k, v) => { try { world.setDynamicProperty(k, v); } catch (e) { /* ignore */ } };
 export const reachMax = () => { const v = Number(getW("jc:reach", 4)); return Number.isFinite(v) && v >= 3 ? v : 4; };
 export const cooldownOn = () => getW("jc:cd", true) !== false;
+export const reachOn = () => getW("jc:reachOn", true) !== false;
+// charge speed: the time a weapon needs to charge, in % of the Java time (100 = Java, 50 = twice as fast, 200 = twice as slow)
+const SPEEDS = [50, 60, 75, 100, 125, 150, 200];
+export const chargePct = () => { const v = Number(getW("jc:speed", 100)); return SPEEDS.includes(v) ? v : 100; };
 const alertsOn = () => getW("jc:alert", true) !== false;
 
 // ticks for a full charge (Java attack speed: 20 / speed)
@@ -39,7 +43,8 @@ const FIXED = {
   "minecraft:wooden_spear": 13, "minecraft:stone_spear": 15, "minecraft:copper_spear": 17, "minecraft:iron_spear": 19, "minecraft:golden_spear": 19, "minecraft:diamond_spear": 21, "minecraft:netherite_spear": 23,
 };
 const HAND = 5;                                                   // empty hand / any other item: 4 hits a second
-function cooldownOf(id) {
+function cooldownOf(id) { const base = javaTicks(id); return base <= HAND ? base : Math.max(HAND + 1, Math.round((base * chargePct()) / 100)); }
+function javaTicks(id) {
   if (!id) return HAND;
   const f = FIXED[id]; if (f) return f;
   if (id.endsWith("_pickaxe")) return 17;
@@ -69,7 +74,7 @@ world.afterEvents.entityHurt.subscribe(({ hurtEntity: v, damage, damageSource })
     const since = s.last === t ? s.prev : s.last;                  // the hit event of this same tick may already have started a new charge
     if (s.last !== t) swing(a);
     // REACH: a hit from farther than the allowed reach counts for nothing (no damage, no knockback) - hacked reach
-    const far = reachOf(a, v);
+    const far = reachOn() ? reachOf(a, v) : 0;
     if (far > reachMax()) {
       const h0 = v.getComponent("minecraft:health"); if (h0 && h0.currentValue > 0) h0.setCurrentValue(Math.min(h0.effectiveMax, h0.currentValue + damage));
       noKnockback(v); reachFlag(a, v, far); return;
@@ -155,12 +160,20 @@ world.afterEvents.entityHitEntity.subscribe(({ damagingEntity: a, hitEntity: v }
 // ---------------------------------------------------------------- the Owner's page
 export function combatPage(player, back) {
   if (!isOwner(player)) return back();
-  const self = () => combatPage(player, back), r = reachMax(), cd = cooldownOn(), al = alertsOn();
+  const self = () => combatPage(player, back), r = reachMax(), ro = reachOn(), cd = cooldownOn(), al = alertsOn(), sp = chargePct();
   const f = makeOpr("Combat", SHORT_ROWS); f.self = self; f.glass = true;
+  const log = (t) => { try { slog(player, "combat", null, t); } catch (e) { /* ignore */ } };
   set(f, 0 * COLS + 4, hdr(1, "g") + "§c§lCombat\n§r§7Hit reach (anti-cheat) and the\n§r§7Java attack cooldown\n§r§7Normal survival reach: 3 blocks", "textures/items/diamond_sword", null);
-  set(f, 2 * COLS + 2, hdr(Math.round(r)) + "§e§lMax hit reach: §f" + r + " blocks\n§r§7A hit from farther than this counts\n§r§7for NOTHING (no damage, no knockback)\n§r§7Measured from the eyes to the body\n§r§eClick: " + REACHES[(REACHES.indexOf(r) + 1) % REACHES.length] + " blocks", "textures/items/spyglass", { run: () => { const n = REACHES[(REACHES.indexOf(r) + 1) % REACHES.length]; setW("jc:reach", n); try { slog(player, "combat", null, "max reach " + n); } catch (e) { /* ignore */ } self(); } });
-  set(f, 2 * COLS + 4, hdr(1, cd ? "g" : "r") + "§b§lAttack cooldown: " + (cd ? "§aON" : "§cOFF") + "\n§r§7100 % = full damage, 80 % = 10 %,\n§r§750 % = 5 %, less = nothing\n§r§7+ the charge bar under the crosshair\n§r§eClick to turn " + (cd ? "off" : "on"), "textures/items/clock_item", { run: () => { setW("jc:cd", !cd); try { slog(player, "combat", null, "cooldown " + (!cd ? "on" : "off")); } catch (e) { /* ignore */ } self(); } });
-  set(f, 2 * COLS + 6, hdr(1, al ? "g" : "r") + "§c§lReach alerts: " + (al ? "§aON" : "§cOFF") + "\n§r§7The staff is told when a player hits\n§r§7from too far 3 times in a minute\n§r§eClick to turn " + (al ? "off" : "on"), "textures/ui/shop/ic_shield", { run: () => { setW("jc:alert", !al); self(); } });
+  // row 1: the REACH limit (on / off + the distance)
+  set(f, 1 * COLS + 2, hdr(1, ro ? "g" : "r") + "§e§lReach limit: " + (ro ? "§aON" : "§cOFF") + "\n§r§7ON = a hit from farther than the\n§r§7max reach counts for nothing\n§r§7OFF = every hit counts (game normal)\n§r§eClick to turn " + (ro ? "OFF" : "ON"), "textures/items/spyglass", { run: () => { setW("jc:reachOn", !ro); log("reach limit " + (!ro ? "on" : "off")); self(); } });
+  set(f, 1 * COLS + 3, hdr(Math.round(r), ro ? "g" : "c") + "§e§lMax hit reach: §f" + r + " blocks\n§r§7Measured from the eyes to the body\n§r§7(4 is a good choice)\n§r§eClick: " + REACHES[(REACHES.indexOf(r) + 1) % REACHES.length] + " blocks", "textures/items/spyglass", { run: () => { const n = REACHES[(REACHES.indexOf(r) + 1) % REACHES.length]; setW("jc:reach", n); log("max reach " + n); self(); } });
+  set(f, 1 * COLS + 5, hdr(1, al ? "g" : "r") + "§c§lReach alerts: " + (al ? "§aON" : "§cOFF") + "\n§r§7The staff is told when a player hits\n§r§7from too far 3 times in a minute\n§r§eClick to turn " + (al ? "OFF" : "ON"), "textures/ui/shop/ic_shield", { run: () => { setW("jc:alert", !al); self(); } });
+  // row 2: the attack COOLDOWN (on / off + the charge speed)
+  set(f, 2 * COLS + 2, hdr(1, cd ? "g" : "r") + "§b§lAttack cooldown: " + (cd ? "§aON" : "§cOFF") + "\n§r§7100 % charge = full damage, 80 % = 10 %,\n§r§750 % = 5 %, less = nothing\n§r§7+ the charge bar under the crosshair\n§r§7OFF = every hit full (game normal)\n§r§eClick to turn " + (cd ? "OFF" : "ON"), "textures/items/clock_item", { run: () => { setW("jc:cd", !cd); log("cooldown " + (!cd ? "on" : "off")); self(); } });
+  const sword = Math.max(HAND + 1, Math.round((13 * sp) / 100)), axe = Math.max(HAND + 1, Math.round((20 * sp) / 100));
+  const next = SPEEDS[(SPEEDS.indexOf(sp) + 1) % SPEEDS.length];
+  set(f, 2 * COLS + 3, hdr(1, cd ? "g" : "c") + "§b§lCharge time: §f" + sp + " %" + (sp === 100 ? " §7(Java)" : sp < 100 ? " §a(faster)" : " §c(slower)") + "\n§r§7Sword: §f" + (sword / 20).toFixed(2) + " s §7| diamond axe: §f" + (axe / 20).toFixed(2) + " s\n§r§7Less = charges faster, more = slower\n§r§eClick: " + next + " %", "textures/items/clock_item", { run: () => { setW("jc:speed", next); for (const v of S.values()) v.cd = cooldownOf(v.item); log("charge time " + next + "%"); self(); } });
+  set(f, 2 * COLS + 5, hdr(1) + "§7§lGood to know\n§r§7Both switches work at once for\n§r§7everybody. The values are saved\n§r§7in the world (a restart keeps them).", "textures/items/book_writable", null);
   backBtn(f, back); status(player, f);
   open(player, f);
 }
