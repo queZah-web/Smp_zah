@@ -25,7 +25,8 @@ import { atLimit } from "./specialtool.js";      // upgraded (special) tools nev
 import { luxArea, luxVein, luxTimber } from "../lux.js";
 import { realOf } from "./axrids.js";
 import { isPlacedLog } from "./placedlogs.js";      // logs that players placed (houses ...) are never cut by Timber
-import { canEditBlock } from "./landcore.js";          // land protection: extra blocks inside protected land are never broken
+import { canEditBlock } from "./landcore.js";
+import { xryActive, xryReveal } from "./xrylink.js";     // Anti X-Ray (XryGuard): uncover hidden ores before extra blocks are broken          // land protection: extra blocks inside protected land are never broken
 
 /** per-player switches (stored with the player's settings) */
 export function miningOpts(p) {
@@ -367,6 +368,18 @@ function smeltOwn(player, block, brokenId, tool) {
 
 // ---------------------------------------------------------------- event
 const busy = new Set();
+/** with the Anti X-Ray (XryGuard) on: the hidden ores around are uncovered first, the extra blocks are broken 2 ticks later
+ *  (so a hidden ore is never broken as stone).  Without it: at once, as before. */
+function later(player, block, r, fn) {
+  if (!xryActive()) return fn();
+  xryReveal(block.dimension, block.location, r);
+  system.runTimeout(() => {
+    if (busy.has(player.id)) return;
+    busy.add(player.id);
+    try { if (player.isValid) fn(); } catch (e) { console.warn("[mining] " + e); }
+    finally { busy.delete(player.id); }
+  }, 2);
+}
 try {
   world.afterEvents.playerBreakBlock.subscribe((ev) => {
     const { player, block, brokenBlockPermutation: perm, itemStackBeforeBreak: tool } = ev;
@@ -380,8 +393,8 @@ try {
       const id = idOf(perm.type.id), tid = idOf(tool.typeId);
       if (sneaking) {
         if (tid.endsWith("_axe") && species(id)) { if (opt.timber && !isPlacedLog(block.dimension, block.location)) timber(player, block, id, tool.typeId, opt.tmax); }
-        else if (tid.endsWith("_pickaxe")) { if (opt.vein) { const o = oreOf(id); if (o && toolTier(tid) >= o.tier) vein(player, block, id, tool, opt.smelt); } }
-      } else if (opt.area && (tid.endsWith("_pickaxe") || tid.endsWith("_shovel"))) area(player, block, id, tool, opt.area, opt.smelt);
+        else if (tid.endsWith("_pickaxe")) { if (opt.vein) { const o = oreOf(id); if (o && toolTier(tid) >= o.tier) later(player, block, 5, () => vein(player, block, id, tool, opt.smelt)); } }
+      } else if (opt.area && (tid.endsWith("_pickaxe") || tid.endsWith("_shovel"))) later(player, block, opt.area + 1, () => area(player, block, id, tool, opt.area, opt.smelt));
     } catch (e) { console.warn("[mining] " + e); }
     finally { busy.delete(player.id); }
   });

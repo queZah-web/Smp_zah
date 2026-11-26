@@ -479,3 +479,13 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
   first game after this update or a restart in the middle of a game).
 - Lucky blocks are MINED now (not one hit): looking at a lucky block gives a hidden Haste 12 for a moment (hand ~2 s, a
   pickaxe much faster); the finished break is cancelled and opens the block.
+
+## Anti X-Ray: XryGuard link (v49c) - `systems/xrylink.js`, the pack itself in `tools/xryguard/XryGuard_BP` (1.0.1)
+- XryGuard (the Owner's own pack) stays a SEPARATE behavior pack: its thousands of chunk records live in its own saved
+  data, so SMP code that lists the world properties is never slowed down.
+- XryGuard 1.0.1 (changed here): says "I am here" + its settings every 10 s (`scriptevent smp:xry {p, r, b, busy}`), and
+  has `xry:reveal x y z r dim` (uncover the hidden ores in a cube).
+- /opr > Server & staff > Anti X-Ray (Owner): status, pause / resume, radius, work per tick, scan around me, RESTORE ALL
+  ORES (`xry:restore confirm`).  The commands are sent as the Owner, so the answers come to his chat.
+- mining.js: with XryGuard on, Area Mining and Vein Miner first ask XryGuard to uncover the ores around and break the extra
+  blocks 2 ticks later (a hidden ore is never broken as stone).

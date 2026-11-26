@@ -1,0 +1,37 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "XryGuard - Anti X-Ray",
+    "description": "يخفي الخامات المدفونة عن الـ X-Ray ويكشفها للاعب بس من يوصلها",
+    "uuid": "86b0d4dc-9dc9-48bc-9a8a-7b2c1f88c041",
+    "version": [
+      1,
+      0,
+      1
+    ],
+    "min_engine_version": [
+      1,
+      21,
+      60
+    ]
+  },
+  "modules": [
+    {
+      "type": "script",
+      "language": "javascript",
+      "uuid": "75756d98-8aa0-4206-af99-60733dc5f740",
+      "entry": "scripts/main.js",
+      "version": [
+        1,
+        0,
+        1
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "module_name": "@minecraft/server",
+      "version": "1.17.0"
+    }
+  ]
+}
