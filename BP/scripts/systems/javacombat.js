@@ -45,7 +45,7 @@ const FIXED = {
 };
 const HAND = 5;                                                   // empty hand / any other item: 4 hits a second
 // the cooldown can be switched off for ONE kind of weapon (the Owner): [key, name, icon]
-export const KINDS = [["sword", "Swords", "textures/items/diamond_sword"], ["axe", "Axes", "textures/items/diamond_axe"], ["mace", "Mace", "textures/items/mace"], ["spear", "Spears", "textures/items/iron_spear"],
+export const KINDS = [["sword", "Swords", "textures/items/diamond_sword"], ["axe", "Axes", "textures/items/diamond_axe"], ["mace", "Mace", "textures/items/mace"], ["spear", "Spears", "textures/items/spear/iron_spear"],
   ["trident", "Trident", "textures/items/trident"], ["pickaxe", "Pickaxes", "textures/items/diamond_pickaxe"], ["shovel", "Shovels", "textures/items/diamond_shovel"], ["hoe", "Hoes", "textures/items/diamond_hoe"], ["hand", "Hand / other", "textures/ui/shop/ic_player"]];
 const kindOf = (id) => { if (!id) return "hand"; const n = String(id).replace(/^.*:/, ""); if (n === "mace" || n === "trident") return n; for (const k of ["pickaxe", "shovel", "sword", "spear", "hoe", "axe"]) if (n.endsWith("_" + k)) return k; return "hand"; };
 let offCache = null, offAt = -1;

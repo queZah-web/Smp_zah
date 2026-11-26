@@ -495,3 +495,6 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
   send YOU a TPA / TP Here / land request; everybody else still can.  Only for the session: it ends when he (or you) leaves
   the game.  "Blocked" shows the list, click a name to unblock.  (systems/tpa.js, in memory only)
 - Shop > Enchanted Books: Lunge I - III (3 000 / 6 000 / 12 000); enchanted spears can take Lunge too (enchantshop.js).
+- (v49e) Shop > Tools & Weapons: the 7 spears (wooden 25, stone 18, copper 90, iron 220, golden 360, diamond 4 500,
+  netherite 35 000; sell 6 / 4 / 25 / 60 / 110 / 1 300 / 8 800).  Bought enchanted: Sharpness, Smite, Bane of Arthropods,
+  Knockback, Fire Aspect, Looting, Lunge, Unbreaking, Mending, Curse of Vanishing.  Icons: textures/items/spear/*.
