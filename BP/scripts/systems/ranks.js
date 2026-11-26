@@ -48,6 +48,7 @@ export const LISTS = {
   spleef: { label: "Spleef", title: "SPLEEF LEADERBOARD", sub: "Top 10 Spleef Winners", foot: "Dig fast, stay on top!", get: (r) => r.spw, fmt: (v) => "§f" + num(v) + " wins" },   // not in TOP_KEYS: only the board in the arena + /spleef
   skywars: { label: "Sky Wars", title: "SKY WARS LEADERBOARD", sub: "Top 10 Sky Wars Winners", foot: "Rule the sky!", get: (r) => r.skw, fmt: (v) => "§f" + num(v) + " wins" },   // not in TOP_KEYS: /skywars
   eggwars: { label: "Egg Wars", title: "EGG WARS LEADERBOARD", sub: "Top 10 Egg Wars Winners", foot: "Protect your egg!", get: (r) => r.eww, fmt: (v) => "§f" + num(v) + " wins" },   // not in TOP_KEYS: /eggwars
+  luckywars: { label: "Lucky Wars", title: "LUCKY WARS LEADERBOARD", sub: "Top 10 Lucky Wars Winners", foot: "Feeling lucky?", get: (r) => r.lbw, fmt: (v) => "§f" + num(v) + " wins" },   // not in TOP_KEYS: /luckywars
   squid: { label: "Red Light", title: "RED LIGHT, GREEN LIGHT", sub: "Top 10 Winners", foot: "Don't move!", get: (r) => r.sw, fmt: (v) => "§f" + num(v) + " wins" },   // not in TOP_KEYS: only the board in the arena + /redlight
   dropper: { label: "Dropper", title: "DROPPER LEADERBOARD", sub: "Top 10 Dropper Winners", foot: "Mind the gap!", get: (r) => r.dr, fmt: (v) => "§f" + num(v) + " wins" },   // not in TOP_KEYS: only the board at the tower + /dropper
   pillars: { label: "Pillars", title: "PILLARS OF FORTUNE", sub: "Top 10 Winners", foot: "Last one standing!", get: (r) => r.pw, fmt: (v) => "§f" + num(v) + " wins" },   // not in TOP_KEYS: only /pillars

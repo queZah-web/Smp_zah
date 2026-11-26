@@ -457,3 +457,15 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
   player's colour) shines while the egg lives and is removed when it breaks.  Generator iron / gold / diamonds carry the
   "Egg Wars item" lore: they can't be sold (shop sell, chest sell, sell slot, auction) and are removed from anybody who
   is not playing (every 10 s).
+
+## Lucky Block Wars (event) - /opr > Building / Events > Lucky Wars (Owner), /luckywars - `systems/luckywars.js`, `luckydesign.js`, `luckyfx.js`
+- The Sky Wars islands in gold (yellow paths, yellow / orange bands, gold blocks + end rods around the centre) with LUCKY
+  BLOCKS (yellow glazed terracotta, vanilla): 5 per player island, 2-3 per middle island, 8 in the centre + the MEGA lucky
+  block (3 x 3 x 3) on the raised middle.  10 players = 95 lucky blocks, 20 players = 145.  No resource pack needed.
+- One hit opens a lucky block (entityHitBlock; also a finished break).  ~60 surprises in luckyfx.js (LUCKY / UNLUCKY / FUN,
+  weights, minimum tier); luck by tier: island 60 %, mid 68 %, centre 75 %, mega 90 % (legendary things x4).  Items drop
+  out of the block with the "Lucky Block item" lore (can't be sold, removed from non-players every 10 s); mobs / TNT carry
+  the tag "lbw" (removed on reset).  "3 Lucky Blocks!" gives placeable lucky blocks.  Every 3 min: LUCKY REFILL (middle +
+  centre).  Golden sparkles (18 particles / 0.5 s).  Explosions never break lucky blocks.
+- Everything else like Sky Wars (lockers + loot records with g: "lucky", out = void / death / leaving, kills, prize).
+  Stats: lbw / lbl / lbk / lbo.
