@@ -173,6 +173,8 @@ let G = null;
 const saveG = () => writeJson(MKEY, G ? { pl: G.pl } : null);
 export const squidView = () => (G ? { phase: G.phase, light: G.light, alive: [...G.alive], finished: [...G.finished], out: [...G.out] } : null);
 const atArena = () => world.getAllPlayers().filter((p) => inArena(p));
+/** a short coloured flash over the whole screen (green / red), so nobody can miss the light */
+function flash(p, r, g, b) { try { p.camera.fade({ fadeColor: { red: r, green: g, blue: b }, fadeTime: { fadeInTime: 0.1, holdTime: 0.25, fadeOutTime: 0.5 } }); } catch (e) { /* not in this version */ } }
 const toAll = (fn) => { for (const p of atArena()) { try { fn(p); } catch (e) { /* ignore */ } } };
 const running = () => G.alive.filter((id) => !G.finished.includes(id));
 
@@ -225,19 +227,20 @@ export function startSquid(player) {
 function stageOf() { return G.lead < 0.25 ? 0 : G.lead < 0.5 ? 1 : G.lead < 0.75 ? 2 : 3; }
 function green(a) {
   const st = STAGES[stageOf()], t = system.currentTick, len = Math.round(rnd(st[0], st[1]) * 20);
-  G.phase = "play"; G.light = "green"; G.until = t + len; G.warnAt = G.until - Math.round(rnd(10, 30));
+  G.phase = "play"; G.light = "green"; G.until = t + len; G.warnAt = G.until - Math.min(len - 20, Math.round(rnd(30, 50)));   // the "!!!" warning: 1.5 - 2.5 s before red
   setLight(a, "green");
-  toAll((p) => { p.onScreenDisplay.setTitle("§a§l" + pick(p, "GREEN LIGHT", "الضوء الأخضر"), { subtitle: "§f" + pick(p, "Move!", "تحرك!"), fadeInDuration: 2, stayDuration: 18, fadeOutDuration: 6 }); });
-  const dim = dimOf(a), at = abs(a, SQ.doll);
-  [0, 5, 10, 15, 22, 27, 32].forEach((d, i) => system.runTimeout(() => { try { if (G?.light === "green") dim.playSound("note.harp", at, { volume: 4, pitch: [1, 1.2, 1.33, 1.2, 1, 1.33, 1.5][i] }); } catch (e) { /* ignore */ } }, d));
+  toAll((p) => { p.onScreenDisplay.setTitle("§a§l■ " + pick(p, "GREEN LIGHT", "الضوء الأخضر") + " ■", { subtitle: "§a§l" + pick(p, "RUN! MOVE!", "اركض! تحرك!"), fadeInDuration: 2, stayDuration: 45, fadeOutDuration: 8 }); flash(p, 0, 0.85, 0.15); });
+  // the melody: played to EVERY player (not only near the doll)
+  [0, 5, 10, 15, 22, 27, 32].forEach((d, i) => system.runTimeout(() => { if (G?.light === "green") toAll((p) => { try { p.playSound("note.harp", { volume: 1, pitch: [1, 1.2, 1.33, 1.2, 1, 1.33, 1.5][i] }); } catch (e) { /* ignore */ } }); }, d));
 }
 function red(a) {
   const st = STAGES[stageOf()], t = system.currentTick;
   G.light = "red"; G.until = t + Math.round(rnd(st[2], st[3]) * 20); G.checkFrom = t + GRACE;
   for (const id of G.alive) { const r = G.pl[id]; r.base = null; r.strike = 0; r.landed = false; }
   setLight(a, "red");
-  toAll((p) => { p.onScreenDisplay.setTitle("§c§l" + pick(p, "RED LIGHT", "الضوء الأحمر"), { subtitle: "§f" + pick(p, "Don't move!", "لا تتحرك!"), fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 6 }); });
-  try { dimOf(a).playSound("mob.elderguardian.curse", abs(a, SQ.doll), { volume: 6, pitch: 1.6 }); } catch (e) { /* ignore */ }
+  const stay = Math.max(20, G.until - t);                                         // RED stays on the screen the whole red time
+  toAll((p) => { p.onScreenDisplay.setTitle("§4§l■ " + pick(p, "RED LIGHT", "الضوء الأحمر") + " ■", { subtitle: "§c§l" + pick(p, "STOP! DON'T MOVE!", "وقف! لا تتحرك!"), fadeInDuration: 0, stayDuration: stay, fadeOutDuration: 4 }); flash(p, 0.9, 0, 0); });
+  toAll((p) => { try { p.playSound("mob.elderguardian.curse", { volume: 0.9, pitch: 1.6 }); } catch (e) { /* ignore */ } });   // every player hears it
 }
 function eliminate(id, why) {
   if (!G || !G.alive.includes(id)) return;
@@ -319,7 +322,10 @@ system.runInterval(() => {
     }
     if (t >= G.endAt) { for (const id of running()) eliminate(id, "time"); if (G) checkEnd(); return; }
     if (G.light === "green") {
-      if (t === G.warnAt) toAll((p) => { p.playSound("note.bass", { pitch: 0.6, volume: 1 }); bar(p, "§e§l!!!"); });
+      if (t >= G.warnAt && t < G.until && (t - G.warnAt) % 10 === 0) {          // the warning: big "! ! !" on the screen until red + a beat every 0.5 s
+        const first = t === G.warnAt;
+        toAll((p) => { try { if (first) p.onScreenDisplay.setTitle("§6§l! ! !", { subtitle: "§e§l" + pick(p, "RED LIGHT IS COMING!", "الضوء الأحمر جاي!"), fadeInDuration: 0, stayDuration: G.until - t, fadeOutDuration: 0 }); p.playSound("note.bass", { pitch: 0.6, volume: 1 }); bar(p, "§6§l! ! !  " + pick(p, "GET READY TO STOP", "استعد توقف") + "  ! ! !"); } catch (e) { /* ignore */ } });
+      }
       if (t >= G.until) red(a);
     } else if (G.light === "red" && t >= G.until) green(a);
     // every player: finish line, field, movement during red

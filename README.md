@@ -501,3 +501,6 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
 - (v49f) Fast healing made sturdier: the game mode is compared without caring about upper / lower case, the food bar is
   read under both component names, a refused food write never stops the healing, and if the script can't read the food
   bar at all the normal (vanilla) healing switches back on by itself (console: "[fastheal] ..."), tried again every minute.
+- (v49g) Red Light, Green Light: every sound (green melody, red curse, warning beats) is played to every player (not at
+  the doll), a green / red flash over the whole screen (camera fade), bigger titles ("■ GREEN LIGHT ■" 2 s, RED stays the
+  whole red time), and the warning "! ! !  RED LIGHT IS COMING!" now comes 1.5 - 2.5 s before red with a beat every 0.5 s.
