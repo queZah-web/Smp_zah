@@ -469,3 +469,13 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
   centre).  Golden sparkles (18 particles / 0.5 s).  Explosions never break lucky blocks.
 - Everything else like Sky Wars (lockers + loot records with g: "lucky", out = void / death / leaving, kills, prize).
   Stats: lbw / lbl / lbk / lbo.
+
+## Light arena reset (v49b) - `systems/arenareset.js`
+- Sky Wars, Egg Wars and Lucky Wars no longer clear the sky and build every island again after each game.  They repair only
+  what changed: the blocks placed during the game (tracked; Egg Wars: + the eggs and beacons; Lucky Wars: + what the
+  surprises put), water / lava / fire / cobwebs / anvils (native filtered fills), then every island block is READ and only
+  the missing / changed ones are put back (lucky blocks come back this way).  Test: Lucky Wars 96 block writes instead of
+  ~11 000.  The full rebuild runs only when the arena was never repaired yet (`clean` flag on the arena record, e.g. the
+  first game after this update or a restart in the middle of a game).
+- Lucky blocks are MINED now (not one hit): looking at a lucky block gives a hidden Haste 12 for a moment (hand ~2 s, a
+  pickaxe much faster); the finished break is cancelled and opens the block.

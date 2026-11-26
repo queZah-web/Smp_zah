@@ -12,6 +12,9 @@ import { ItemStack, EnchantmentTypes } from "@minecraft/server";
 export const LORE = ["§8Lucky Block item", "§7(disappears after the game)"];
 export const LUCKY_ITEM = "minecraft:yellow_glazed_terracotta";
 const TAG = "lbw";
+/** luckywars.js listens: every block a surprise puts in the world (so the light reset can remove it) */
+export const luckyHooks = { changed: null };
+const track = (l) => { try { luckyHooks.changed?.(l); } catch (e) { /* ignore */ } };
 const rnd = (n) => Math.floor(Math.random() * n);
 const ench = (it, list) => { try { const c = it.getComponent("minecraft:enchantable"); for (const [t, l] of list ?? []) { try { c?.addEnchantment({ type: EnchantmentTypes.get(t), level: l }); } catch (e) { /* not for this item */ } } } catch (e) { /* ignore */ } return it; };
 export function item(id, n = 1, en, name) {
@@ -24,7 +27,7 @@ export const luckyItem = (n = 1) => item(LUCKY_ITEM, n, null, "§e§lLucky Block
 
 // ---- helpers (c = { p, dim, at: block centre, pick(en, ar), drop(items), mob(id, n), spots(), addLucky(x, y, z) })
 const air = (dim, l) => { try { const b = dim.getBlock(l); return !!b && b.isAir; } catch (e) { return false; } };
-const setB = (dim, l, id) => { try { dim.getBlock(l)?.setType("minecraft:" + id); } catch (e) { /* ignore */ } };
+const setB = (dim, l, id) => { try { dim.getBlock(l)?.setType("minecraft:" + id); track(l); } catch (e) { /* ignore */ } };
 const fx = (p, id, sec, amp = 0) => { try { p.addEffect(id, sec * 20, { amplifier: amp, showParticles: true }); } catch (e) { /* ignore */ } };
 const cmd = (p, c) => { try { p.runCommand(c); } catch (e) { /* ignore */ } };
 const around = (l, r) => { const out = []; for (let dx = -r; dx <= r; dx++) for (let dz = -r; dz <= r; dz++) out.push({ x: Math.floor(l.x) + dx, z: Math.floor(l.z) + dz }); return out; };
@@ -67,7 +70,7 @@ const LIST = [
   ["rain", "G", 4, 1, "LOOT RAIN!", "مطر الغنائم!", (c) => { const pool = ["golden_apple", "ender_pearl", "diamond_sword", "iron_chestplate", "diamond_helmet", "arrow", "tnt", "diamond_boots"]; const its = []; for (let i = 0; i < 8; i++) its.push(item(pool[rnd(pool.length)], 1)); c.drop(its, 6) }],
   ["chest", "G", 4, 0, "TREASURE CHEST!", "صندوق كنز!", (c) => {
     const l = { x: Math.floor(c.at.x), y: Math.floor(c.at.y), z: Math.floor(c.at.z) };
-    try { c.dim.getBlock(l)?.setType("minecraft:chest"); const box = c.dim.getBlock(l)?.getComponent("minecraft:inventory")?.container; const pool = [["diamond_sword", 1, [["sharpness", 2]]], ["iron_helmet"], ["diamond_chestplate"], ["golden_apple", 3], ["ender_pearl", 2], ["bow", 1, [["power", 3]]], ["arrow", 16], ["oak_planks", 32], ["tnt", 3], ["iron_leggings"]]; for (let i = 0; i < 6; i++) { const s = pool[rnd(pool.length)]; box?.setItem(rnd(27), item(s[0], s[1] ?? 1, s[2])); } } catch (e) { c.drop([item("diamond_sword"), item("golden_apple", 2)]); }
+    try { c.dim.getBlock(l)?.setType("minecraft:chest"); track(l); const box = c.dim.getBlock(l)?.getComponent("minecraft:inventory")?.container; const pool = [["diamond_sword", 1, [["sharpness", 2]]], ["iron_helmet"], ["diamond_chestplate"], ["golden_apple", 3], ["ender_pearl", 2], ["bow", 1, [["power", 3]]], ["arrow", 16], ["oak_planks", 32], ["tnt", 3], ["iron_leggings"]]; for (let i = 0; i < 6; i++) { const s = pool[rnd(pool.length)]; box?.setItem(rnd(27), item(s[0], s[1] ?? 1, s[2])); } } catch (e) { c.drop([item("diamond_sword"), item("golden_apple", 2)]); }
   }],
   // ---------------------------------------------------------------- UNLUCKY
   ["zombies", "B", 8, 0, "Zombie Gang", "عصابة زومبي", (c) => c.mob("minecraft:zombie", 3)],

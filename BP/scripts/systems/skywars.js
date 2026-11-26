@@ -29,6 +29,7 @@ import { pick } from "./arextra.js";
 import { addZoneSource, spawnOverlaps, otherZoneOverlaps } from "./spawnzone.js";
 import { perm, addAreas, removeAreas, waitLoaded, skywarsHook } from "./spawnbuild.js";
 import { TOP, layout, lockerAt, skyGen, lockerBlocks } from "./skywarsdesign.js";
+import { lightReset } from "./arenareset.js";
 import { ranking } from "./ranks.js";
 import { stats, addMoney, touch } from "../data.js";
 import { canTeleport, teleportWithFx } from "./util.js";
@@ -142,12 +143,17 @@ export function undoSky(player) {
   busy = true; system.runJob(undoJob(player, dim, a));
 }
 /** the islands as new: the sky over the arena cleared, every island built again, items / arrows removed */
-function* resetJob(a) {
+// the blocks placed during a game ("x,y,z"): the light reset removes exactly these
+let changed = new Set();
+/** full = the whole sky cleared + every island built again (only the first time / after a restart in the middle of a game).
+ *  Normally only what changed is repaired (arenareset.js): no lag. */
+function* resetJob(a, full = false) {
   const dim = dimOf(a); if (!dim) return;
   const Ly = layout(a.n);
-  yield* clearSky(a, dim, 1, Ly.UP);                                               // everything the players built (bridges, towers ...) goes
   const d = yield* getDesign(a.n);
-  yield* placeCanvas(a, dim, d.canvas);
+  if (full) { yield* clearSky(a, dim, 1, Ly.UP); yield* placeCanvas(a, dim, d.canvas); }
+  else yield* lightReset(a, dim, d.canvas, changed, halfOf(a), 1, Ly.UP);
+  changed = new Set(); a.clean = true; saveA();
   try { for (const e of dim.getEntities({ location: abs(a, { x: 0, y: TOP, z: 0 }), maxDistance: halfOf(a) * 1.5 + 20 })) { if (["minecraft:item", "minecraft:xp_orb", "minecraft:arrow", "minecraft:tnt", "minecraft:snowball", "minecraft:egg", "minecraft:ender_pearl", "minecraft:falling_block"].includes(e.typeId)) { try { e.remove(); } catch (x) { /* ignore */ } } } } catch (e) { /* ignore */ }
 }
 
@@ -316,7 +322,9 @@ export function startSky(player) {
       addAreas(dim, a, AREA);
       if (!(yield* waitLoaded(player, dim, a, "[Sky Wars] Getting the islands ready:"))) { say(player, "§c[Sky Wars] The arena could not be loaded."); G = null; removeAreas(dim, AREA); return; }
       for (const q of world.getAllPlayers()) tell(q, "§b§l[Sky Wars] §r§7The islands are being prepared...", "§b§l[سكاي وارز] §r§7الجزر تتجهز...");
-      yield* resetJob(a);
+      if (!a.clean) yield* resetJob(a, true);                                     // normally the arena is already clean (repaired after the last game)
+      else yield* getDesign(a.n);
+      a.clean = false; saveA(); changed = new Set();
       fillChests(a);
       const spots = design.spawns.map((_, i) => i).sort(() => Math.random() - 0.5);
       let n = 0;
@@ -463,7 +471,8 @@ safe("place", () => world.afterEvents.playerPlaceBlock.subscribe(({ player, bloc
   try {
     const a = skyAt(block.dimension.id, block.x, block.y, block.z); if (!a) return;
     if (!G) { if (owner(player)) return; system.run(() => { try { block.setType("minecraft:air"); } catch (e) { /* ignore */ } }); return deny(player, "§c[Sky Wars] You can't build here when no game runs.", "§c[سكاي وارز] ما تقدر تبني هنا وماكو لعبة."); }
-    // a game runs: every block stays exactly as placed (any speed); the whole sky is cleared when the game ends
+    // a game runs: every block stays exactly as placed (any speed); they are removed when the game ends
+    changed.add(block.x + "," + block.y + "," + block.z);
     if (block.typeId === "minecraft:tnt") {                                       // TNT lights itself at once
       const at = { x: block.x + 0.5, y: block.y, z: block.z + 0.5 }, dim = block.dimension;
       system.run(() => { try { dim.getBlock(block.location)?.setType("minecraft:air"); dim.spawnEntity("minecraft:tnt", at); } catch (e) { /* ignore */ } });

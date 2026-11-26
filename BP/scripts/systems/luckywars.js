@@ -3,7 +3,7 @@
 //
 // The Sky Wars islands in gold (luckydesign.js), for 10 or 20 players, full of LUCKY BLOCKS (luckyfx.js):
 //   * every player island 5, every middle island 3, the centre 8 + the MEGA LUCKY BLOCK (27 blocks with the best luck)
-//   * ONE HIT on a lucky block opens it (hand or anything): LUCKY (weapons, armour sets, the Lucky Sword / Bow, totems,
+//   * MINING a lucky block opens it (hand ~2 s, a pickaxe much faster): LUCKY (weapons, armour sets, the Lucky Sword / Bow, totems,
 //     elytra, mace, pets, treasure chests, loot rain, power effects ...), UNLUCKY (mobs, lightning, TNT / anvil / arrow
 //     rain, cages, cobwebs, bad effects, teleports, trolls ...) or FUN.  Rare finds are told to everybody.
 //   * some surprises give LUCKY BLOCK items: place one anywhere in the arena and hit it - it is a lucky block too
@@ -22,7 +22,8 @@ import { pick } from "./arextra.js";
 import { addZoneSource, spawnOverlaps, otherZoneOverlaps } from "./spawnzone.js";
 import { perm, addAreas, removeAreas, waitLoaded, luckyHook } from "./spawnbuild.js";
 import { TOP, LUCKY, layout, lockerAt, luckyGen, lockerBlocks } from "./luckydesign.js";
-import { openLucky, LORE, LUCKY_TAG, item } from "./luckyfx.js";
+import { openLucky, LORE, LUCKY_TAG, item, luckyHooks } from "./luckyfx.js";
+import { lightReset } from "./arenareset.js";
 import { storeInv, giveBack, addRecord, markRecord, lootGivers } from "./skywars.js";
 import { ranking } from "./ranks.js";
 import { stats, addMoney, touch } from "../data.js";
@@ -144,13 +145,20 @@ export function undoLucky(player) {
   const dim = dimOf(a); if (!dim) return;
   busy = true; system.runJob(undoJob(player, dim, a));
 }
-function* resetJob(a) {
+// the blocks placed during a game ("x,y,z"): the players' blocks + what the lucky surprises put (cages, cobwebs, chests ...)
+let changed = new Set();
+luckyHooks.changed = (l) => { if (G) changed.add(Math.floor(l.x) + "," + Math.floor(l.y) + "," + Math.floor(l.z)); };
+/** full = the whole sky cleared + every island built again (only the first time / after a restart in the middle of a game).
+ *  Normally only what changed is repaired (arenareset.js) and the lucky blocks come back: no lag. */
+function* resetJob(a, full = false) {
   const dim = dimOf(a); if (!dim) return;
   clearEntities(a);
-  yield* clearSky(a, dim, 1, layout(a.n).UP);
-  const d = yield* getDesign(a.n);
-  yield* placeCanvas(a, dim, d.canvas);
+  const d = yield* getDesign(a.n), Ly = layout(a.n);
+  if (full) { yield* clearSky(a, dim, 1, Ly.UP); yield* placeCanvas(a, dim, d.canvas); }
+  else yield* lightReset(a, dim, d.canvas, changed, halfOf(a), 1, Ly.UP);
+  changed = new Set();
   clearEntities(a);
+  a.clean = true; saveA();
 }
 
 // ---------------------------------------------------------------- lockers (shared with Sky Wars) + pending give-backs
@@ -253,7 +261,9 @@ export function startLucky(player) {
       addAreas(dim, a, AREA);
       if (!(yield* waitLoaded(player, dim, a, "[Lucky Wars] Getting the islands ready:"))) { say(player, "§c[Lucky Wars] The arena could not be loaded."); G = null; removeAreas(dim, AREA); return; }
       for (const q of world.getAllPlayers()) tell(q, "§e§l[Lucky Wars] §r§7The lucky islands are being prepared...", "§e§l[حرب اللوكي بلوك] §r§7الجزر تتجهز...");
-      yield* resetJob(a);
+      if (!a.clean) yield* resetJob(a, true);                                     // normally the arena is already clean (repaired after the last game)
+      else { clearEntities(a); yield* getDesign(a.n); }
+      a.clean = false; saveA(); changed = new Set();
       loadLucky(a, false);
       const k = ids.length, spots = [...Array(k).keys()].map((j) => Math.floor((j * design.spawns.length) / k));
       let n = 0;
@@ -272,8 +282,8 @@ export function startLucky(player) {
         try { econLocks.add(id); } catch (e) { /* ignore */ }
         try { p.teleport(abs(a, sp), { dimension: dim, facingLocation: abs(a, { x: 0, y: TOP + 1, z: 0 }) }); } catch (e) { /* ignore */ }
         try { p.setGameMode(GameMode.Survival); p.getComponent("minecraft:health")?.resetToMaxValue(); p.addEffect("saturation", 60, { amplifier: 10, showParticles: false }); } catch (e) { /* ignore */ }
-        tell(p, "§e§l[Lucky Wars] §r§fHit the §eLUCKY BLOCKS §f(the yellow blocks) - one hit opens one! §7Lucky or unlucky, who knows... The MEGA lucky block waits in the centre. Last one alive wins. §8(Your own things are safe in a locker - buying / selling is off.)",
-          "§e§l[حرب اللوكي بلوك] §r§fاضرب §eاللوكي بلوك §f(البلوكات الصفرة) - ضربة وحدة تفتحها! §7حظ حلو أو نحس، محد يدري... اللوكي بلوك العملاق بالنص. آخر واحد يبقى يفوز. §8(أغراضك محفوظة بخزانة - البيع والشراء مطفي.)");
+        tell(p, "§e§l[Lucky Wars] §r§fBreak the §eLUCKY BLOCKS §f(the yellow blocks) - mine one to open it (a pickaxe is faster)! §7Lucky or unlucky, who knows... The MEGA lucky block waits in the centre. Last one alive wins. §8(Your own things are safe in a locker - buying / selling is off.)",
+          "§e§l[حرب اللوكي بلوك] §r§fاكسر §eاللوكي بلوك §f(البلوكات الصفرة) - اكسرها حتى تنفتح (البيكاكس أسرع)! §7حظ حلو أو نحس، محد يدري... اللوكي بلوك العملاق بالنص. آخر واحد يبقى يفوز. §8(أغراضك محفوظة بخزانة - البيع والشراء مطفي.)");
         yield;
       }
       if (G.alive.length < 2) { say(player, "§c[Lucky Wars] Not enough players."); for (const id of G.alive) giveBackOrKeep(id, G.pl[id]); G = null; saveG(); removeAreas(dim, AREA); return; }
@@ -335,7 +345,7 @@ system.runInterval(() => {
     const t = system.currentTick, Ly = layout(a.n);
     if (G.phase === "count") {
       for (const id of G.alive) { const p = online(id), sp = G.pl[id]?.sp; if (!p || !sp) continue; const w = abs(a, sp); if (Math.hypot(p.location.x - w.x, p.location.z - w.z) > 0.8) { try { p.teleport(w, { facingLocation: abs(a, { x: 0, y: TOP + 1, z: 0 }) }); } catch (e) { /* ignore */ } } }
-      if (t >= G.until) { G.phase = "run"; G.start = t; G.end = t + G.minutes * 1200; G.refill = t + REFILL; toAll((p) => { title(p, "§e§l" + pick(p, "GO!", "يلا!"), "§7" + pick(p, "Hit the lucky blocks!", "اضرب اللوكي بلوك!"), 20); sound(p, "note.pling", { pitch: 1.6 }); }); }
+      if (t >= G.until) { G.phase = "run"; G.start = t; G.end = t + G.minutes * 1200; G.refill = t + REFILL; toAll((p) => { title(p, "§e§l" + pick(p, "GO!", "يلا!"), "§7" + pick(p, "Break the lucky blocks!", "اكسر اللوكي بلوك!"), 20); sound(p, "note.pling", { pitch: 1.6 }); }); }
       else if (Math.ceil((G.until - t) / 20) !== G.sec) { G.sec = Math.ceil((G.until - t) / 20); toAll((p) => { title(p, "§e§l" + G.sec, null, 18); sound(p, "note.hat"); }); }
     }
     if (G.phase === "end") { if (t >= G.until) stopLucky("end"); return; }
@@ -416,16 +426,20 @@ system.runInterval(() => {
 // ---------------------------------------------------------------- the arena rules
 const told = new Map();
 function deny(p, en, ar) { system.run(() => { const now = Date.now(); if (now - (told.get(p.id) ?? 0) < 2000) return; told.set(p.id, now); tell(p, en, ar); }); }
-// ONE HIT opens a lucky block
-safe("lucky hit", () => world.afterEvents.entityHitBlock.subscribe(({ damagingEntity: p, hitBlock: b }) => {
-  try {
-    if (!G || p?.typeId !== "minecraft:player" || !b) return;
-    const k = K(b.x, b.y, b.z); if (!G.lucky.has(k)) return;
-    const a = luckyAt(b.dimension.id, b.x, b.y, b.z); if (!a) return;
-    if (!playing(p)) return;
-    openAt(p, a, b, k);
-  } catch (e) { console.warn("[luckywars] open: " + e); }
-}));
+// a lucky block is MINED (not one hit): by hand about 2 s (a bit faster than wood), a pickaxe much faster.
+// (A glazed terracotta needs a pickaxe, so the hand would need 7 s: while a player looks at a lucky block he gets a short,
+//  hidden Haste 12 - hand ~2 s, wooden pickaxe ~0.3 s.  It is taken away as soon as he looks at something else.)
+const hasted = new Set();
+system.runInterval(() => {
+  if (!G || G.phase !== "run") { if (hasted.size) { for (const id of hasted) { try { online(id)?.removeEffect("haste"); } catch (e) { /* ignore */ } } hasted.clear(); } return; }
+  for (const id of G.alive) {
+    const p = online(id); if (!p) continue;
+    let on = false;
+    try { const b = p.getBlockFromViewDirection({ maxDistance: 6 })?.block; on = !!b && G.lucky.has(K(b.x, b.y, b.z)); } catch (e) { on = false; }
+    if (on) { try { p.addEffect("haste", 10, { amplifier: 11, showParticles: false }); hasted.add(id); } catch (e) { /* ignore */ } }
+    else if (hasted.has(id)) { try { p.removeEffect("haste"); } catch (e) { /* ignore */ } hasted.delete(id); }
+  }
+}, 3);
 safe("break", () => world.beforeEvents.playerBreakBlock.subscribe((ev) => {
   const b = ev.block, a = luckyAt(b.dimension.id, b.x, b.y, b.z); if (!a) return;
   const k = K(b.x, b.y, b.z);
@@ -438,6 +452,7 @@ safe("place", () => world.afterEvents.playerPlaceBlock.subscribe(({ player, bloc
   try {
     const a = luckyAt(block.dimension.id, block.x, block.y, block.z); if (!a) return;
     if (!G) { if (owner(player)) return; system.run(() => { try { block.setType("minecraft:air"); } catch (e) { /* ignore */ } }); return deny(player, "§c[Lucky Wars] You can't build here when no game runs.", "§c[حرب اللوكي بلوك] ما تقدر تبني هنا وماكو لعبة."); }
+    changed.add(K(block.x, block.y, block.z));
     if (block.typeId === LUCKY_ID && playing(player)) { G.lucky.set(K(block.x, block.y, block.z), "placed"); return; }      // a lucky block item: a new lucky block
     if (block.typeId === "minecraft:tnt") {
       const at = { x: block.x + 0.5, y: block.y, z: block.z + 0.5 }, dim = block.dimension;
@@ -458,7 +473,7 @@ export function luckyPage(player, back) {
   const self = () => luckyPage(player, back), a = arena(), c = conf();
   const f = makeOpr("Event: Lucky Wars", SHORT_ROWS); f.self = self; f.glass = true;
   const live = G ? "§a" + G.phase + " §7(" + G.alive.length + " alive, " + G.lucky.size + " lucky blocks left)" : "§fno game";
-  set(f, 0 * COLS + 4, hdr(1, G ? "g" : "c") + "§e§lLucky Block Wars\n§r§7Golden islands full of lucky blocks:\n§r§7one hit = a surprise (lucky or not!).\n§r§7Last one alive wins.\n§r§7Arena: " + (busy ? "§ebeing built" : a ? "§abuilt §7(" + a.n + " islands, " + a.cx + " " + a.cy + " " + a.cz + ")" : "§fnot built") + "\n§r§7Game: " + live + "\n§r§7Players: §f/luckywars", "textures/blocks/glazed_terracotta_yellow", null);
+  set(f, 0 * COLS + 4, hdr(1, G ? "g" : "c") + "§e§lLucky Block Wars\n§r§7Golden islands full of lucky blocks:\n§r§7break one = a surprise (lucky or not!).\n§r§7Last one alive wins.\n§r§7Arena: " + (busy ? "§ebeing built" : a ? "§abuilt §7(" + a.n + " islands, " + a.cx + " " + a.cy + " " + a.cz + ")" : "§fnot built") + "\n§r§7Game: " + live + "\n§r§7Players: §f/luckywars", "textures/blocks/glazed_terracotta_yellow", null);
   if (!a) {
     for (const [col, n] of [[3, 10], [5, 20]]) set(f, 2 * COLS + col, hdr(n, "g") + "§a§lBuild for " + n + " players\n§r§7Golden islands, 5 lucky blocks each,\n§r§74 middle islands, the centre with\n§r§7the MEGA lucky block (" + (layout(n).HX * 2 + 1) + " x " + (layout(n).HX * 2 + 1) + ")\n§r§7The land is saved\n§r§eClick to build", "textures/ui/shop/ic_confirm",
       { run: () => confirm(player, "Build Lucky Wars for " + n + "?", ["§7Middle: §f" + Math.floor(player.location.x) + " " + Math.floor(player.location.y) + " " + Math.floor(player.location.z), "§7The islands float " + TOP + " blocks over you", "§7Everything in " + (layout(n).HX * 2 + 1) + " x " + (layout(n).HX * 2 + 1) + " blocks is replaced (Undo puts it back)."], () => buildLucky(player, n), self) });
@@ -508,7 +523,7 @@ export function luckyMenu(player) {
   set(f, 0 * COLS + 4, hdr(1, "g") + "§e§lLucky Block Wars\n§r§7Games are started by the Owner.\n§r§6Best players:\n" + (top.length ? top.map((r, i) => "§r§e" + (i + 1) + ". §f" + r.name + " §7- §a" + r.v + " wins").join("\n") : "§r§7(nobody yet)"), "textures/blocks/glazed_terracotta_yellow", null);
   if (G) set(f, 2 * COLS + 3, hdr(Math.max(1, G.alive.length), "g") + "§f§lGame now\n§r§7Alive: §a" + G.alive.length + "\n§r§f" + G.alive.map((id) => G.pl[id].n).join(", "), "textures/items/clock_item", null);
   else set(f, 2 * COLS + 3, hdr(1, "c") + "§f§lNo game right now\n§r§7Wait for the Owner to start one", "textures/items/clock_item", null);
-  set(f, 2 * COLS + 5, hdr(1, "g") + "§e§lHow to play\n§r§7Hit a yellow LUCKY BLOCK once: it opens.\n§r§7Lucky: weapons, armour, legendary\n§r§7items, pets... Unlucky: mobs, TNT,\n§r§7lightning, traps... The MEGA lucky block\n§r§7is in the centre. Last one alive wins.", "textures/items/book_writable", null);
+  set(f, 2 * COLS + 5, hdr(1, "g") + "§e§lHow to play\n§r§7Break a yellow LUCKY BLOCK: it opens.\n§r§7Lucky: weapons, armour, legendary\n§r§7items, pets... Unlucky: mobs, TNT,\n§r§7lightning, traps... The MEGA lucky block\n§r§7is in the centre. Last one alive wins.", "textures/items/book_writable", null);
   const s = stats(player);
   set(f, 3 * COLS + 4, hdr(1) + "§f§lYou\n§r§7Wins: §a" + (s.lbw ?? 0) + "\n§r§7Losses: §c" + (s.lbl ?? 0) + "\n§r§7Kills: §f" + (s.lbk ?? 0) + "\n§r§7Lucky blocks opened: §e" + (s.lbo ?? 0), "textures/items/diamond_sword", null);
   open(player, f);

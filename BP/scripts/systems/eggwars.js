@@ -31,6 +31,7 @@ import { addZoneSource, spawnOverlaps, otherZoneOverlaps } from "./spawnzone.js"
 import { perm, addAreas, removeAreas, waitLoaded, eggwarsHook } from "./spawnbuild.js";
 import { TOP, COLORS, layout, lockerAt, eggGen, lockerBlocks } from "./eggwarsdesign.js";
 import { storeInv, giveBack, addRecord, markRecord, lootGivers } from "./skywars.js";
+import { lightReset } from "./arenareset.js";
 import { ranking } from "./ranks.js";
 import { stats, addMoney, touch } from "../data.js";
 import { exOf } from "../smp/store.js";
@@ -155,13 +156,20 @@ export function undoEgg(player) {
   busy = true; system.runJob(undoJob(player, dim, a));
 }
 /** the islands as new: the sky cleared (every placed block goes), every island built again, holograms / items removed */
-function* resetJob(a) {
+/** full = the whole sky cleared + every island built again (only the first time / after a restart in the middle of a game).
+ *  Normally only what changed is repaired (arenareset.js): the placed blocks, the eggs + beacons, liquids / fire. */
+function* resetJob(a, full = false, placed = null) {
   const dim = dimOf(a); if (!dim) return;
   clearEntities(a);
-  yield* clearSky(a, dim, 1, layout(a.n).UP);
-  const d = yield* getDesign(a.n);
-  yield* placeCanvas(a, dim, d.canvas);
+  const d = yield* getDesign(a.n), Ly = layout(a.n);
+  if (full) { yield* clearSky(a, dim, 1, Ly.UP); yield* placeCanvas(a, dim, d.canvas); }
+  else {
+    const extra = new Set(placed ?? []);
+    for (const is of Ly.islands) for (const l of [is.egg, is.beacon]) { const w = absB(a, l); extra.add(w.x + "," + w.y + "," + w.z); }
+    yield* lightReset(a, dim, d.canvas, extra, halfOf(a), 1, Ly.UP);
+  }
   clearEntities(a);
+  a.clean = true; saveA();
 }
 
 // ---------------------------------------------------------------- the lockers (shared with Sky Wars) + pending give-backs
@@ -431,7 +439,9 @@ export function startEgg(player) {
       addAreas(dim, a, AREA);
       if (!(yield* waitLoaded(player, dim, a, "[Egg Wars] Getting the islands ready:"))) { say(player, "§c[Egg Wars] The arena could not be loaded."); G = null; removeAreas(dim, AREA); return; }
       for (const q of world.getAllPlayers()) tell(q, "§e§l[Egg Wars] §r§7The islands are being prepared...", "§e§l[حرب البيض] §r§7الجزر تتجهز...");
-      yield* resetJob(a);
+      if (!a.clean) yield* resetJob(a, true);                                     // normally the arena is already clean (repaired after the last game)
+      else { clearEntities(a); yield* getDesign(a.n); }
+      a.clean = false; saveA();
       // the islands of the players: spread around the ring (2 players = 2 opposite islands)
       const k = ids.length, slots = [...Array(k).keys()].map((j) => Math.floor((j * Ly.n) / k));
       const order = ids.slice().sort(() => Math.random() - 0.5);
@@ -631,7 +641,7 @@ export function stopEgg(reason = "stopped") {
   }
   saveG();
   if (reason === "stopped") for (const p of world.getAllPlayers()) tell(p, "§e[Egg Wars] §7The game was stopped - everybody got his things back.", "§e[حرب البيض] §7انوقفت اللعبة - الكل رجعت له أغراضه.");
-  const a = arena(); if (a) { busy = true; const dim = dimOf(a); system.runJob((function* () { try { yield* resetJob(a); } finally { busy = false; removeAreas(dim, AREA); } })()); }
+  const a = arena(); if (a) { busy = true; const dim = dimOf(a); system.runJob((function* () { try { yield* resetJob(a, false, g.placed); } finally { busy = false; removeAreas(dim, AREA); } })()); }
 }
 
 // ---------------------------------------------------------------- every tick: generators, respawns, positions, time
