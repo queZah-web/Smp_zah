@@ -498,3 +498,6 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
 - (v49e) Shop > Tools & Weapons: the 7 spears (wooden 25, stone 18, copper 90, iron 220, golden 360, diamond 4 500,
   netherite 35 000; sell 6 / 4 / 25 / 60 / 110 / 1 300 / 8 800).  Bought enchanted: Sharpness, Smite, Bane of Arthropods,
   Knockback, Fire Aspect, Looting, Lunge, Unbreaking, Mending, Curse of Vanishing.  Icons: textures/items/spear/*.
+- (v49f) Fast healing made sturdier: the game mode is compared without caring about upper / lower case, the food bar is
+  read under both component names, a refused food write never stops the healing, and if the script can't read the food
+  bar at all the normal (vanilla) healing switches back on by itself (console: "[fastheal] ..."), tried again every minute.
