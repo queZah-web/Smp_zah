@@ -489,3 +489,9 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
   ORES (`xry:restore confirm`).  The commands are sent as the Owner, so the answers come to his chat.
 - mining.js: with XryGuard on, Area Mining and Vein Miner first ask XryGuard to uncover the ores around and break the extra
   blocks 2 ticks later (a hidden ore is never broken as stone).
+
+## TPA block + Lunge (v49d)
+- /menu > Teleport: "Block a player" (and a BLOCK button on every request popup / the requests page): that player can't
+  send YOU a TPA / TP Here / land request; everybody else still can.  Only for the session: it ends when he (or you) leaves
+  the game.  "Blocked" shows the list, click a name to unblock.  (systems/tpa.js, in memory only)
+- Shop > Enchanted Books: Lunge I - III (3 000 / 6 000 / 12 000); enchanted spears can take Lunge too (enchantshop.js).

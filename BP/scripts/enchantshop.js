@@ -28,6 +28,7 @@ const SETS = [
   [/_sword$/, ["sharpness", "smite", "bane_of_arthropods", "knockback", "fire_aspect", "looting", "sweeping_edge", ...END]],
   [/_axe$/, ["sharpness", "smite", "bane_of_arthropods", "efficiency", "silk_touch", "fortune", ...END]],
   [/_(pickaxe|shovel|hoe)$/, ["efficiency", "silk_touch", "fortune", ...END]],
+  [/_spear$/, ["sharpness", "smite", "bane_of_arthropods", "knockback", "fire_aspect", "looting", "lunge", ...END]],
   [/^mace$/, ["density", "breach", "wind_burst", "smite", "bane_of_arthropods", "fire_aspect", ...END]],
   [/^bow$/, ["power", "punch", "flame", "infinity", ...END]],
   [/^crossbow$/, ["multishot", "piercing", "quick_charge", ...END]],

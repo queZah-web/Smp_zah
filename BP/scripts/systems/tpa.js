@@ -39,6 +39,7 @@ function popup(t, r, body) {
   set(f, 0 * COLS + 4, hdr(1) + "§e§lTeleport Request\n§r" + body + "\n§r§8Expires in " + TPA_EXPIRE_SECONDS + " seconds", NAV.page, null);
   set(f, 2 * COLS + 2, hdr(1, "g") + "§a§lACCEPT\n§r§7Click to accept", NAV.ok, { run: () => { if (!alive()) return t.sendMessage(menuMsg(t, "§c[TPA] This request expired.")); acceptTpa(t); } });
   set(f, 2 * COLS + 6, hdr(1, "r") + "§c§lDENY\n§r§7Click to deny", NAV.no, { run: () => { if (!alive()) return t.sendMessage(menuMsg(t, "§c[TPA] This request expired.")); denyTpa(t); } });
+  set(f, 3 * COLS + 4, hdr(1, "r") + "§4§lBLOCK " + r.name + "\n§r§7Spam? He can't send you requests\n§r§7until he leaves the game\n§r§eClick to block", "textures/ui/shop/ic_shield", { run: () => { const from = online(r.from); if (from) tpBlock(t, from); else reqs.delete(t.id); } });
   try { open(t, f); } catch (e) { formBusy.delete(t.id); }
 }
 
@@ -70,10 +71,30 @@ function setTpOff(p, off) {
 }
 world.afterEvents.playerLeave.subscribe(({ playerId }) => { toggles.delete(playerId); });
 
+// ---- BLOCK one player (against request spam): he can't send YOU requests, everybody else still can.
+// Only for this session: it ends when he (or you) leaves the game - after he joins again you block him again if needed.
+const blocked = new Map();       // blocker id -> Map(blocked id -> name)
+export const tpBlocked = (t, p) => !!blocked.get(t.id)?.has(p.id);
+export function tpBlock(t, p) {
+  if (!p || p.id === t.id) return;
+  let m = blocked.get(t.id); if (!m) { m = new Map(); blocked.set(t.id, m); }
+  m.set(p.id, p.name);
+  const r = reqs.get(t.id); if (r && r.from === p.id) reqs.delete(t.id);       // his waiting request is gone too
+  t.sendMessage(menuMsg(t, "§c[TPA] §f" + p.name + " §cis blocked: he can't send you requests until he leaves the game."));
+  try { t.playSound("note.bass"); } catch (e) { /* ignore */ }
+}
+export function tpUnblock(t, id) { const m = blocked.get(t.id); const n = m?.get(id); m?.delete(id); if (n) t.sendMessage(menuMsg(t, "§a[TPA] §f" + n + " §acan send you requests again.")); }
+world.afterEvents.playerLeave.subscribe(({ playerId }) => {
+  blocked.delete(playerId);                                    // the blocker left: his list is gone
+  for (const m of blocked.values()) m.delete(playerId);       // the blocked player left: unblocked everywhere
+});
+const blockedMsg = (p, t, tag) => p.sendMessage(menuMsg(p, "§c[" + tag + "] §f" + t.name + " §cdoes not accept your requests right now."));
+
 /** asks to teleport TO player t */
 export function sendTpa(p, t) {
   if (!t || t.id === p.id) return p.sendMessage(menuMsg(p, "§c[TPA] Choose another player."));
   if (tpOff(t)) return p.sendMessage(menuMsg(p, "§c[TPA] §f" + t.name + " §chas closed teleport requests."));
+  if (tpBlocked(t, p)) return blockedMsg(p, t, "TPA");
   if (!canTeleport(p, "tpa")) return;
   const r = { type: "to", from: p.id, name: p.name, exp: Date.now() + TPA_EXPIRE_SECONDS * 1000 };
   reqs.set(t.id, r);
@@ -88,6 +109,7 @@ export function sendTpa(p, t) {
 export function sendTphere(p, t) {
   if (!t || t.id === p.id) return p.sendMessage(menuMsg(p, "§c[TPHere] Choose another player."));
   if (tpOff(t)) return p.sendMessage(menuMsg(p, "§c[TPHere] §f" + t.name + " §chas closed teleport requests."));
+  if (tpBlocked(t, p)) return blockedMsg(p, t, "TPHere");
   if (combatLeft(p) > 0) return p.sendMessage(menuMsg(p, "§c[Combat] You can't send a request while in combat §7(" + Math.ceil(combatLeft(p) / 1000) + "s left)"));
   const r = { type: "here", from: p.id, name: p.name, exp: Date.now() + TPA_EXPIRE_SECONDS * 1000 };
   reqs.set(t.id, r);
@@ -105,6 +127,7 @@ export function sendTpaLand(p, t, c) {
   const claim = claimById(c.id);
   if (!claim || claim.o !== t.id) return p.sendMessage(menuMsg(p, "§c[TPA] That land no longer exists."));
   if (tpOff(t)) return p.sendMessage(menuMsg(p, "§c[TPA] §f" + t.name + " §chas closed teleport requests."));
+  if (tpBlocked(t, p)) return blockedMsg(p, t, "TPA");
   if (!canTeleport(p, "tpa")) return;
   const r = { type: "land", from: p.id, name: p.name, land: claim.id, landName: claim.n, exp: Date.now() + TPA_EXPIRE_SECONDS * 1000 };
   reqs.set(t.id, r);
@@ -178,6 +201,7 @@ export function requestsPage(player, back) {
     set(f, 0 * COLS + 4, hdr(1) + "§e§l" + r.name + "\n§r§7" + (r.type === "here" ? "asks you to teleport to them" : r.type === "land" ? "wants to go to your land " + (r.landName ?? "") : "wants to teleport to you") + "\n§r§7Expires in §f" + secs + "s", NAV.player, null);
     set(f, 2 * COLS + 2, hdr(1) + "§a§lACCEPT\n§r§7Click to accept", NAV.ok, { run: () => acceptTpa(player) });
     set(f, 2 * COLS + 6, hdr(1) + "§c§lDENY\n§r§7Click to deny", NAV.no, { run: () => denyTpa(player) });
+    set(f, 3 * COLS + 4, hdr(1, "r") + "§4§lBLOCK " + r.name + "\n§r§7He can't send you requests\n§r§7until he leaves the game\n§r§eClick to block", "textures/ui/shop/ic_shield", { run: () => { const from = online(r.from); if (from) tpBlock(player, from); else reqs.delete(player.id); requestsPage(player, back); } });
   }
   if (back) backBtn(f, back);
   status(player, f);
@@ -192,9 +216,23 @@ export function tpaPage(player, back) {
   set(f, 2 * COLS + 1, hdr(1) + "§a§lTPA\n§r§7Teleport TO a player\n§r§8/tpa", "textures/items/ender_eye", { run: () => pickPlayer(player, "§fTeleport to which player?", sendTpa) });
   set(f, 2 * COLS + 4, hdr(1) + "§b§lTP Here\n§r§7Ask a player to come TO YOU\n§r§8/tphere", "textures/items/ender_pearl", { run: () => pickPlayer(player, "§fWhich player should come to you?", sendTphere) });
   set(f, 2 * COLS + 7, hdr(Math.max(1, n)) + "§e§lIncoming Requests\n§r" + (n ? "§e1 waiting - click to answer" : "§7No requests") + "\n§r§8/tpaccept  /tpdeny", "textures/ui/shop/ic_mail", { run: () => requestsPage(player, () => tpaPage(player, back)) });
+  const bl = blocked.get(player.id), nb = bl?.size ?? 0;
+  set(f, 4 * COLS + 2, hdr(1, "r") + "§4§lBlock a player\n§r§7Request spam? He can't send YOU\n§r§7requests (the others still can).\n§r§7Ends when he leaves the game.\n§r§eClick to choose", "textures/ui/shop/ic_shield", { run: () => pickPlayer(player, "§fBlock which player?", (me, t) => { tpBlock(me, t); tpaPage(player, back); }) });
+  set(f, 4 * COLS + 6, hdr(Math.max(1, nb), nb ? "r" : "c") + "§f§lBlocked: §c" + nb + "\n§r" + (nb ? "§f" + [...bl.values()].slice(0, 5).join("§7, §f") + "\n§r§eClick to unblock" : "§7Nobody is blocked"), NAV.no, nb ? { run: () => blockedPage(player, () => tpaPage(player, back)) } : null);
   const off = tpOff(player);
   set(f, 4 * COLS + 4, hdr(1, off ? "r" : "g") + (off ? "§c§lTP CLOSED\n§r§7Nobody can send you requests\n§r§eClick to open" : "§a§lTP OPEN\n§r§7Players can send you requests\n§r§eClick to close"), off ? NAV.no : NAV.ok, { run: () => { setTpOff(player, !off); tpaPage(player, back); } });
   if (back) backBtn(f, back);
   status(player, f);
+  open(player, f);
+}
+
+/** the players you blocked: click one to unblock him */
+function blockedPage(player, back) {
+  const bl = blocked.get(player.id);
+  if (!bl?.size) return back();
+  const f = make("Blocked Players", 6); f.self = () => blockedPage(player, back);
+  set(f, 0 * COLS + 4, hdr(bl.size, "r") + "§4§lBlocked players\n§r§7They can't send you teleport requests\n§r§7until they leave the game\n§r§eClick a name to unblock", "textures/ui/shop/ic_shield", null);
+  [...bl.entries()].slice(0, 27).forEach(([id, name], i) => set(f, 1 * COLS + i, hdr(1, "r") + "§f" + name + "\n§r§eClick to unblock", "textures/ui/shop/ic_player", { run: () => { tpUnblock(player, id); blockedPage(player, back); } }));
+  backBtn(f, back); status(player, f);
   open(player, f);
 }

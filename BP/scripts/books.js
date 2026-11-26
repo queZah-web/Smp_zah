@@ -9,7 +9,7 @@ const RAW = [
   // melee
   ["sharpness","Sharpness",5,1250],["smite","Smite",5,750],["bane_of_arthropods","Bane of Arthropods",5,750],["knockback","Knockback",2,1250],
   ["fire_aspect","Fire Aspect",2,2000],["looting","Looting",3,3000],["sweeping_edge","Sweeping Edge",3,1500],
-  ["wind_burst","Wind Burst",3,6000],["density","Density",5,2000],["breach","Breach",4,4000],
+  ["wind_burst","Wind Burst",3,6000],["density","Density",5,2000],["breach","Breach",4,4000],["lunge","Lunge",3,3000],
   // tools
   ["efficiency","Efficiency",5,1250],["silk_touch","Silk Touch",1,7500],["fortune","Fortune",3,4000],
   // bows / crossbows / tridents / fishing
