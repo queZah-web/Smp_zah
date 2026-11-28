@@ -519,3 +519,9 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
   of his is refused while he watches (util.js tpGuards), he has no staff role / power.  Stop = back to the same place and
   game mode (also after a restart / leaving).  Optional: hide the coordinates of everybody while somebody watches
   (world.gameRules.showCoordinates is world-wide; restored when nobody watches).
+
+## v49j
+- The Java attack cooldown is removed completely (no charge, no damage cut, no indicator; hud.js has no charge marker
+  any more).  javacombat.js keeps only the reach limit (anti reach-hack) + the Combat / Wind charge pages.
+- smp/loop.js: achievements (2 s), missions (10 s) and the daily reminder (1 min) are done ONE player per tick instead of
+  all players in the same tick (the 1-minute spike is gone).

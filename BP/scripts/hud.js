@@ -79,25 +79,12 @@ export function panelText(p, left = false) {
     + nameField()                                                                  // 8th field: the server name (see above); the UI only reads it through fixed cuts
     + (duelView.banner(p) ?? "") + saleView.marker(p)
     + (left ? "QQL" : "")
-    + cdMark(p);                                            // the attack charge (javacombat.js): "QQC" + 0..8 bars while the weapon charges                                  // the LEFT board: this last marker tells the UI to draw it on the left side      // the centered message: only markers are added AFTER the last field (the UI shows fixed texts for them)
+    ;
 }
 const barText = (p) => {
   const s = stats(p);
   return (saleView.bar(p) ? saleView.bar(p) + " §8| " : "") + "§a$" + short(s.money) + " §8| §d" + short(s.shards, 1) + " shards §8| §cKills " + s.kills + " §8| §6Deaths " + s.deaths + " §8| §b" + playtime(playSeconds(p)) + (duelView.bar(p) ? " §8| " + duelView.bar(p) : "");
 };
-
-// ---- the attack charge indicator under the crosshair (javacombat.js sets it, RP/ui/smp_hud.json "cooldown" shows it)
-const cd = new Map();        // player id -> 0..8 while charging
-const cdMark = (p) => { const k = cd.get(p.id); return k === undefined ? "" : "QQC" + "|".repeat(k); };
-/** k = 0..8 while the weapon charges, null = full (the indicator hides).  Panel styles: inside the board text; bar style: its own title "cd:" */
-export function setCharge(p, k) {
-  const old = cd.get(p.id) ?? null; if (old === k) return;
-  if (k === null) cd.delete(p.id); else cd.set(p.id, k);
-  try {
-    if (hudMode(p) === "bar") p.onScreenDisplay.setTitle("cd:" + (k === null ? "" : "QQC" + "|".repeat(k)), { fadeInDuration: 0, stayDuration: k === null ? 1 : 40, fadeOutDuration: 0 });
-    else updateHud(p);
-  } catch (e) { /* ignore */ }
-}
 
 const last = new Map();      // player id -> { mode, text, t }   (only resend when something changed)
 export function updateHud(p, force = false) {

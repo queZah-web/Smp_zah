@@ -1,6 +1,9 @@
 // Arabic texts of the Operator menu (/opr) and everything inside it. Key = the English text exactly as the code writes it (pieces of a line), value = Arabic.
 // Used only by oprlang.js for players whose language is Arabic. A text that is not here simply stays English (nothing breaks).
 export const PART = {
+"(anti reach-hack) + wind fix": "(ضد هاك المدى) + تصليح الويند",
+"netherite wind fix": "تصليح النذرايت للويند",
+"The switches work at once for": "الخيارات تشتغل فوراً على",
 "Watchers": "المراقبين",
 "A watcher can ONLY watch one player": "المراقب يقدر بس يراقب لاعب واحد",
 "as a spectator (40 blocks), nothing": "كمتفرج (40 بلوكة)، ولا شي",

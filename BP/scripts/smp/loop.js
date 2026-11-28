@@ -8,10 +8,12 @@ import { ex } from "./store.js";
 import { menuMsg } from "../systems/menulang.js";
 
 const each = (fn) => { for (const p of world.getAllPlayers()) { try { fn(p); } catch (e) { console.warn("[smp] " + e); } } };
+/** like each(), but ONE player per tick (no lag spike when many players are online) */
+const spread = (fn) => { world.getAllPlayers().forEach((p, i) => system.runTimeout(() => { try { if (p.isValid ?? true) fn(p); } catch (e) { /* left */ } }, i)); };
 
-system.runInterval(() => each((p) => { sampleWorld(p); checkAchievements(p); }), 40);          // every 2 s
-system.runInterval(() => each((p) => tickMissions(p)), 200);              // every 10 s (tells the player when a mission is finished)
-system.runInterval(() => each((p) => remindDaily(p)), 1200);              // every minute (the day may have changed)
+system.runInterval(() => spread((p) => { sampleWorld(p); checkAchievements(p); }), 40);          // every 2 s
+system.runInterval(() => spread((p) => tickMissions(p)), 200);              // every 10 s (tells the player when a mission is finished)
+system.runInterval(() => spread((p) => remindDaily(p)), 1200);              // every minute (the day may have changed)
 
 world.afterEvents.playerSpawn.subscribe(({ player, initialSpawn }) => {
   if (!initialSpawn) return;
