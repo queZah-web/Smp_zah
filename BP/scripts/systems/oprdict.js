@@ -1,6 +1,23 @@
 // Arabic texts of the Operator menu (/opr) and everything inside it. Key = the English text exactly as the code writes it (pieces of a line), value = Arabic.
 // Used only by oprlang.js for players whose language is Arabic. A text that is not here simply stays English (nothing breaks).
 export const PART = {
+"Watchers": "المراقبين",
+"A watcher can ONLY watch one player": "المراقب يقدر بس يراقب لاعب واحد",
+"as a spectator (40 blocks), nothing": "كمتفرج (40 بلوكة)، ولا شي",
+"else: no staff power, no teleport.": "غيره: بلا صلاحيات، بلا انتقال.",
+"He uses ": "يستعمل ",
+"Click a name below to add / remove": "اضغط على اسم حتى تضيف / تشيل",
+"WATCHER": "مراقب",
+"Click to remove": "اضغط حتى تشيل",
+"Click to make a watcher": "اضغط حتى تخليه مراقب",
+"Hide coordinates: ": "إخفاء الإحداثيات: ",
+"While a watcher watches, the": "وقت ما المراقب يراقب،",
+"coordinates are hidden for EVERYBODY": "الإحداثيات تنخفي على الكل",
+"(Bedrock has one switch for the": "(بيدروك بيه مفتاح واحد لكل",
+"whole world, not per player)": "العالم، مو لكل لاعب)",
+"Players who can ONLY watch one": "لاعبين يقدرون بس يراقبون",
+"player as a spectator (40 blocks)": "لاعب كمتفرج (40 بلوكة)",
+"- no other power": "- بلا أي صلاحية ثانية",
 "Land protection: ": "حماية الأراضي: ",
 "For every member at once.": "لكل الأعضاء مرة وحدة.",
 "OFF = anybody can build / break /": "مطفية = أي أحد يبني / يكسر /",

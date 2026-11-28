@@ -513,3 +513,9 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
   enter a pit plays at most once a minute per player.
 - Gold farm (systems/piglinlimit.js, /opr > World): at most 10 / 20 / 30 / 50 Zombified Piglins (or OFF) per 8 x 8 chunks
   (extra ones removed every 5 s, named ones never); their drops vanish after 10 / 20 / 30 s (or never).
+
+## Watchers (v49i) - `systems/watcher.js`, /opr > Server & staff > Watchers (Admin / Owner), /watch
+- A watcher may only watch one online player as a SPECTATOR within 40 blocks (pulled back every 5 ticks), every teleport
+  of his is refused while he watches (util.js tpGuards), he has no staff role / power.  Stop = back to the same place and
+  game mode (also after a restart / leaving).  Optional: hide the coordinates of everybody while somebody watches
+  (world.gameRules.showCoordinates is world-wide; restored when nobody watches).

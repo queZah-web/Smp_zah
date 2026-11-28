@@ -10,7 +10,10 @@ export const valid = (e) => { try { return typeof e.isValid === "function" ? e.i
 const cd = new Map();            // "playerId:key" -> end time (ms)
 
 /** true when the player may teleport now (not in combat, cooldown over). Sends the reason otherwise. */
+/** other systems can refuse every teleport of a player: fn(p) -> a message (refused) or null (watchers: watcher.js) */
+export const tpGuards = [];
 export function canTeleport(p, key) {
+  for (const g of tpGuards) { try { const m = g(p); if (m) { p.sendMessage(m); return false; } } catch (e) { /* ignore */ } }
   const left = combatLeft(p);
   if (left > 0) { p.sendMessage(menuMsg(p, "§c[Combat] You can't teleport while in combat §7(" + Math.ceil(left / 1000) + "s left)")); return false; }
   const c = (cd.get(p.id + ":" + key) ?? 0) - Date.now();

@@ -50,6 +50,7 @@ import { hopperList, hopperDim, lastLogout } from "./hopperlog.js";
 import { lootListPage, lootRecords } from "./skywars.js";
 import { combatPage, reachMax } from "./javacombat.js";
 import { xryPage, xryPresent, xryActive } from "./xrylink.js";
+import { watchersPage } from "./watcher.js";
 import { landsOff, setLandsOff } from "./landcore.js";
 import { pigMax, pigDrop, setPig, PIG_MAXES, PIG_DROPS } from "./piglinlimit.js";
 
@@ -426,6 +427,7 @@ function duelNextForm(player, back) {
 }
 const serverPage = (player, back) => categoryPage(player, back, "Server & staff", (m) => { const c = m.buttons[SLOT.spawnReset] ? [3, 4, 5] : [3, 5]; return [[1 * COLS + c[0], SLOT.bypass], [1 * COLS + c[1], SLOT.spawn], ...(c[2] ? [[1 * COLS + c[2], SLOT.spawnReset]] : []), [2 * COLS + 3, SLOT.shop], [2 * COLS + 4, SLOT.boards], [2 * COLS + 5, SLOT.roles]]; }, (f, self) => {
   const on = mobRewardOn(), dOn = duelOn();
+  { const r = roleOf(player); if (r === "owner" || r === "admin") set(f, 2 * COLS + 6, hdr(1, "g") + "§b§lWatchers\n§r§7Players who can ONLY watch one\n§r§7player as a spectator (40 blocks)\n§r§7- no other power\n§r§eClick to open", "textures/items/ender_eye", { run: () => watchersPage(player, self) }); }
   if (isOwner(player)) set(f, 2 * COLS + 7, hdr(1, xryActive() ? "g" : "r") + "§b§lAnti X-Ray\n§r§7XryGuard: " + (!xryPresent() ? "§cnot running" : xryActive() ? "§aON" : "§ePAUSED") + "\n§r§7Pause, radius, scan, restore ores\n§r§eClick to open", "textures/items/diamond_pickaxe", { run: () => xryPage(player, self) });
   if (isOwner(player)) set(f, 3 * COLS + 1, hdr(1, "g") + "§c§lCombat\n§r§7Max hit reach: §f" + reachMax() + " blocks\n§r§7(anti reach-hack) + attack cooldown\n§r§eClick to open", "textures/items/iron_sword", { run: () => combatPage(player, self) });
   perm(f, 3 * COLS + 2, player, "duelset", "§c§l1 vs 1 Duel\n§r§7Duel: " + (dOn ? "§aON" : "§cOFF") + "\n§r§7Every §f" + minutesText(duelEvery()) + "\n§r§eClick to open", "textures/items/diamond_sword", () => duelSettingsPage(player, self), dOn ? "g" : "r");

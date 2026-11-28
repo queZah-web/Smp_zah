@@ -1,5 +1,13 @@
 // Arabic texts of the /menu pages (everything except /shop and /opr, which have their own files). Item names are NOT here: they stay English.
 export const PART = {
+"Watch a player": "راقب لاعب",
+"You become a spectator next to him": "تصير متفرج يمه",
+"Nothing else.": "ولا شي غيره.",
+"not watching": "ما تراقب",
+"watching": "تراقب",
+"Click to watch": "اضغط حتى تراقب",
+"Stop watching": "وقف المراقبة",
+"Back where you were": "ترجع لمكانك",
 "BLOCK ": "احظر ",
 "Block a player": "احظر لاعب",
 "Request spam? He can't send YOU": "سبام طلبات؟ ما يقدر يرسل إلك",
