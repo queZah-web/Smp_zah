@@ -1,6 +1,19 @@
 // Arabic texts of the Operator menu (/opr) and everything inside it. Key = the English text exactly as the code writes it (pieces of a line), value = Arabic.
 // Used only by oprlang.js for players whose language is Arabic. A text that is not here simply stays English (nothing breaks).
 export const PART = {
+"Land protection: ": "حماية الأراضي: ",
+"For every member at once.": "لكل الأعضاء مرة وحدة.",
+"OFF = anybody can build / break /": "مطفية = أي أحد يبني / يكسر /",
+"open chests in the lands (they stay": "يفتح صناديق بالأراضي (تبقى",
+"bought; locked lands stay safe)": "مشتراة؛ المقفولة تبقى محمية)",
+"Gold farm (lag): ": "فارم الذهب (لاگ): ",
+"Zombified Piglins in every 8 x 8": "بغلن زومبي بكل 8 × 8",
+"chunks; the extra ones vanish": "تشنكات؛ الزايدين يختفون",
+"Piglin drops vanish: ": "غنائم البغلن تختفي: ",
+"What a Zombified Piglin drops is": "اللي يسقطه البغلن الزومبي",
+"removed after this time": "ينشال بعد هالوقت",
+"The land protection is OFF for now.": "حماية الأراضي مطفية هسه.",
+"The land protection is ON again.": "حماية الأراضي رجعت تشتغل.",
 "Anti X-Ray (XryGuard)": "ضد الإكس راي (XryGuard)",
 "Anti X-Ray": "ضد الإكس راي",
 "Buried ores are turned into stone and": "الخامات المدفونة تتحول لحجر و",

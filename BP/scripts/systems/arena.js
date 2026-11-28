@@ -354,12 +354,35 @@ system.runInterval(() => {
         try { p.removeEffect("resistance"); } catch (e) { /* ignore */ }
         try { p.onScreenDisplay.setTitle(KINDS[a.kind].col + "§l" + a.name, { subtitle: a.rules.keepinv ? "§aKeep Inventory: ON" : "§cKeep Inventory: OFF - you drop everything!", fadeInDuration: 5, stayDuration: 40, fadeOutDuration: 10 }); } catch (e) { /* ignore */ }
         tell(p, "§6[Arena] " + a.name + "\n" + ruleText(a).join("\n"), "§6[الحلبة] " + a.name + "\n§7حفظ الأغراض: " + (a.rules.keepinv ? "§aمفعل" : "§cمو مفعل") + "\n§7البناء: " + (a.rules.build === 0 ? "§cممنوع" : a.rules.build === 1 ? "§aمسموح" : "§eمؤقت (" + fmtSec(a.rules.temp) + ")") + "\n§7الإندر بيرل: " + (a.rules.pearls ? "§aمسموح" : "§cممنوع"));
-        try { p.playSound("raid.horn", { volume: 0.4, pitch: 1.4 }); } catch (e) { /* ignore */ }
+        const now = Date.now();
+        if (now - (hornAt.get(p.id) ?? 0) >= 60000) { hornAt.set(p.id, now); try { p.playSound("raid.horn", { volume: 0.4, pitch: 1.4 }); } catch (e) { /* ignore */ } }   // the horn: at most once a minute
       }
       if (a.rules.keepinv) xpSnap.set(p.id, { lv: p.level, xp: p.xpEarnedAtCurrentLevel });
     } catch (e) { /* ignore this player */ }
   }
 }, 10);
+
+// ---------------------------------------------------------------- SAFE outside the pit: no damage and no knockback for anybody
+// in the lobby / halls / stands / plaza, and nobody standing there can hurt a player (also not one in the pit).  Works on the
+// arenas that are already built.  (The resistance above stops most damage; this gives back anything that still got through.)
+const hornAt = new Map();
+world.afterEvents.entityHurt.subscribe(({ hurtEntity: v, damage, damageSource }) => {
+  try {
+    if (!arenas().length || !v || !(damage > 0)) return;
+    const vl = fl(v.location), va = arenaAt(v.dimension.id, vl.x, vl.y, vl.z);
+    const k = damageSource?.damagingEntity;
+    let kInArenaOut = false;
+    if (k?.typeId === "minecraft:player") { const kl = fl(k.location), ka = arenaAt(k.dimension.id, kl.x, kl.y, kl.z); kInArenaOut = !!ka && !inPit(ka, kl.x, kl.y, kl.z); }
+    const vSafe = !!va && !inPit(va, vl.x, vl.y, vl.z) && v.typeId === "minecraft:player";
+    if (!vSafe && !(kInArenaOut && va)) return;
+    const hp = v.getComponent("minecraft:health"); if (!hp || hp.currentValue <= 0) return;
+    hp.setCurrentValue(Math.min(hp.effectiveMax, hp.currentValue + damage));
+    const at = { x: v.location.x, y: v.location.y, z: v.location.z };
+    if (v.typeId === "minecraft:player") system.run(() => { try { v.teleport(at); } catch (e) { /* ignore */ } });   // no knockback
+    try { v.extinguishFire?.(); } catch (e) { /* ignore */ }
+  } catch (e) { /* ignore */ }
+});
+world.afterEvents.playerLeave.subscribe(({ playerId }) => hornAt.delete(playerId));
 
 // ---------------------------------------------------------------- deaths in the pit: kill counter + Keep Inventory
 const spawnTick = new Map();             // item / xp orb entity id -> tick it appeared (to find the drops of a death)

@@ -504,3 +504,12 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
 - (v49g) Red Light, Green Light: every sound (green melody, red curse, warning beats) is played to every player (not at
   the doll), a green / red flash over the whole screen (camera fade), bigger titles ("■ GREEN LIGHT ■" 2 s, RED stays the
   whole red time), and the warning "! ! !  RED LIGHT IS COMING!" now comes 1.5 - 2.5 s before red with a beat every 0.5 s.
+
+## v49h
+- Land protection OFF / ON for every member (Admin / Owner): /opr > World > Land protection, or /landprotection.  The lands
+  stay bought; while OFF, claimAt() returns nothing except lands the Owner LOCKED (landcore.js: landsOff / claimAtRaw).
+- Arenas: outside the pit (lobby, halls, stands, plaza) every damage is given back and the knockback is undone; a player
+  standing outside the pit can't hurt anybody (not even in the pit).  Works on the arenas already built.  The horn when you
+  enter a pit plays at most once a minute per player.
+- Gold farm (systems/piglinlimit.js, /opr > World): at most 10 / 20 / 30 / 50 Zombified Piglins (or OFF) per 8 x 8 chunks
+  (extra ones removed every 5 s, named ones never); their drops vanish after 10 / 20 / 30 s (or never).

@@ -159,12 +159,24 @@ export function customLimits() {
   return out.sort((a, b) => a.name.localeCompare(b.name));
 }
 const inside = (c, x, y, z) => x >= c.x1 && x <= c.x2 && y >= c.y1 && y <= c.y2 && z >= c.z1 && z <= c.z2;
-/** the active claim that contains this block position (or null) */
-export function claimAt(dimId, x, y, z) {
+/** the active claim that contains this block position (or null) - also while the protection is switched off */
+export function claimAtRaw(dimId, x, y, z) {
   x = Math.floor(x); y = Math.floor(y); z = Math.floor(z);
   for (const c of allClaims()) if (c.d === dimId && inside(c, x, y, z)) return c;
   return null;
 }
+/** the claim that PROTECTS this position (or null).  While an Admin switched the land protection OFF for everybody, only the
+ *  lands the Owner locked still protect. */
+export function claimAt(dimId, x, y, z) {
+  const c = claimAtRaw(dimId, x, y, z);
+  return c && landsOff() && !isLocked(c) ? null : c;
+}
+// ---- the Admin / Owner switch: land protection OFF / ON for every member at once (saved in the world; the lands and their
+//      time stay, only the protection is paused)
+const OFF_KEY = "land:off";
+let offCache = null;
+export function landsOff() { if (offCache === null) { try { offCache = world.getDynamicProperty(OFF_KEY) === true; } catch (e) { return false; } } return offCache; }
+export function setLandsOff(on) { try { world.setDynamicProperty(OFF_KEY, !!on); offCache = !!on; return true; } catch (e) { return false; } }
 /** the active claim within `m` blocks of this position (box grown by m) - used for fluids / fire / pistons close to the border */
 export function claimNear(dimId, x, y, z, m, except) {
   x = Math.floor(x); y = Math.floor(y); z = Math.floor(z);

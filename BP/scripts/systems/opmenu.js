@@ -4,7 +4,7 @@
 //   All named lands (teleport)        |   Bans (staff bans, unban)                                   |   Alerts (also for operators who were offline)
 //   Inventory category (/opr): new, tools are added step by step (permission "inventory").
 // Settings (symbol / icon / ban lengths): OPMENU in systems/config.js.
-import { world, EquipmentSlot } from "@minecraft/server";
+import { world, system, EquipmentSlot, CommandPermissionLevel, CustomCommandStatus } from "@minecraft/server";
 import { ModalFormData } from "@minecraft/server-ui";
 import { makeOpr as make, set, open, hdr, COLS, NAV, SHORT_ROWS, backBtn, status } from "../smp/ui.js";
 import { showModal, textField, dropdown, confirmOpr as confirm } from "./forms.js";
@@ -50,6 +50,8 @@ import { hopperList, hopperDim, lastLogout } from "./hopperlog.js";
 import { lootListPage, lootRecords } from "./skywars.js";
 import { combatPage, reachMax } from "./javacombat.js";
 import { xryPage, xryPresent, xryActive } from "./xrylink.js";
+import { landsOff, setLandsOff } from "./landcore.js";
+import { pigMax, pigDrop, setPig, PIG_MAXES, PIG_DROPS } from "./piglinlimit.js";
 
 const SYM = OPMENU.symbol;
 const ICON = {
@@ -215,6 +217,17 @@ const worldPage = (player, back) => categoryPage(player, back, "World", [[2 * CO
     set(f, 1 * COLS + 5, hdr(1, fh ? "g" : "r") + "§c§lFast healing\n§r§7Java style: +half a heart every\n§r§70.5 s when your food bar is full\n§r§7Now: " + (fh ? "§aON" : "§cOFF §7(normal healing)") + "\n§r" + (okRole ? "§eClick to switch" : "§cAdmin / Owner only"), "textures/items/apple_golden",
       { run: () => { if (!okRole) return say(player, "§c[Operator] Only the Admin or the Owner can change this."); const res = setFastHeal(player, !fh); say(player, res.err ? "§c[Operator] " + res.err : "§a[Operator] Fast healing is now " + (!fh ? "§aON" : "§cOFF") + "§a."); self(); } }); }
   perm(f, 1 * COLS + 4, player, "clearlag", "§a§lClear lag\n§r§7Remove the dropped items on the ground\n§r§eClick to open", "textures/ui/shop/i3d_tnt", () => clearLagPage(player, self), "g");
+  { const r = roleOf(player), okRole = r === "owner" || r === "admin", off = landsOff();
+    // the land protection of EVERY member at once (Admin / Owner).  Lands the Owner LOCKED stay protected.
+    set(f, 2 * COLS + 2, hdr(1, off ? "r" : "g") + "§6§lLand protection: " + (off ? "§cOFF" : "§aON") + "\n§r§7For every member at once.\n§r§7OFF = anybody can build / break /\n§r§7open chests in the lands (they stay\n§r§7bought; locked lands stay safe)\n§r" + (okRole ? "§eClick to turn " + (off ? "ON" : "OFF") : "§cAdmin / Owner only"), "textures/ui/shop/ic_shield",
+      { run: () => { if (!okRole) return say(player, "§c[Operator] Only the Admin or the Owner can change this."); setLandsOff(!off); try { slog(player, "lands", null, "land protection " + (off ? "ON" : "OFF") + " for everybody"); } catch (e) { /* ignore */ } for (const q of world.getAllPlayers()) { try { q.sendMessage(oprMsg(q, off ? "§a[Lands] The land protection is ON again." : "§c[Lands] The land protection is OFF for now.")); } catch (e) { /* ignore */ } } self(); } });
+    // the gold farm (Zombified Piglins): fewer mobs + drops that vanish = less lag
+    const m = pigMax(), dsec = pigDrop(), nm = PIG_MAXES[(PIG_MAXES.indexOf(m) + 1) % PIG_MAXES.length], nd = PIG_DROPS[(PIG_DROPS.indexOf(dsec) + 1) % PIG_DROPS.length];
+    set(f, 2 * COLS + 6, hdr(Math.max(1, Math.min(99, m || 1)), m ? "g" : "r") + "§6§lGold farm (lag): " + (m ? "§f" + m : "§cOFF") + "\n§r§7Zombified Piglins in every 8 x 8\n§r§7chunks; the extra ones vanish\n§r" + (okRole ? "§eClick: " + (nm ? nm : "OFF") : "§cAdmin / Owner only"), "textures/items/gold_nugget",
+      { run: () => { if (!okRole) return say(player, "§c[Operator] Only the Admin or the Owner can change this."); setPig("max", nm); try { slog(player, "lag", null, "gold farm limit " + (nm || "OFF")); } catch (e) { /* ignore */ } self(); } });
+    set(f, 3 * COLS + 6, hdr(Math.max(1, Math.min(99, dsec || 1)), dsec ? "g" : "r") + "§6§lPiglin drops vanish: " + (dsec ? "§f" + dsec + " s" : "§cOFF") + "\n§r§7What a Zombified Piglin drops is\n§r§7removed after this time\n§r" + (okRole ? "§eClick: " + (nd ? nd + " s" : "OFF") : "§cAdmin / Owner only"), "textures/items/gold_ingot",
+      { run: () => { if (!okRole) return say(player, "§c[Operator] Only the Admin or the Owner can change this."); setPig("drop", nd); self(); } });
+  }
   // layout: row 1 = server tools (Clear lag - Performance is inside the Clear lag category) | row 2 = places & protection (Lands, Locks, The End) | row 3 = crates (Crates, Crate keys)
   const v = eventView(), on = v.open, cd = !on && v.openAt > 0;
   perm(f, 2 * COLS + 5, player, "endgate", "§5§lThe End event\n§r§7Now: " + (on ? "§aOPEN" : cd ? "§eCOUNTDOWN" : "§cCLOSED") + "\n§r§7Countdown, timer, holograms, log\n§r§eClick to open", ICON.ender, () => endPage(player, self), on || cd ? "g" : "r");
@@ -1306,3 +1319,22 @@ export function salesOverview(player, back, fi = 4) {
   backBtn(f, back); status(player, f);
   open(player, f);
 }
+
+// ---------------------------------------------------------------- /landprotection : Admin / Owner switch the land protection of every member ON / OFF
+system.beforeEvents.startup.subscribe(({ customCommandRegistry: cr }) => {
+  try {
+    cr.registerCommand({ name: "smp:landprotection", description: "Admin / Owner: switch the land protection of every member ON / OFF", permissionLevel: CommandPermissionLevel.Any, cheatsRequired: false }, (o) => {
+      const p = o.sourceEntity?.typeId === "minecraft:player" ? o.sourceEntity : null;
+      if (!p) return { status: CustomCommandStatus.Success };
+      system.run(() => {
+        try {
+          const r = roleOf(p); if (r !== "owner" && r !== "admin") return say(p, "§c[Operator] Only the Admin or the Owner can change this.");
+          const off = !landsOff(); setLandsOff(off);
+          try { slog(p, "lands", null, "land protection " + (off ? "OFF" : "ON") + " for everybody"); } catch (e) { /* ignore */ }
+          for (const q of world.getAllPlayers()) { try { q.sendMessage(oprMsg(q, off ? "§c[Lands] The land protection is OFF for now." : "§a[Lands] The land protection is ON again.")); } catch (e) { /* ignore */ } }
+        } catch (e) { console.warn("[landprotection] " + e); }
+      });
+      return { status: CustomCommandStatus.Success };
+    });
+  } catch (e) { console.warn("[landprotection] command: " + e); }
+});

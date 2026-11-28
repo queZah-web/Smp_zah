@@ -22,7 +22,7 @@ import { clanOf } from "./clans.js";
 import { combatHold, combatClear } from "./combat.js";
 import { enterSky, leaveSky } from "./locate.js";
 import { generated, surfaceAt, caveAt } from "./rtpfind.js";
-import { claimAt, claimNear } from "./landcore.js";
+import { claimAt, claimAtRaw, claimNear } from "./landcore.js";
 import { valid } from "./util.js";
 import { duelView, duelHold } from "./duelstate.js";
 import { luxDing } from "../lux.js";
@@ -430,7 +430,7 @@ function finishCountdown() {
 }
 
 // ---------------------------------------------------------------- finding the places
-const spotOk = (dim, r) => !!r && !claimNear(dim.id, r.x, r.y, r.z, CLAIM_GAP) && !claimAt(dim.id, r.x, r.y, r.z);
+const spotOk = (dim, r) => !!r && !claimNear(dim.id, r.x, r.y, r.z, CLAIM_GAP) && !claimAtRaw(dim.id, r.x, r.y, r.z);
 function randomXZ() {
   const a = Math.random() * Math.PI * 2, r = Math.sqrt(Math.random() * (DUEL.max * DUEL.max - DUEL.min * DUEL.min) + DUEL.min * DUEL.min);
   return [Math.floor(Math.cos(a) * r), Math.floor(Math.sin(a) * r)];

@@ -51,7 +51,8 @@ import "./tntrun.js";      // TNT Run event: the arena (Owner: /opr > Building /
 import "./spleef.js";
 import "./skywars.js";
 import "./eggwars.js";
-import "./luckywars.js";   // Lucky Block Wars event: golden sky islands full of lucky blocks (Owner: /opr > Building / Events > Lucky Wars), /luckywars     // Egg Wars event: coloured islands, eggs, generators, villager shop (Owner: /opr > Building / Events > Egg Wars), /eggwars     // Sky Wars event: sky islands + random loot (Owner: /opr > Building / Events > Sky Wars), /skywars, loot records      // Spleef event: the snow arena (Owner: /opr > Building / Events > Spleef), games, /spleef
+import "./luckywars.js";
+import "./piglinlimit.js"; // gold farm: at most N Zombified Piglins per 8 x 8 chunks + their drops vanish (Admin: /opr > World)   // Lucky Block Wars event: golden sky islands full of lucky blocks (Owner: /opr > Building / Events > Lucky Wars), /luckywars     // Egg Wars event: coloured islands, eggs, generators, villager shop (Owner: /opr > Building / Events > Egg Wars), /eggwars     // Sky Wars event: sky islands + random loot (Owner: /opr > Building / Events > Sky Wars), /skywars, loot records      // Spleef event: the snow arena (Owner: /opr > Building / Events > Spleef), games, /spleef
 import "./squidgame.js";   // Red Light, Green Light event: the arena + the doll (Owner: /opr > Building / Events > Red Light), /redlight
 import "./dropper.js";     // Dropper event: the tower with 7 stages (Owner: /opr > Building / Events > Dropper), /dropper
 import "./pillars.js";     // Pillars of Fortune event: 16 pillars in the sky (Owner: /opr > Building / Events > Pillars), /pillars
