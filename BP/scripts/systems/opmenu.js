@@ -51,6 +51,7 @@ import { lootListPage, lootRecords } from "./skywars.js";
 import { combatPage, reachMax } from "./javacombat.js";
 import { xryPage, xryPresent, xryActive } from "./xrylink.js";
 import { watchersPage } from "./watcher.js";
+import { mobCleanPage, mobCfg } from "./mobclean.js";
 import { landsOff, setLandsOff } from "./landcore.js";
 import { pigMax, pigDrop, setPig, PIG_MAXES, PIG_DROPS } from "./piglinlimit.js";
 
@@ -222,6 +223,9 @@ const worldPage = (player, back) => categoryPage(player, back, "World", [[2 * CO
     // the land protection of EVERY member at once (Admin / Owner).  Lands the Owner LOCKED stay protected.
     set(f, 2 * COLS + 2, hdr(1, off ? "r" : "g") + "§6§lLand protection: " + (off ? "§cOFF" : "§aON") + "\n§r§7For every member at once.\n§r§7OFF = anybody can build / break /\n§r§7open chests in the lands (they stay\n§r§7bought; locked lands stay safe)\n§r" + (okRole ? "§eClick to turn " + (off ? "ON" : "OFF") : "§cAdmin / Owner only"), "textures/ui/shop/ic_shield",
       { run: () => { if (!okRole) return say(player, "§c[Operator] Only the Admin or the Owner can change this."); setLandsOff(!off); try { slog(player, "lands", null, "land protection " + (off ? "ON" : "OFF") + " for everybody"); } catch (e) { /* ignore */ } for (const q of world.getAllPlayers()) { try { q.sendMessage(oprMsg(q, off ? "§a[Lands] The land protection is ON again." : "§c[Lands] The land protection is OFF for now.")); } catch (e) { /* ignore */ } } self(); } });
+    // the mob cleaner + the breeding limit
+    const mc = mobCfg();
+    set(f, 1 * COLS + 6, hdr(1, mc.on || mc.breed ? "g" : "r") + "§c§lMob cleaner\n§r§7Cleaner: " + (mc.on ? "§aON §7every §f" + (mc.sec < 60 ? mc.sec + " s" : mc.sec / 60 + " min") : "§cOFF") + "\n§r§7Breeding limit: " + (mc.breed ? "§a" + mc.limit : "§cOFF") + "\n§r§7Choose monsters, animals, junk\n§r" + (okRole ? "§eClick to open" : "§cAdmin / Owner only"), "textures/items/rotten_flesh", { run: () => { if (!okRole) return say(player, "§c[Operator] Only the Admin or the Owner can change this."); mobCleanPage(player, self); } });
     // the gold farm (Zombified Piglins): fewer mobs + drops that vanish = less lag
     const m = pigMax(), dsec = pigDrop(), nm = PIG_MAXES[(PIG_MAXES.indexOf(m) + 1) % PIG_MAXES.length], nd = PIG_DROPS[(PIG_DROPS.indexOf(dsec) + 1) % PIG_DROPS.length];
     set(f, 2 * COLS + 6, hdr(Math.max(1, Math.min(99, m || 1)), m ? "g" : "r") + "§6§lGold farm (lag): " + (m ? "§f" + m : "§cOFF") + "\n§r§7Zombified Piglins in every 8 x 8\n§r§7chunks; the extra ones vanish\n§r" + (okRole ? "§eClick: " + (nm ? nm : "OFF") : "§cAdmin / Owner only"), "textures/items/gold_nugget",

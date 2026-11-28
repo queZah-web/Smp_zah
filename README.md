@@ -525,3 +525,11 @@ Code: `systems/celestialdesign.js` (design, `BigCanvas`), `systems/spawnbuild.js
   any more).  javacombat.js keeps only the reach limit (anti reach-hack) + the Combat / Wind charge pages.
 - smp/loop.js: achievements (2 s), missions (10 s) and the daily reminder (1 min) are done ONE player per tick instead of
   all players in the same tick (the 1-minute spike is gone).
+
+## Mob cleaner + breeding limit (v49k) - `systems/mobclean.js`, /opr > World > Mob cleaner (Admin / Owner)
+- Cleaner (OFF by default): every 30 s / 1 / 2 / 5 / 10 min removes the chosen monsters (all on by default), the chosen
+  animals only with "Animals too" ON, and the chosen junk (arrows, snowballs, eggs, small fireballs; XP orbs and rockets
+  can be added).  Never: players, villagers, golems, bosses, NPCs, armor stands, name tags, tamed / leashed animals, the
+  mobs of a running Lucky Wars / Egg Wars game.  Pages to choose every monster / animal / junk one by one.
+- Breeding limit (ON, 50 of one kind per 8 x 8 chunks, or per chunk): a baby is born over the limit = the nearest
+  grown-up of that kind dies (kill(): normal drops).  Every minute areas still over the limit lose up to 5 grown-ups.
